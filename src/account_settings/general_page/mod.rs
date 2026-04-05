@@ -3,17 +3,8 @@ use gettextrs::gettext;
 use gtk::{gio, glib, glib::clone};
 use ruma::{
     OwnedMxcUri,
-    api::{
-        Metadata, SupportedVersions,
-        client::{
-            discovery::{
-                get_authorization_server_metadata::v1::{
-                    AccountManagementActionData, AuthorizationServerMetadata,
-                },
-                get_capabilities::v3::Capabilities,
-            },
-            profile::{ProfileFieldName, delete_profile_field},
-        },
+    api::client::discovery::get_authorization_server_metadata::v1::{
+        AccountManagementActionData, AuthorizationServerMetadata,
     },
 };
 use tracing::error;
@@ -190,7 +181,7 @@ mod imp {
             );
         }
 
-        /// Set the acestor [`AccountSettings`].
+        /// Set the ancestor [`AccountSettings`].
         fn set_account_settings(&self, account_settings: Option<&AccountSettings>) {
             self.account_settings.set(account_settings);
 
@@ -220,33 +211,31 @@ mod imp {
                 return;
             };
 
-            let mut capabilities_data = CapabilitiesData::default();
-
             let client = session.client();
             let handle = spawn_tokio!(async move {
-                (
-                    client.get_capabilities().await,
-                    client.supported_versions().await,
+                let capabilities = client.homeserver_capabilities();
+                tokio::try_join!(
+                    capabilities.can_change_avatar(),
+                    capabilities.can_change_displayname(),
+                    capabilities.can_change_password(),
                 )
             });
-            let (capabilities_result, supported_versions_result) =
-                handle.await.expect("task was not aborted");
 
-            match capabilities_result {
-                Ok(capabilities) => capabilities_data.capabilities = capabilities,
-                Err(error) => {
-                    error!("Could not get server capabilities: {error}");
+            let capabilities = match handle.await.expect("Capabilities fetching task failed") {
+                Ok((can_change_password, can_change_avatar, can_change_displayname)) => {
+                    CapabilitiesData {
+                        can_change_avatar,
+                        can_change_displayname,
+                        can_change_password,
+                    }
                 }
-            }
-
-            match supported_versions_result {
-                Ok(supported_versions) => capabilities_data.supported_versions = supported_versions,
                 Err(error) => {
-                    error!("Could not get server supported versions: {error}");
+                    error!("SDK failed to fetch capabilities: {error}");
+                    CapabilitiesData::default()
                 }
-            }
+            };
 
-            self.capabilities_data.replace(capabilities_data);
+            self.capabilities_data.replace(capabilities);
             self.update_capabilities();
         }
 
@@ -263,15 +252,12 @@ mod imp {
                 .is_some_and(|metadata| metadata.account_management_uri.is_some());
             let capabilities_data = self.capabilities_data.borrow();
 
-            self.avatar.set_editable(
-                capabilities_data.can_set_profile_field(&ProfileFieldName::AvatarUrl),
-            );
-            self.display_name.set_editable(
-                capabilities_data.can_set_profile_field(&ProfileFieldName::DisplayName),
-            );
-            self.change_password_row.set_visible(
-                !has_account_management_url && capabilities_data.can_change_password(),
-            );
+            self.avatar
+                .set_editable(capabilities_data.can_change_avatar);
+            self.display_name
+                .set_editable(capabilities_data.can_change_displayname);
+            self.change_password_row
+                .set_visible(!has_account_management_url && capabilities_data.can_change_password);
             self.manage_account_row
                 .set_visible(has_account_management_url);
             self.deactivate_account_button
@@ -580,55 +566,12 @@ impl GeneralPage {
 }
 
 /// The data necessary to compute the capabilities of the server.
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 struct CapabilitiesData {
-    /// The capabilities advertised by the homeserver.
-    capabilities: Capabilities,
-    /// The Matrix versions supported by the homeserver.
-    supported_versions: SupportedVersions,
-}
-
-impl CapabilitiesData {
-    /// Whether the user can set the given profile field according to these
-    /// capabilities.
-    fn can_set_profile_field(&self, field: &ProfileFieldName) -> bool {
-        // According to the Matrix spec about the `m.profile_fields` capability:
-        // > When this capability is not listed, clients SHOULD assume the user is able
-        // > to change profile fields without any restrictions, provided the homeserver
-        // > advertises a specification version that includes the m.profile_fields
-        // > capability in the /versions response.
-        if let Some(profile_fields) = &self.capabilities.profile_fields {
-            profile_fields.can_set_field(field)
-        } else if delete_profile_field::v3::Request::PATH_BUILDER
-            .is_supported(&self.supported_versions)
-        {
-            true
-        } else {
-            #[allow(deprecated)]
-            match field {
-                ProfileFieldName::AvatarUrl => self.capabilities.set_avatar_url.enabled,
-                ProfileFieldName::DisplayName => self.capabilities.set_displayname.enabled,
-                // Extended profile fields are not supported by the homeserver.
-                _ => false,
-            }
-        }
-    }
-
-    /// Whether the user can change their account password according to these
-    /// capabilities.
-    fn can_change_password(&self) -> bool {
-        self.capabilities.change_password.enabled
-    }
-}
-
-impl Default for CapabilitiesData {
-    fn default() -> Self {
-        Self {
-            capabilities: Default::default(),
-            supported_versions: SupportedVersions {
-                versions: Default::default(),
-                features: Default::default(),
-            },
-        }
-    }
+    /// Whether changing the user's avatar is allowed by the homeserver.
+    can_change_avatar: bool,
+    /// Whether changing the user's display name is allowed by the homeserver.
+    can_change_displayname: bool,
+    /// Whether changing the user's password is allowed by the homeserver.
+    can_change_password: bool,
 }

@@ -4,9 +4,9 @@ use gtk::glib;
 use matrix_sdk::{
     Error,
     ruma::{
-        api::client::{
+        api::{
+            client::room::{Visibility, create_room},
             error::ErrorKind,
-            room::{Visibility, create_room},
         },
         assign,
     },

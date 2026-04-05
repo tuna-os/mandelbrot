@@ -1,7 +1,7 @@
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gtk::glib;
-use ruma::api::client::error::ErrorKind;
+use ruma::api::error::ErrorKind;
 use tracing::error;
 
 use crate::{

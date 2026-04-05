@@ -2,7 +2,7 @@ use std::time::{Duration, SystemTime};
 
 use gettextrs::gettext;
 use matrix_sdk::{ClientBuildError, Error, HttpError};
-use ruma::api::client::error::{ErrorBody, ErrorKind, RetryAfter, StandardErrorBody};
+use ruma::api::error::{ErrorBody, ErrorKind, RetryAfter, StandardErrorBody};
 
 use crate::ngettext_f;
 

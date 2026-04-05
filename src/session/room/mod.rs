@@ -17,9 +17,9 @@ use matrix_sdk::{
 };
 use ruma::{
     EventId, MatrixToUri, OwnedEventId, OwnedRoomId, OwnedUserId, RoomId, UserId,
-    api::client::{
+    api::{
+        client::receipt::create_receipt::v3::ReceiptType as ApiReceiptType,
         error::{ErrorKind, LimitExceededErrorData, RetryAfter},
-        receipt::create_receipt::v3::ReceiptType as ApiReceiptType,
     },
     events::room::{
         guest_access::GuestAccess,

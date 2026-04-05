@@ -8,7 +8,7 @@ use gtk::{
 use ruma::{
     api::client::{
         directory::{get_room_visibility, set_room_visibility},
-        discovery::get_capabilities::v3::Capabilities,
+        discovery::get_capabilities::v3::RoomVersionsCapability,
         room::{Visibility, upgrade_room},
     },
     events::{
@@ -114,7 +114,7 @@ mod imp {
         /// Whether the room is published in the directory.
         #[property(get)]
         is_published: Cell<bool>,
-        capabilities: RefCell<Capabilities>,
+        supported_room_versions: RefCell<RoomVersionsCapability>,
         upgrade_info: RefCell<Option<UpgradeInfo>>,
         direct_members_list_has_bound_model: Cell<bool>,
         expr_watch: RefCell<Option<gtk::ExpressionWatch>>,
@@ -398,14 +398,16 @@ mod imp {
                     #[weak(rename_to = imp)]
                     self,
                     async move {
-                        let handle = spawn_tokio!(async move { client.get_capabilities().await });
+                        let handle = spawn_tokio!(async move {
+                            client.homeserver_capabilities().room_versions().await
+                        });
                         match handle.await.expect("task was not aborted") {
-                            Ok(capabilities) => {
-                                imp.capabilities.replace(capabilities);
+                            Ok(room_versions) => {
+                                imp.supported_room_versions.replace(room_versions);
                             }
                             Err(error) => {
-                                error!("Could not get server capabilities: {error}");
-                                imp.capabilities.take();
+                                error!("Could not get supported room versions: {error}");
+                                imp.supported_room_versions.take();
                             }
                         }
 
@@ -1032,7 +1034,7 @@ mod imp {
                 UpgradeInfo::new(room.join_rule().value())
                     .with_room_versions(
                         &create_content.room_version,
-                        &self.capabilities.borrow().room_versions,
+                        &self.supported_room_versions.borrow(),
                     )
                     .with_privileged_creators(
                         room.own_member().user_id(),

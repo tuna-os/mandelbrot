@@ -458,10 +458,10 @@ mod imp {
                         .upgrade()
                         .ok_or(AuthError::Unknown)?
                         .user_id()
-                        .to_string();
+                        .clone();
 
                     AuthData::Password(assign!(
-                        Password::new(UserIdentifier::UserIdOrLocalpart(user_id), password),
+                        Password::new(UserIdentifier::Matrix(user_id.into()), password),
                         { session: state.session }
                     ))
                 }
