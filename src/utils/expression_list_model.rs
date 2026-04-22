@@ -1,4 +1,5 @@
 use gtk::{gio, glib, glib::clone, prelude::*, subclass::prelude::*};
+use indexmap::IndexMap;
 use tracing::error;
 
 use crate::utils::BoundObject;
@@ -14,7 +15,9 @@ mod imp {
         #[property(get, set = Self::set_model, explicit_notify, nullable)]
         model: BoundObject<gio::ListModel>,
         expressions: RefCell<Vec<gtk::Expression>>,
-        watches: RefCell<Vec<Vec<gtk::ExpressionWatch>>>,
+        /// Tracked items with their expression watches, kept in sync with
+        /// the underlying model's positions. Supports O(1) lookup by item.
+        watches: RefCell<IndexMap<glib::Object, Vec<gtk::ExpressionWatch>>>,
     }
 
     #[glib::object_subclass]
@@ -27,7 +30,7 @@ mod imp {
     #[glib::derived_properties]
     impl ObjectImpl for ExpressionListModel {
         fn dispose(&self) {
-            for watch in self.watches.take().iter().flatten() {
+            for watch in self.watches.take().into_values().flatten() {
                 watch.unwatch();
             }
         }
@@ -60,7 +63,7 @@ mod imp {
             let removed = self.n_items();
 
             self.model.disconnect_signals();
-            for watch in self.watches.take().iter().flatten() {
+            for watch in self.watches.take().into_values().flatten() {
                 watch.unwatch();
             }
 
@@ -90,7 +93,7 @@ mod imp {
 
         /// Set the expressions to watch.
         pub(super) fn set_expressions(&self, expressions: Vec<gtk::Expression>) {
-            for watch in self.watches.take().iter().flatten() {
+            for watch in self.watches.take().into_values().flatten() {
                 watch.unwatch();
             }
 
@@ -112,7 +115,7 @@ mod imp {
                 return;
             }
 
-            let mut new_watches = Vec::with_capacity(added as usize);
+            let mut new_entries = Vec::with_capacity(added as usize);
             for item_pos in pos..pos + added {
                 let Some(item) = model.item(item_pos) else {
                     error!("Out of bounds item");
@@ -136,26 +139,23 @@ mod imp {
                     ));
                 }
 
-                new_watches.push(item_watches);
+                new_entries.push((item, item_watches));
             }
 
             let mut watches = self.watches.borrow_mut();
             let removed_range = (pos as usize)..((pos + removed) as usize);
-            for watch in watches.splice(removed_range, new_watches).flatten() {
-                watch.unwatch();
+            for (_, old_watches) in watches.splice(removed_range, new_entries) {
+                for watch in old_watches {
+                    watch.unwatch();
+                }
             }
         }
 
         fn item_expr_changed(&self, item: &glib::Object) {
-            let Some(model) = self.model.obj() else {
-                return;
-            };
-
-            for (pos, obj) in model.snapshot().iter().enumerate() {
-                if obj == item {
-                    self.obj().items_changed(pos as u32, 1, 1);
-                    break;
-                }
+            // O(1) lookup via the IndexMap.
+            let pos = self.watches.borrow().get_index_of(item);
+            if let Some(pos) = pos {
+                self.obj().items_changed(pos as u32, 1, 1);
             }
         }
     }
