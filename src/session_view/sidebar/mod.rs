@@ -24,7 +24,7 @@ use crate::{
         CryptoIdentityState, RecoveryState, RoomCategory, Session, SessionVerificationState,
         SidebarListModel, SidebarSection, TargetRoomCategory, User,
     },
-    utils::{FixedSelection, expression},
+    utils::FixedSelection,
 };
 
 mod imp {
@@ -70,7 +70,6 @@ mod imp {
         /// The list model of this sidebar.
         #[property(get, set = Self::set_list_model, explicit_notify, nullable)]
         list_model: glib::WeakRef<SidebarListModel>,
-        expr_watch: RefCell<Option<gtk::ExpressionWatch>>,
         session_handler: RefCell<Option<glib::SignalHandlerId>>,
         security_handlers: RefCell<Vec<glib::SignalHandlerId>>,
     }
@@ -152,13 +151,19 @@ mod imp {
                 .first_child()
                 .unwrap()
                 .set_overflow(gtk::Overflow::Hidden);
+
+            // Use the built-in search-changed signal which is already
+            // debounced by the search-delay property (default 150ms).
+            self.room_search_entry.connect_search_changed(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                move |_| {
+                    imp.update_search_filter();
+                }
+            ));
         }
 
         fn dispose(&self) {
-            if let Some(expr_watch) = self.expr_watch.take() {
-                expr_watch.unwatch();
-            }
-
             if let Some(user) = self.user.take() {
                 let session = user.session();
                 if let Some(handler) = self.session_handler.take() {
@@ -262,16 +267,10 @@ mod imp {
             }
             let obj = self.obj();
 
-            if let Some(expr_watch) = self.expr_watch.take() {
-                expr_watch.unwatch();
-            }
+            self.list_model.set(list_model);
 
             if let Some(list_model) = list_model {
-                let expr_watch = expression::normalize_string(
-                    self.room_search_entry.property_expression("text"),
-                )
-                .bind(&list_model.string_filter(), "search", None::<&glib::Object>);
-                self.expr_watch.replace(Some(expr_watch));
+                self.update_search_filter();
 
                 self.update_room_stack(&list_model.selection_model());
 
@@ -284,8 +283,20 @@ mod imp {
                 ));
             }
 
-            self.list_model.set(list_model);
             obj.notify_list_model();
+        }
+
+        /// Update the search filter with the current search text.
+        ///
+        /// Called when the search term changes and when the list model is set.
+        fn update_search_filter(&self) {
+            let Some(list_model) = self.list_model.upgrade() else {
+                return;
+            };
+
+            let text = self.room_search_entry.text();
+            let normalized = secular::normalized_lower_lay_string(&text);
+            list_model.string_filter().set_search(Some(&normalized));
         }
 
         /// The current session, if any.
