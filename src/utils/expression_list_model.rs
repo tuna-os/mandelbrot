@@ -144,10 +144,11 @@ mod imp {
 
             let mut watches = self.watches.borrow_mut();
             let removed_range = (pos as usize)..((pos + removed) as usize);
-            for (_, old_watches) in watches.splice(removed_range, new_entries) {
-                for watch in old_watches {
-                    watch.unwatch();
-                }
+            for watch in watches
+                .splice(removed_range, new_entries)
+                .flat_map(|(_, w)| w)
+            {
+                watch.unwatch();
             }
         }
 
