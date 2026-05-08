@@ -31,6 +31,7 @@ mod imp {
             StateContent::ensure_type();
 
             Self::bind_template(klass);
+            klass.set_css_name("state-row");
         }
 
         fn instance_init(obj: &InitializingObject<Self>) {

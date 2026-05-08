@@ -110,10 +110,12 @@ session_view/room_details/permissions/members_subpage.blp
 session_view/room_details/permissions/permissions_subpage.blp
 session_view/room_details/permissions/select_member_row.blp
 session_view/room_details/upgrade_dialog/mod.blp
+session_view/room_history/call_row.blp
 session_view/room_history/divider_row.blp
 session_view/room_history/event_actions/context_menu.blp
 session_view/room_history/event_actions/properties_dialog.blp
 session_view/room_history/event_actions/quick_reaction_chooser.blp
+session_view/room_history/event_timestamp.blp
 session_view/room_history/member_timestamp/row.blp
 session_view/room_history/message_row/audio.blp
 session_view/room_history/message_row/file.blp

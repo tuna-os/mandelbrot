@@ -66,7 +66,7 @@ room-title {
     margin-top: 6px;
   }
 
-  &:not(.has-avatar) {
+  &:not(.has-avatar):not(.has-icon) {
     .event-content {
       &:dir(ltr) {
         margin-left: 54px;
@@ -127,6 +127,18 @@ room-title {
       image {
         filter: brightness(1.1) ;
       }
+    }
+  }
+
+  &.has-icon image.icon {
+    -gtk-icon-size: 20px;
+
+    &:dir(ltr) {
+      padding: 0 5px 0 21px;
+    }
+
+    &:dir(rtl) {
+      padding: 0 21px 0 5px;
     }
   }
 }

@@ -21,14 +21,11 @@ use self::{
     message_state_stack::MessageStateStack, reaction_list::MessageReactionList,
     sender_name::MessageSenderName,
 };
-use super::ReadReceiptsList;
+use super::{EventTimestamp, ReadReceiptsList};
 use crate::{
-    Application,
     components::UserProfileDialog,
-    gettext_f,
     prelude::*,
     session::{Event, EventHeaderState, Member},
-    system_settings::ClockFormat,
     utils::BoundObject,
 };
 
@@ -50,17 +47,12 @@ mod imp {
         #[template_child]
         display_name: TemplateChild<MessageSenderName>,
         #[template_child]
-        timestamp: TemplateChild<gtk::Label>,
-        #[template_child]
         content: TemplateChild<MessageContent>,
         #[template_child]
         message_state: TemplateChild<MessageStateStack>,
         #[template_child]
         reactions: TemplateChild<MessageReactionList>,
-        #[template_child]
-        read_receipts: TemplateChild<ReadReceiptsList>,
         binding: RefCell<Option<glib::Binding>>,
-        system_settings_handler: RefCell<Option<glib::SignalHandlerId>>,
         /// The event that is presented.
         #[property(get, set = Self::set_event, explicit_notify)]
         event: BoundObject<Event>,
@@ -80,8 +72,12 @@ mod imp {
         type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
+            EventTimestamp::ensure_type();
+            ReadReceiptsList::ensure_type();
+
             Self::bind_template(klass);
             Self::bind_template_callbacks(klass);
+            klass.set_css_name("message-row");
         }
 
         fn instance_init(obj: &InitializingObject<Self>) {
@@ -112,26 +108,11 @@ mod imp {
                     obj.notify_texture();
                 }
             ));
-
-            let system_settings = Application::default().system_settings();
-            let system_settings_handler = system_settings.connect_clock_format_notify(clone!(
-                #[weak(rename_to = imp)]
-                self,
-                move |_| {
-                    imp.update_timestamp();
-                }
-            ));
-            self.system_settings_handler
-                .replace(Some(system_settings_handler));
         }
 
         fn dispose(&self) {
             if let Some(binding) = self.binding.take() {
                 binding.unbind();
-            }
-
-            if let Some(handler) = self.system_settings_handler.take() {
-                Application::default().system_settings().disconnect(handler);
             }
         }
     }
@@ -169,14 +150,6 @@ mod imp {
                 }
             ));
 
-            let timestamp_handler = event.connect_timestamp_notify(clone!(
-                #[weak(rename_to = imp)]
-                self,
-                move |_| {
-                    imp.update_timestamp();
-                }
-            ));
-
             // Listening to changes in the source might not be enough, there are changes
             // that we display that do not affect the source, like related events.
             let item_changed_handler = event.connect_item_changed(clone!(
@@ -189,21 +162,14 @@ mod imp {
 
             self.reactions
                 .set_reaction_list(&event.room().get_or_create_members(), &event.reactions());
-            self.read_receipts.set_source(event.read_receipts());
-            self.event.set(
-                event,
-                vec![
-                    header_state_handler,
-                    timestamp_handler,
-                    item_changed_handler,
-                ],
-            );
+            self.event
+                .set(event, vec![header_state_handler, item_changed_handler]);
+
             obj.notify_event();
             obj.notify_sender();
 
             self.update_content();
             self.update_header();
-            self.update_timestamp();
         }
 
         /// The sender of the event that is presented.
@@ -232,29 +198,6 @@ mod imp {
                     row.remove_css_class("has-avatar");
                 }
             }
-        }
-
-        /// Update the displayed timestamp for the current event with the
-        /// current clock format setting.
-        fn update_timestamp(&self) {
-            let Some(event) = self.event.obj() else {
-                return;
-            };
-
-            let datetime = event.timestamp();
-
-            let clock_format = Application::default().system_settings().clock_format();
-            let time = if clock_format == ClockFormat::TwelveHours {
-                datetime.format("%I:%M %p").unwrap()
-            } else {
-                datetime.format("%R").unwrap()
-            };
-
-            self.timestamp.set_label(&time);
-
-            let accessible_label = gettext_f("Sent at {time}", &[("time", &time)]);
-            self.timestamp
-                .update_property(&[gtk::accessible::Property::Label(&accessible_label)]);
         }
 
         /// Update the content for the current event.

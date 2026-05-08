@@ -48,15 +48,14 @@ template $ContentMessageRow: Adw.Bin {
         halign: start;
       }
 
-      Gtk.Label timestamp {
+      $EventTimestamp timestamp {
         hexpand: true;
-        halign: end;
+        datetime: bind template.event as <$RoomEvent>.timestamp;
 
-        styles [
-          "caption",
-          "timestamp",
-          "dimmed",
-        ]
+        layout {
+          column: 2;
+          row: 0;
+        }
       }
     }
 
@@ -90,6 +89,7 @@ template $ContentMessageRow: Adw.Bin {
     $ContentReadReceiptsList read_receipts {
       visible: bind template.event as <$RoomEvent>.has-read-receipts;
       members: bind template.event as <$RoomEvent>.timeline as <$Timeline>.room as <$Room>.members;
+      source: bind template.event as <$RoomEvent>.read-receipts;
 
       layout {
         column: 1;

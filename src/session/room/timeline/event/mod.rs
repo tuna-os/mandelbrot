@@ -645,6 +645,14 @@ impl Event {
         }
     }
 
+    /// Whether this is a call event.
+    pub(crate) fn is_call_event(&self) -> bool {
+        matches!(
+            self.item().content(),
+            TimelineItemContent::RtcNotification { .. }
+        )
+    }
+
     /// Whether this is a state event.
     pub(crate) fn is_state_event(&self) -> bool {
         matches!(

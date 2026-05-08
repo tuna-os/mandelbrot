@@ -157,6 +157,7 @@ src/session_view/room_details/permissions/permissions_subpage.blp
 src/session_view/room_details/permissions/permissions_subpage.rs
 src/session_view/room_details/upgrade_dialog/mod.blp
 src/session_view/room_details/upgrade_dialog/mod.rs
+src/session_view/room_history/call_row.rs
 src/session_view/room_history/divider_row.rs
 src/session_view/room_history/event_actions/context_menu.blp
 src/session_view/room_history/event_actions/context_menu.rs
@@ -164,6 +165,7 @@ src/session_view/room_history/event_actions/group.rs
 src/session_view/room_history/event_actions/properties_dialog.blp
 src/session_view/room_history/event_actions/properties_dialog.rs
 src/session_view/room_history/event_actions/quick_reaction_chooser.blp
+src/session_view/room_history/event_timestamp.rs
 src/session_view/room_history/member_timestamp/row.rs
 src/session_view/room_history/message_row/audio.rs
 src/session_view/room_history/message_row/content.rs
@@ -173,7 +175,6 @@ src/session_view/room_history/message_row/location.blp
 src/session_view/room_history/message_row/location.rs
 src/session_view/room_history/message_row/message_state_stack.blp
 src/session_view/room_history/message_row/mod.blp
-src/session_view/room_history/message_row/mod.rs
 src/session_view/room_history/message_row/reaction/mod.rs
 src/session_view/room_history/message_row/reaction_list.blp
 src/session_view/room_history/message_row/reply.blp

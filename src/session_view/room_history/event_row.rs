@@ -2,7 +2,7 @@ use adw::{prelude::*, subclass::prelude::*};
 use gtk::{gdk, gio, glib, glib::clone};
 use matrix_sdk_ui::timeline::TimelineEventItemId;
 
-use super::{EventActionsGroup, MessageRow, RoomHistory, StateRow};
+use super::{CallRow, EventActionsGroup, MessageRow, RoomHistory, StateRow};
 use crate::{
     components::ContextMenuBin,
     prelude::*,
@@ -209,6 +209,7 @@ mod imp {
         fn set_event(&self, event: Option<Event>) {
             // Reinitialize the header.
             self.obj().remove_css_class("has-avatar");
+            self.obj().remove_css_class("has-icon");
 
             self.disconnect_event_signals();
 
@@ -285,7 +286,10 @@ mod imp {
         fn build_event_widget(&self, event: Event) {
             let obj = self.obj();
 
-            if event.is_state_event() {
+            if event.is_call_event() {
+                let child = obj.child_or_default::<CallRow>();
+                child.set_event(event);
+            } else if event.is_state_event() {
                 let child = obj.child_or_default::<StateRow>();
                 child.set_event(event);
             } else {

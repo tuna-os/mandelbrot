@@ -184,13 +184,19 @@ mod imp {
         /// Initialize the underlying SDK timeline.
         pub(super) async fn init_matrix_timeline(&self) {
             let room = self.room();
-            let room_id = room.room_id().to_owned();
-            let matrix_room = room.matrix_room().clone();
 
+            let own_user_id = room.own_member().user_id().to_owned();
+            let filter = {
+                let own_user_id = own_user_id.clone();
+                move |any: &AnySyncTimelineEvent, rules: &RoomVersionRules| -> bool {
+                    show_in_timeline(any, rules, &own_user_id)
+                }
+            };
+            let matrix_room = room.matrix_room().clone();
             let handle = spawn_tokio!(async move {
                 matrix_room
                     .timeline_builder()
-                    .event_filter(show_in_timeline)
+                    .event_filter(filter)
                     .add_failed_to_parse(false)
                     .build()
                     .await
@@ -224,6 +230,7 @@ mod imp {
             }
 
             let obj_weak = glib::SendWeakRef::from(self.obj().downgrade());
+            let room_id = room.room_id().to_owned();
             let fut = timeline_stream.for_each(move |diff_list| {
                 let obj_weak = obj_weak.clone();
                 let room_id = room_id.clone();
@@ -1095,7 +1102,11 @@ impl Timeline {
 }
 
 /// Whether the given event should be shown in the timeline.
-fn show_in_timeline(any: &AnySyncTimelineEvent, rules: &RoomVersionRules) -> bool {
+fn show_in_timeline(
+    any: &AnySyncTimelineEvent,
+    rules: &RoomVersionRules,
+    own_user_id: &UserId,
+) -> bool {
     // Make sure we do not show events that cannot be shown.
     if !default_event_filter(any, rules) {
         return false;
@@ -1120,6 +1131,12 @@ fn show_in_timeline(any: &AnySyncTimelineEvent, rules: &RoomVersionRules) -> boo
             }
             AnySyncMessageLikeEvent::Sticker(SyncMessageLikeEvent::Original(_))
             | AnySyncMessageLikeEvent::RoomEncrypted(SyncMessageLikeEvent::Original(_)) => true,
+            AnySyncMessageLikeEvent::RtcNotification(SyncMessageLikeEvent::Original(ev)) => {
+                ev.sender == own_user_id
+                    || ev.content.mentions.as_ref().is_some_and(|mentions| {
+                        mentions.room || mentions.user_ids.contains(own_user_id)
+                    })
+            }
             _ => false,
         },
         AnySyncTimelineEvent::State(AnySyncStateEvent::RoomMember(SyncStateEvent::Original(

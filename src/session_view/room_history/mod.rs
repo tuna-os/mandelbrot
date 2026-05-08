@@ -12,9 +12,11 @@ use ruma::{
 };
 use tracing::{error, warn};
 
+mod call_row;
 mod divider_row;
 mod event_actions;
 mod event_row;
+mod event_timestamp;
 mod member_timestamp;
 mod message_row;
 mod message_toolbar;
@@ -25,9 +27,11 @@ mod typing_row;
 mod verification_info_bar;
 
 use self::{
+    call_row::CallRow,
     divider_row::DividerRow,
     event_actions::*,
     event_row::EventRow,
+    event_timestamp::EventTimestamp,
     message_row::MessageRow,
     message_toolbar::MessageToolbar,
     read_receipts_list::ReadReceiptsList,
