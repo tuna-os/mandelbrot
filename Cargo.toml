@@ -127,7 +127,7 @@ ashpd = { version = "0.13.9", default-features = false, features = [
     "tokio",
 ] }
 oo7 = { version = "0.6", default-features = false, features = [
-    "openssl_crypto",
+    "native_crypto",
     "tokio",
     "tracing",
 ] }
