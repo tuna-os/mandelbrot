@@ -10,6 +10,7 @@ use ruma::{
         AnyMessageLikeEventContent, AnyStrippedStateEvent, AnySyncStateEvent, AnySyncTimelineEvent,
         SyncStateEvent,
         room::{member::MembershipState, message::MessageType},
+        rtc::notification::CallIntent,
     },
     html::{HtmlSanitizerMode, RemoveReplyFallback},
 };
@@ -243,7 +244,15 @@ impl Notifications {
         );
 
         let (body, is_invite) =
-            if let Some(body) = message_notification_body(&event, &sender_name, !is_direct) {
+            // These are ordered by the likelihood of an event being of the type to reduce checking
+            // in the common case.
+            if let Some(body) =
+                message_notification_body(&event, &sender_name, !is_direct)
+            {
+                (body, false)
+            } else if let Some(body) =
+                incoming_call_notification_body(&event, &sender_name, is_direct)
+            {
                 (body, false)
             } else if let Some(body) =
                 own_invite_notification_body(&event, &sender_name, session.user_id())
@@ -570,5 +579,51 @@ pub(crate) fn own_invite_notification_body(
         Some(gettext_f("{user} invited you", &[("user", sender_name)]))
     } else {
         None
+    }
+}
+
+/// Generate the notification body for a call, if it is an invite for
+/// the current user.
+///
+/// This will return a localized body.
+///
+/// Returns `None` if it is not an invite for the current user.
+pub(crate) fn incoming_call_notification_body(
+    event: &AnySyncOrStrippedTimelineEvent,
+    sender_name: &str,
+    from_dm_room: bool,
+) -> Option<String> {
+    let AnySyncOrStrippedTimelineEvent::Sync(sync_event) = event else {
+        return None;
+    };
+    let AnySyncTimelineEvent::MessageLike(message_event) = &**sync_event else {
+        return None;
+    };
+
+    match message_event.original_content()? {
+        AnyMessageLikeEventContent::RtcNotification(content) => {
+            let body = match (content.call_intent, from_dm_room) {
+                (Some(CallIntent::Video), true) => {
+                    gettext("Incoming video call. Use another client to answer.")
+                }
+                (Some(CallIntent::Video), false) => {
+                    // Translators: Do NOT translate the content between '{' and '}', this
+                    // is a variable name.
+                    gettext_f(
+                        "Incoming video call from {user}. Use another client to answer.",
+                        &[("user", sender_name)],
+                    )
+                }
+                (_, true) => gettext("Incoming call. Use another client to answer."),
+                // Translators: Do NOT translate the content between '{' and '}', this
+                // is a variable name.
+                (_, false) => gettext_f(
+                    "Incoming call from {user}. Use another client to answer.",
+                    &[("user", sender_name)],
+                ),
+            };
+            Some(body)
+        }
+        _ => None,
     }
 }
