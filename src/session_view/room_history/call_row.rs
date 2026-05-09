@@ -1,6 +1,9 @@
 use adw::{prelude::*, subclass::prelude::*};
+use as_variant::as_variant;
 use gettextrs::gettext;
 use gtk::{glib, glib::clone};
+use matrix_sdk_ui::timeline::TimelineItemContent;
+use ruma::events::rtc::notification::CallIntent;
 
 use super::{EventTimestamp, ReadReceiptsList};
 use crate::{
@@ -111,17 +114,37 @@ mod imp {
                 return;
             };
 
-            if sender.is_own_user() {
-                self.inner_label.set_text(&gettext("Outgoing call."));
-                self.icon.set_icon_name(Some("call-outgoing-symbolic"));
+            let call_intent = self.event.obj().and_then(|event| {
+                as_variant!(event.content(), TimelineItemContent::RtcNotification { call_intent, .. } => call_intent)?
+            });
+            if let Some(CallIntent::Video) = call_intent {
+                let text = if sender.is_own_user() {
+                    gettext("Outgoing video call.")
+                } else {
+                    gettext_f(
+                        // Translators: Do NOT translate the content between '{' and '}', this
+                        // is a variable name.
+                        "Incoming video call from {user}. Use another client to answer.",
+                        &[("user", &sender.disambiguated_name())],
+                    )
+                };
+
+                self.inner_label.set_text(&text);
+                self.icon.set_icon_name(Some("video-symbolic"));
             } else {
-                self.inner_label.set_text(&gettext_f(
-                    // Translators: Do NOT translate the content between '{' and '}', this is a
-                    // variable name.
-                    "Incoming call from {sender}.",
-                    &[("sender", &sender.disambiguated_name())],
-                ));
-                self.icon.set_icon_name(Some("call-incoming-symbolic"));
+                let text = if sender.is_own_user() {
+                    gettext("Outgoing call.")
+                } else {
+                    gettext_f(
+                        // Translators: Do NOT translate the content between '{' and '}', this
+                        // is a variable name.
+                        "Incoming call from {user}. Use another client to answer.",
+                        &[("user", &sender.disambiguated_name())],
+                    )
+                };
+
+                self.inner_label.set_text(&text);
+                self.icon.set_icon_name(Some("phone-right-facing-symbolic"));
             }
         }
     }

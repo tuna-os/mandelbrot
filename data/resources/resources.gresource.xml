@@ -35,8 +35,6 @@
     <file preprocess="xml-stripblanks">icons/scalable/actions/user-add-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/apps/org.gnome.Fractal.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/audio-symbolic.svg</file>
-    <file preprocess="xml-stripblanks">icons/scalable/status/call-incoming-symbolic.svg</file>
-    <file preprocess="xml-stripblanks">icons/scalable/status/call-outgoing-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/checkmark-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/devices-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/document-symbolic.svg</file>
@@ -51,6 +49,7 @@
     <file preprocess="xml-stripblanks">icons/scalable/status/no-camera-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/notifications-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/person-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/status/phone-right-facing-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/safety-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/sync-off-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/sync-on-symbolic.svg</file>

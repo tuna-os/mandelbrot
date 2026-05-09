@@ -1171,6 +1171,7 @@ name = "fractal"
 version = "14.0.0-beta"
 dependencies = [
  "aperture",
+ "as_variant",
  "ashpd",
  "assert_matches2",
  "blurhash",
