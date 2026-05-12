@@ -5,16 +5,16 @@
 # Piotr Drąg <piotrdrag@gmail.com>, 2018-2023.
 # Aviary.pl <community-poland@mozilla.org>, 2018-2023.
 # Nieznana osoba, 2024
-# Victoria Niedzielska <victorian@gnome.org>, 2025-2026
 # Łukasz Horodecki <dakilla@gmail.com>, 2026.
+# Victoria Niedzielska <victorian@gnome.org>, 2025-2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: fractal\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
-"POT-Creation-Date: 2026-04-10 08:44+0000\n"
-"PO-Revision-Date: 2026-04-18 15:55+0200\n"
-"Last-Translator: Łukasz Horodecki <dakilla@gmail.com>\n"
+"POT-Creation-Date: 2026-05-08 06:08+0000\n"
+"PO-Revision-Date: 2026-05-12 11:13+0200\n"
+"Last-Translator: Victoria Niedzielska <victorian@gnome.org>\n"
 "Language-Team: Polish <https://l10n.gnome.org/teams/pl>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -22,32 +22,32 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Gtranslator 49.0\n"
+"X-Generator: Gtranslator 50.0\n"
 
 #: data/org.gnome.Fractal.desktop.in.in:2
 #: data/org.gnome.Fractal.metainfo.xml.in.in:7
 #: src/login/session_setup_view.blp:22 src/window.blp:9
 msgid "Fractal"
-msgstr "Fraktal"
+msgstr "Fractal"
 
 #: data/org.gnome.Fractal.desktop.in.in:3
 msgid ""
 "Fractal is a decentralized, secure messaging client for collaborative group "
 "communication."
 msgstr ""
-"Fraktal jest zdecentralizowanym, bezpiecznym komunikatorem do komunikacji "
+"Fractal jest zdecentralizowanym, bezpiecznym komunikatorem do komunikacji "
 "wśród współpracujących grup."
 
 #: data/org.gnome.Fractal.desktop.in.in:4
 msgid "Fractal group messaging"
-msgstr "Wiadomości grupowe Fraktala"
+msgstr "Wiadomości grupowe Fractala"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/org.gnome.Fractal.desktop.in.in:13
 msgid "Matrix;matrix.org;chat;irc;communications;talk;riot;element;"
 msgstr ""
 "Matrix;matrix.org;czat;chat;irc;communications;komunikacja;komunikator;gadu "
-"gadu;im;wiadomość;rozmowa;riot;element;fractal;fraktal;"
+"gadu;im;wiadomość;rozmowa;riot;element;fractal;fraktal;matriks;"
 
 #: data/org.gnome.Fractal.gschema.xml.in:6
 msgid "Window width"
@@ -91,7 +91,7 @@ msgid ""
 "is optimized for collaboration in large groups, such as free software "
 "projects, and will fit all screens, big or small."
 msgstr ""
-"Fraktal jest komunikatorem sieci Matrix dla środowiska GNOME napisanym "
+"Fractal jest komunikatorem sieci Matriksa dla środowiska GNOME napisanym "
 "w języku Rust. Jego interfejs jest zoptymalizowany do współpracy wśród "
 "dużych grup, takich jak projekty wolnego oprogramowania i pasuje do "
 "wszystkich ekranów, dużych i małych."
@@ -137,15 +137,15 @@ msgstr "Zaloguj się na kilka kont na raz (ze wsparciem dla SSO)"
 
 #: data/org.gnome.Fractal.metainfo.xml.in.in:39
 msgid "Fractal’s main window"
-msgstr "Główne okno Fraktala"
+msgstr "Główne okno Fractala"
 
 #: data/org.gnome.Fractal.metainfo.xml.in.in:43
 msgid "View the media history of a Matrix room"
-msgstr "Widok historii multimediów pokoju Matrix"
+msgstr "Widok historii multimediów pokoju Matriksa"
 
 #: data/org.gnome.Fractal.metainfo.xml.in.in:47
 msgid "Fractal’s interface adapts to small screens"
-msgstr "Interfejs Fraktala dostosowuje się do małych ekranów"
+msgstr "Interfejs Fractala dostosowuje się do małych ekranów"
 
 #: src/account_chooser_dialog/mod.blp:5 src/account_chooser_dialog/mod.blp:35
 msgid "Select an Account"
@@ -188,7 +188,7 @@ msgid ""
 msgstr ""
 "Wyeksportowanie kluczy szyfrowania pokoju umożliwia wykonanie kopii "
 "zapasowej, aby można było odszyfrowywać swoje wiadomości w zaszyfrowanych "
-"pokojach na innym urządzeniu lub za pomocą innego klienta sieci Matrix."
+"pokojach na innym urządzeniu lub za pomocą innego klienta Matriksa."
 
 #: src/account_settings/encryption_page/import_export_keys_subpage.rs:156
 msgid ""
@@ -216,7 +216,7 @@ msgid ""
 msgstr ""
 "Zaimportowanie kluczy szyfrowania pokoju umożliwia odszyfrowywanie swoich "
 "wiadomości w zaszyfrowanych pokojach za pomocą wcześniej wykonanej kopii "
-"zapasowej z klienta sieci Matrix."
+"zapasowej z klienta Matriksa."
 
 #: src/account_settings/encryption_page/import_export_keys_subpage.rs:168
 msgid "Enter the passphrase provided when the backup file was created."
@@ -233,7 +233,7 @@ msgstr "Wybierz"
 
 #: src/account_settings/encryption_page/import_export_keys_subpage.rs:193
 msgid "fractal-encryption-keys"
-msgstr "klucze-szyfrowania-fraktala"
+msgstr "klucze-szyfrowania-Fractala"
 
 #: src/account_settings/encryption_page/import_export_keys_subpage.rs:199
 msgid "Save Encryption Keys To…"
@@ -485,7 +485,7 @@ msgid ""
 "Matrix user ID:"
 msgstr ""
 "Aby potwierdzić chęć dezaktywacji tego konta, proszę wpisać identyfikator "
-"konta Matrix:"
+"konta Matriksa:"
 
 #: src/account_settings/general_page/deactivate_account_subpage.rs:156
 msgid "Account successfully deactivated"
@@ -588,15 +588,15 @@ msgstr "Nazwa"
 
 #: src/account_settings/general_page/mod.blp:40
 msgid "Matrix User ID"
-msgstr "Identyfikator konta Matrix"
+msgstr "Identyfikator konta Matriksa"
 
 #: src/account_settings/general_page/mod.blp:42 src/components/user_page.blp:57
 msgid "Copy Matrix User ID"
-msgstr "Skopiuj identyfikator konta Matrix"
+msgstr "Skopiuj identyfikator konta Matriksa"
 
 #: src/account_settings/general_page/mod.blp:43 src/components/user_page.rs:256
 msgid "Matrix user ID copied to clipboard"
-msgstr "Skopiowano identyfikator konta Matrix do schowka"
+msgstr "Skopiowano identyfikator konta Matriksa do schowka"
 
 #: src/account_settings/general_page/mod.blp:47
 #: src/account_settings/user_session/user_session_list_subpage.blp:5
@@ -712,7 +712,7 @@ msgstr "Pomyślnie zmieniono nazwę"
 
 #: src/account_settings/general_page/mod.rs:558
 msgid "Could not change display name"
-msgstr "Nie udało się zmienić wyświetlanej nazwy"
+msgstr "Nie udało się zmienić nazwy"
 
 #: src/account_settings/mod.blp:5 src/account_switcher/session_item.blp:58
 msgid "Account Settings"
@@ -740,7 +740,7 @@ msgid ""
 "Which messages trigger notifications in rooms that do not have more specific "
 "rules"
 msgstr ""
-"Które wiadomości wysyłają powiadomienia w pokojach, które nie mają bardziej "
+"Które wiadomości wysyłają powiadomienia w pokojach, które nie mają "
 "konkretnych zasad"
 
 #: src/account_settings/notifications_page.blp:28
@@ -945,15 +945,15 @@ msgstr "Niezweryfikowana"
 
 #: src/account_settings/user_session/user_session_subpage.blp:14
 msgid "Matrix Session ID"
-msgstr "Identyfikator sesji Matrix"
+msgstr "Identyfikator sesji Matriksa"
 
 #: src/account_settings/user_session/user_session_subpage.blp:16
 msgid "Copy Matrix Session ID"
-msgstr "Skopiuj identyfikator sesji Matrix"
+msgstr "Skopiuj identyfikator sesji Matriksa"
 
 #: src/account_settings/user_session/user_session_subpage.blp:17
 msgid "Matrix session ID copied to clipboard"
-msgstr "Skopiowano identyfikator sesji Matrix do schowka"
+msgstr "Skopiowano identyfikator sesji Matriksa do schowka"
 
 #: src/account_settings/user_session/user_session_subpage.blp:22
 msgid "Public Name"
@@ -995,11 +995,11 @@ msgstr "_Dodaj konto"
 
 #: src/application.rs:244
 msgid "The Fractal Team"
-msgstr "Zespół Fraktala"
+msgstr "Zespół Fractala"
 
 #: src/application.rs:250
 msgid "© The Fractal Team"
-msgstr "© Zespół Fraktala"
+msgstr "© Zespół Fractala"
 
 #: src/application.rs:264
 msgid "translator-credits"
@@ -1007,7 +1007,7 @@ msgstr ""
 "Marek Jędrzejewski <kontakt@marekjedrzejewski.pl>, 2018\n"
 "Piotr Drąg <piotrdrag@gmail.com>, 2018-2023\n"
 "Aviary.pl <community-poland@mozilla.org>, 2018-2023\n"
-"Nieznana osoba, 2024\n"
+"Nieznana osoba <>, 2024\n"
 "Victoria Niedzielska <victorian@gnome.org>, 2025-2026\n"
 "Łukasz Horodecki <dakilla@gmail.com>, 2026"
 
@@ -1150,7 +1150,7 @@ msgid ""
 "automatically trust their verified sessions."
 msgstr ""
 "Twoja tożsamość kryptograficzna pozwala Ci na weryfikowanie innych kont "
-"Matrix i automatyczne ufanie ich zweryfikowanym sesjom."
+"Matriksa i automatyczne ufanie ich zweryfikowanym sesjom."
 
 #: src/components/crypto/identity_setup_view.blp:167
 msgid "You need to set up a crypto identity, since it has never been created."
@@ -1207,7 +1207,7 @@ msgstr "Odzyskaj"
 
 #: src/components/crypto/recovery_setup_view.blp:88
 msgid "Lost your recovery passphrase or key?"
-msgstr "Utracone hasło lub klucz odzyskiwania?"
+msgstr "Utracono hasło lub klucz odzyskiwania?"
 
 #: src/components/crypto/recovery_setup_view.blp:113
 #: src/components/crypto/recovery_setup_view.blp:138
@@ -1241,7 +1241,7 @@ msgid ""
 "Otherwise, if someone manages to get your account password, they will also "
 "be able to access all your encrypted conversations and to impersonate you."
 msgstr ""
-"Nie powinno się używać hasła do konta Matrix jako hasła odzyskiwania. "
+"Nie powinno się używać hasła do konta Matriksa jako hasła odzyskiwania. "
 "W przeciwnym wypadku jeśli ktoś uzyska Twoje hasło do konta, to także uzyska "
 "dostęp do wszystkich Twoich zaszyfrowanych rozmów i będzie móc się pod "
 "Ciebie podszyć."
@@ -2048,7 +2048,7 @@ msgstr[2] "Nie udało się usunąć {n} wiadomości"
 
 #: src/components/user_page.rs:697
 msgid "Identity verified"
-msgstr "Tożsamość zweryfikowana"
+msgstr "Zweryfikowano tożsamość"
 
 #: src/components/user_page.rs:704
 msgid "Identity not verified"
@@ -2096,7 +2096,7 @@ msgid ""
 "information and an error occurred while we were trying to restore your "
 "sessions."
 msgstr ""
-"Fraktal używa portalu Secret do zarządzania wrażliwymi informacjami o sesji "
+"Fractal używa portalu Secret do zarządzania wrażliwymi informacjami o sesji "
 "i wystąpił błąd podczas próby przywrócenia Twoich sesji."
 
 #: src/error_page.blp:75
@@ -2119,7 +2119,7 @@ msgid ""
 "Fractal to interact with it, like this:"
 msgstr ""
 "Jeśli zamiast tego wolisz używać dostawcy usługi Secret Service, musisz "
-"pozwolić Fraktalowi na interakcję z nim, np. tak:"
+"pozwolić Fractalowi na interakcję z nim, np. tak:"
 
 #: src/error_page.blp:152
 msgid "Copy Command"
@@ -2392,7 +2392,7 @@ msgid ""
 "None of the methods offered by the other client are supported by Fractal."
 msgstr ""
 "Żadna z metod oferowanych przez innego klienta nie jest wspierana przez "
-"Fraktala."
+"Fractala."
 
 #: src/identity_verification_view/no_supported_methods_page.rs:142
 msgid ""
@@ -2400,7 +2400,7 @@ msgid ""
 "client are supported by Fractal."
 msgstr ""
 "Otrzymano prośbę o zalogowanie, ale żadna z metod oferowanych przez innego "
-"klienta nie jest wspierana przez Fraktala."
+"klienta nie jest wspierana przez Fractala."
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2409,8 +2409,8 @@ msgstr ""
 msgid ""
 "None of the methods offered by {user}’s client are supported by Fractal."
 msgstr ""
-"Żadna z metod oferowanych przez klienta osoby {user} nie jest wspierana przez "
-"Fraktala."
+"Żadna z metod oferowanych przez klienta osoby {user} nie jest wspierana "
+"przez Fractala."
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2421,7 +2421,7 @@ msgid ""
 "other client are supported by Fractal."
 msgstr ""
 "Otrzymano prośbę o weryfikację od {user}, ale żadna z metod oferowanych "
-"przez innego klienta nie jest wspierana przez Fraktala."
+"przez innego klienta nie jest wspierana przez Fractala."
 
 #: src/identity_verification_view/no_supported_methods_page.rs:170
 msgid "Decline Verification"
@@ -2586,7 +2586,7 @@ msgstr "_Automatyczne wykrywanie"
 #. Translators: Fractal is the application name.
 #: src/login/greeter.blp:7 src/login/greeter.blp:84
 msgid "Welcome to Fractal"
-msgstr "Witamy we Fraktalu"
+msgstr "Witamy we Fractalu"
 
 #: src/login/greeter.blp:104
 msgid "_Log In"
@@ -2611,7 +2611,7 @@ msgstr "Nazwa domeny"
 
 #: src/login/homeserver_page.rs:104
 msgid "The domain of your Matrix homeserver, for example gnome.org"
-msgstr "Domena Twojego serwera Matrix, na przykład gnome.org"
+msgstr "Domena Twojego serwera Matriksa, na przykład gnome.org"
 
 #: src/login/homeserver_page.rs:107 src/login/method_page.blp:69
 msgid "Homeserver URL"
@@ -2622,7 +2622,7 @@ msgstr "Adres URL serwera"
 #: src/login/homeserver_page.rs:111
 #, rust-format
 msgid "The URL of your Matrix homeserver, for example {address}"
-msgstr "Adres URL Twojego serwera Matrix, na przykład {address}"
+msgstr "Adres URL Twojego serwera Matriksa, na przykład {address}"
 
 #: src/login/homeserver_page.rs:254 src/login/mod.rs:324 src/login/mod.rs:348
 #: src/login/mod.rs:397
@@ -2647,7 +2647,7 @@ msgid ""
 "Fractal."
 msgstr ""
 "Etap uwierzytelnienia jest zakończony. Możesz zamknąć tę stronę i wrócić do "
-"Fraktala."
+"Fractala."
 
 #: src/login/method_page.blp:6 src/window.blp:73
 msgid "Log In"
@@ -2655,7 +2655,7 @@ msgstr "Zaloguj się"
 
 #: src/login/method_page.blp:94
 msgid "Matrix Username"
-msgstr "Nazwa konta Matrix"
+msgstr "Nazwa konta Matriksa"
 
 #: src/login/method_page.blp:109
 msgid "Password"
@@ -2705,7 +2705,7 @@ msgstr "Pobieranie danych konta…"
 #: src/secret/linux.rs:175
 #, rust-format
 msgid "Fractal: Matrix credentials for {user_id}"
-msgstr "Fraktal: dane logowania Matrix dla {user_id}"
+msgstr "Fractal: dane logowania Matriksa dla {user_id}"
 
 #: src/secret/linux.rs:529
 msgid "The secret storage file is corrupted."
@@ -3327,7 +3327,7 @@ msgstr "_Zapisz film"
 #: src/session_view/media_viewer.blp:25
 #: src/session_view/room_history/event_actions/context_menu.blp:76
 msgid "Copy Message _Link"
-msgstr "Skopiuj _odnośnik wiadomości"
+msgstr "Skopiuj _odnośnik do wiadomości"
 
 #: src/session_view/media_viewer.blp:87 src/session_view/media_viewer.blp:91
 msgid "Media Menu"
@@ -3348,7 +3348,7 @@ msgstr "Skopiowano obraz do schowka"
 #: src/session_view/media_viewer.rs:518
 #: src/session_view/room_history/event_actions/group.rs:63
 msgid "Message link copied to clipboard"
-msgstr "Skopiowano odnośnik wiadomości do schowka"
+msgstr "Skopiowano odnośnik do wiadomości do schowka"
 
 #: src/session_view/room_details/addresses_subpage/completion_popover.blp:16
 msgid "Address auto-completion"
@@ -3599,15 +3599,15 @@ msgstr "Kto może czytać historię"
 
 #: src/session_view/room_details/general_page.blp:232
 msgid "Matrix Room ID"
-msgstr "Identyfikator pokoju Matrix"
+msgstr "Identyfikator pokoju Matriksa"
 
 #: src/session_view/room_details/general_page.blp:235
 msgid "Copy Matrix Room ID"
-msgstr "Skopiuj identyfikator pokoju Matrix"
+msgstr "Skopiuj identyfikator pokoju Matriksa"
 
 #: src/session_view/room_details/general_page.blp:236
 msgid "Matrix room ID copied to clipboard"
-msgstr "Skopiowano do schowka identyfikator pokoju Matriksa"
+msgstr "Skopiowano identyfikator pokoju Matriksa do schowka"
 
 #: src/session_view/room_details/general_page.blp:240
 #: src/session_view/room_details/permissions/permissions_subpage.blp:159
@@ -3660,7 +3660,7 @@ msgstr "Skopiowano adres do schowka"
 
 #: src/session_view/room_details/general_page.rs:764
 msgid "Room link copied to clipboard"
-msgstr "Skopiowano odnośnik pokoju do schowka"
+msgstr "Skopiowano odnośnik do pokoju do schowka"
 
 #: src/session_view/room_details/general_page.rs:823
 msgid "Could not change guest access"
@@ -4138,7 +4138,6 @@ msgstr "Nie udało się zapisać uprawnień"
 
 #: src/session_view/room_details/upgrade_dialog/mod.blp:5
 #: src/session_view/room_details/upgrade_dialog/mod.blp:49
-#| msgid "Upgrade Room"
 msgctxt "dialog title"
 msgid "Upgrade Room"
 msgstr "Aktualizacja pokoju"
@@ -4152,10 +4151,10 @@ msgid ""
 "the new room manually."
 msgstr ""
 "Aktualizowanie pokoju do nowszej wersji pozwoli na skorzystanie z nowych "
-"funkcji ze specyfikacji Matrix. Może również być użyte do zresetowania stanu "
-"pokoju, co powinno przyśpieszyć dołączanie do niego. Jednakże powinno być to "
-"stosowane oszczędnie, gdyż może być to niszczące ze względu na konieczność "
-"ponownego dołączenia do pokoju."
+"funkcji ze specyfikacji Matriksa. Może również być użyte do zresetowania "
+"stanu pokoju, co powinno przyśpieszyć dołączanie do niego. Jednakże powinno "
+"być to stosowane oszczędnie, gdyż może być to niszczące ze względu na "
+"konieczność ponownego dołączenia do pokoju."
 
 #: src/session_view/room_details/upgrade_dialog/mod.blp:85
 msgid "Version"
@@ -4217,6 +4216,17 @@ msgid ""
 msgstr ""
 "Po aktualizacji będziesz jedyną osobą założycielską w pokoju. Obecne osoby "
 "założycielskie zostaną zdegradowane do domyślnego poziomu."
+
+#: src/session_view/room_history/call_row.rs:115
+msgid "Outgoing call."
+msgstr ""
+
+#. Translators: Do NOT translate the content between '{' and '}', this is a
+#. variable name.
+#: src/session_view/room_history/call_row.rs:121
+#, rust-format
+msgid "Incoming call from {sender}."
+msgstr "Nadchodzące połączenie od {sender}"
 
 #: src/session_view/room_history/divider_row.rs:90
 msgid "This is the start of the visible history"
@@ -4329,8 +4339,8 @@ msgid ""
 "event if it is encrypted or redacted."
 msgstr ""
 "Zgłoszenie wydarzenia wyśle jego unikalny identyfikator do administracji "
-"Twojego serwera. Administracja nie będzie w stanie zobaczyć zwartości "
-"wydarzenia jeśli jest zaszyfrowane lub usunięte."
+"Twojego serwera. Administracja nie będzie w stanie zobaczyć zawartości "
+"wydarzenia jeśli jest zaszyfrowana lub usunięta."
 
 #. Translators: This is a verb, as in 'Report Event'.
 #: src/session_view/room_history/event_actions/group.rs:650
@@ -4445,6 +4455,11 @@ msgstr "Wyślij reakcję"
 msgid "More Reactions"
 msgstr "Więcej reakcji"
 
+#: src/session_view/room_history/event_timestamp.rs:96
+#, rust-format
+msgid "Sent at {time}"
+msgstr "Wysłano o {time}"
+
 #. Translators: this is a date and a time in 12h format.
 #. For example, "May 5 at 01:20 PM".
 #. Do not change the time format as it will follow the system settings.
@@ -4523,11 +4538,6 @@ msgstr "Zmodyfikowana"
 #: src/session_view/room_history/message_row/mod.blp:13
 msgid "Show Sender Profile"
 msgstr "Wyświetl profil tej osoby"
-
-#: src/session_view/room_history/message_row/mod.rs:255
-#, rust-format
-msgid "Sent at {time}"
-msgstr "Wysłano o {time}"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -5095,7 +5105,7 @@ msgstr "Oznacz jako rozmowę _bezpośrednią"
 
 #: src/session_view/sidebar/mod.blp:96
 msgid "Unmark as _Direct Chat"
-msgstr "Usuń oznaczenie jako rozmowę _bezpośrednią"
+msgstr "Odznacz jako rozmowę _bezpośrednią"
 
 #: src/session_view/sidebar/mod.blp:124
 msgid "Sidebar"
