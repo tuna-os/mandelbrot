@@ -67,7 +67,7 @@ build-docs:
     - flatpak install --user --noninteractive org.freedesktop.Sdk.Extension.rust-nightly//${FREEDESKTOP_RUNTIME_BRANCH}
     # We want to use the nightly toolchain inside the build terminal.
     - sed -i 's|"org.freedesktop.Sdk.Extension.rust-stable"|"org.freedesktop.Sdk.Extension.rust-nightly"|g' ${MANIFEST_PATH}
-    - sed -i 's|/rust-stable/bin|/rust-nightly/extra/sdk/rust-nightly/bin|g' ${MANIFEST_PATH}
+    - sed -i 's|/rust-stable/bin|/rust-nightly/bin|g' ${MANIFEST_PATH}
     # Do not use the mold linker because it doesn't work with the rust-nightly extension at the moment
     - sed -i 's|-C link-arg=-fuse-ld=mold||g' ${MANIFEST_PATH}
     - flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse --stop-at=${FLATPAK_MODULE} flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
