@@ -16,34 +16,32 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n"
-"%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : "
+"n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Lokalize 23.04.3\n"
 
 #: data/org.gnome.Fractal.desktop.in.in:2
 #: data/org.gnome.Fractal.metainfo.xml.in.in:7
 #: src/login/session_setup_view.blp:22 src/window.blp:9
 msgid "Fractal"
-msgstr "Фрактал"
+msgstr "Fractal"
 
 #: data/org.gnome.Fractal.desktop.in.in:3
 msgid ""
 "Fractal is a decentralized, secure messaging client for collaborative group "
 "communication."
 msgstr ""
-"«Фрактал» — децентралізований, безпечний клієнт обміну повідомленнями для "
+"«Fractal» — децентралізований, безпечний клієнт обміну повідомленнями для "
 "спільного групового спілкування."
 
 #: data/org.gnome.Fractal.desktop.in.in:4
 msgid "Fractal group messaging"
-msgstr "Груповий обмін повідомленнями у «Фракталі»"
+msgstr "Груповий обмін повідомленнями у «Fractal»"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/org.gnome.Fractal.desktop.in.in:13
 msgid "Matrix;matrix.org;chat;irc;communications;talk;riot;element;"
-msgstr ""
-"Matrix;matrix.org;chat;irc;communications;talk;riot;element;матрікс;метрікс;м"
-"атриця;чат;балачка;спілкування;ірк;ріот;райот;елемент;"
+msgstr "Matrix;matrix.org;chat;irc;communications;talk;riot;element;матрікс;метрікс;матриця;чат;балачка;спілкування;ірк;ріот;райот;елемент;"
 
 #: data/org.gnome.Fractal.gschema.xml.in:6
 msgid "Window width"
@@ -89,7 +87,7 @@ msgid ""
 "is optimized for collaboration in large groups, such as free software "
 "projects, and will fit all screens, big or small."
 msgstr ""
-"«Фрактал» — програма для обміну повідомленнями у мережах Matrix для GNOME, "
+"«Fractal» — програма для обміну повідомленнями у мережах Matrix для GNOME, "
 "написана на Rust. Інтерфейс оптимізований для спільної роботи у великих "
 "групах, таких як проєкти вільного програмного забезпечення, і пасує до усіх "
 "екранів, великих та малих."
@@ -148,7 +146,7 @@ msgstr "Перегляд журналу мультимедіа кімнати Ma
 
 #: data/org.gnome.Fractal.metainfo.xml.in.in:47
 msgid "Fractal’s interface adapts to small screens"
-msgstr "Інтерфейс «Фрактала» адаптується до малих екранів"
+msgstr "Інтерфейс «Fractal» адаптується до малих екранів"
 
 #: src/account_chooser_dialog/mod.blp:5 src/account_chooser_dialog/mod.blp:35
 msgid "Select an Account"
@@ -1004,11 +1002,11 @@ msgstr "Д_одати обліковий запис"
 
 #: src/application.rs:244
 msgid "The Fractal Team"
-msgstr "Команда «Фрактал»"
+msgstr "Команда «Fractal»"
 
 #: src/application.rs:250
 msgid "© The Fractal Team"
-msgstr "© Команда «Фрактал»"
+msgstr "© Команда «Fractal»"
 
 #: src/application.rs:264
 msgid "translator-credits"
@@ -1275,8 +1273,7 @@ msgstr ""
 #: src/components/crypto/recovery_setup_view.blp:276
 msgid ""
 "If you do not provide a recovery passphrase, a recovery key will be created."
-msgstr ""
-"Якщо ви не вкажете пароль відновлення, буде створено ключ відновлення."
+msgstr "Якщо ви не вкажете пароль відновлення, буде створено ключ відновлення."
 
 #: src/components/crypto/recovery_setup_view.blp:328
 #: src/components/crypto/recovery_setup_view.blp:354
@@ -1297,8 +1294,7 @@ msgstr "Ви_конано"
 
 #: src/components/crypto/recovery_setup_view.blp:461
 msgid "The recovery was successful but the recovery data was incomplete."
-msgstr ""
-"Відновлення успішно виконано, але дані для відновлення були неповними."
+msgstr "Відновлення успішно виконано, але дані для відновлення були неповними."
 
 #: src/components/crypto/recovery_setup_view.blp:469
 msgid ""
@@ -2104,7 +2100,7 @@ msgstr "QR-код"
 #: src/login/greeter.blp:40 src/login/greeter.blp:44 src/window.blp:29
 #: src/window.blp:33
 msgid "About Fractal"
-msgstr "Про «Фрактал»"
+msgstr "Про «Fractal»"
 
 #: src/error_page.blp:45
 msgid "Secret Portal Error"
@@ -2116,7 +2112,7 @@ msgid ""
 "information and an error occurred while we were trying to restore your "
 "sessions."
 msgstr ""
-"«Фрактал» у керуванні конфіденційними даними ваших сеансів покладається на "
+"«Fractal» у керуванні конфіденційними даними ваших сеансів покладається на "
 "«Секретний портал». Під час спроби відновити ваші сеанси сталася помилка."
 
 #: src/error_page.blp:75
@@ -2140,7 +2136,7 @@ msgid ""
 "Fractal to interact with it, like this:"
 msgstr ""
 "Якщо ви надаєте перевагу використанню надавача послуг «Секретної служби», "
-"вам слід дозволити «Фрактал» взаємодію зі службою, ось так:"
+"вам слід дозволити «Fractal» взаємодію зі службою, ось так:"
 
 #: src/error_page.blp:152
 msgid "Copy Command"
@@ -2410,7 +2406,7 @@ msgid ""
 "None of the methods offered by the other client are supported by Fractal."
 msgstr ""
 "Підтримку жодного із методів, які надаються у розпорядження іншим клієнтом, "
-"не передбачено у «Фрактал»."
+"не передбачено у «Fractal»."
 
 #: src/identity_verification_view/no_supported_methods_page.rs:142
 msgid ""
@@ -2418,7 +2414,7 @@ msgid ""
 "client are supported by Fractal."
 msgstr ""
 "Було отримано запит щодо входу до системи, але підтримку жодного з методів, "
-"які запропоновано іншим клієнтом, не передбачено у «Фрактал»."
+"які запропоновано іншим клієнтом, не передбачено у «Fractal»."
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2428,7 +2424,7 @@ msgid ""
 "None of the methods offered by {user}’s client are supported by Fractal."
 msgstr ""
 "Підтримку жодного з методів, які запропоновано клієнтом {user}, не "
-"передбачено у «Фрактал»."
+"передбачено у «Fractal»."
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2439,7 +2435,7 @@ msgid ""
 "other client are supported by Fractal."
 msgstr ""
 "{user} надіслано запит щодо перевірки, але підтримку жодного із методів, які "
-"надаються у розпорядження іншим клієнтом, не передбачено у «Фрактал»."
+"надаються у розпорядження іншим клієнтом, не передбачено у «Fractal»."
 
 #: src/identity_verification_view/no_supported_methods_page.rs:170
 msgid "Decline Verification"
@@ -2491,8 +2487,7 @@ msgstr ""
 "клієнті."
 
 #: src/identity_verification_view/sas_page.rs:155
-msgid ""
-"Check if the same numbers appear in the same order on the other client."
+msgid "Check if the same numbers appear in the same order on the other client."
 msgstr ""
 "Перевірте, чи ті самі числа було показано у тому самому порядку на іншому "
 "клієнті."
@@ -2607,7 +2602,7 @@ msgstr "_Автовизначення"
 #. Translators: Fractal is the application name.
 #: src/login/greeter.blp:7 src/login/greeter.blp:84
 msgid "Welcome to Fractal"
-msgstr "Вітаємо у «Фракталі»"
+msgstr "Вітаємо у «Fractal»"
 
 #: src/login/greeter.blp:104
 msgid "_Log In"
@@ -2668,7 +2663,7 @@ msgid ""
 "Fractal."
 msgstr ""
 "Крок уповноваження завершено. Ви можете закрити цю сторінку і повернутися до "
-"«Фрактала»"
+"«Fractal»"
 
 #: src/login/method_page.blp:6 src/window.blp:73
 msgid "Log In"
@@ -2726,7 +2721,7 @@ msgstr "Отримуємо дані облікового запису…"
 #: src/secret/linux.rs:175
 #, rust-format
 msgid "Fractal: Matrix credentials for {user_id}"
-msgstr "Фрактал: реєстраційні дані Matrix для {user_id}"
+msgstr "Fractal: реєстраційні дані Matrix для {user_id}"
 
 #: src/secret/linux.rs:529
 msgid "The secret storage file is corrupted."
@@ -2746,8 +2741,7 @@ msgstr ""
 
 #: src/secret/linux.rs:538
 msgid "The secret storage file has been changed by another process."
-msgstr ""
-"До файла сховища реєстраційних даних внесено зміни стороннім процесом."
+msgstr "До файла сховища реєстраційних даних внесено зміни стороннім процесом."
 
 #: src/secret/linux.rs:541
 msgid ""
@@ -2774,8 +2768,7 @@ msgstr ""
 "сталася неочікувана помилка"
 
 #: src/secret/linux.rs:550
-msgid ""
-"The Flatpak Secret Portal provided a key that is too weak to be secure."
+msgid "The Flatpak Secret Portal provided a key that is too weak to be secure."
 msgstr ""
 "Портал реєстраційних даних Flatpak надав ключ, який є надто простим, щоб "
 "бути безпечним."
@@ -5113,7 +5106,7 @@ msgstr "_Клавіатурні скорочення"
 
 #: src/session_view/sidebar/mod.blp:29
 msgid "_About Fractal"
-msgstr "_Про «Фрактал»"
+msgstr "_Про «Fractal»"
 
 #: src/session_view/sidebar/mod.blp:44
 msgid "Dec_line"
@@ -5716,7 +5709,7 @@ msgstr "Сеанс"
 #~ msgstr "Ідентифікатор відправника скопійовано до буфера обміну"
 
 #~ msgid "© 2017-2024 The Fractal Team"
-#~ msgstr "© Команда «Фрактал», 2017-2024"
+#~ msgstr "© Команда «Fractal», 2017-2024"
 
 #~| msgid "_Edit"
 #~ msgctxt "room details"
@@ -5935,7 +5928,7 @@ msgstr "Сеанс"
 #~ "your encrypted message history. It is recommended to backup your "
 #~ "encryption keys before proceeding."
 #~ msgstr ""
-#~ "Підтримка шифрування у «Фракталі» не є стабільною, тому ви можете "
+#~ "Підтримка шифрування у «Fractal» не є стабільною, тому ви можете "
 #~ "втратити доступ до вашого зашифрованого журналу повідомлень. Перш ніж "
 #~ "продовжувати, рекомендуємо створити резервну копію ваших ключів "
 #~ "шифрування."
@@ -5944,7 +5937,7 @@ msgstr "Сеанс"
 #~ "Fractal doesn’t support online backup of room encryption keys so you "
 #~ "might lose access to your encrypted message history."
 #~ msgstr ""
-#~ "У «Фракталі» не передбачено підтримки інтерактивного резервного "
+#~ "У «Fractal» не передбачено підтримки інтерактивного резервного "
 #~ "копіювання ключів шифрування кімнати, тому ви можете втратити доступ до "
 #~ "журналу ваших шифрованих повідомлень."
 
@@ -5979,7 +5972,7 @@ msgstr "Сеанс"
 #~ "will need to back them up manually or your message history will be lost "
 #~ "if you lose access to all your sessions."
 #~ msgstr ""
-#~ "У «Фракталі» не передбачено підтримки інтерактивного резервного "
+#~ "У «Fractal» не передбачено підтримки інтерактивного резервного "
 #~ "копіювання ключів шифрування кімнати, тому вам доведеться робити їхні "
 #~ "резервні копії вручну, інакше ви втратите ваш журнал повідомлень, якщо "
 #~ "втратите доступ до усіх ваших сеансів."
@@ -6092,7 +6085,7 @@ msgstr "Сеанс"
 #~ "It seems like one of the Fractal sessions stored in the Secret Service is "
 #~ "corrupted. If you know how to fix it you should do so."
 #~ msgstr ""
-#~ "Здається один із сеансів «Фрактала», який було збережено у «Секретній "
+#~ "Здається один із сеансів «Fractal», який було збережено у «Секретній "
 #~ "службі», пошкоджено. Якщо вам відомо, як виправити цю помилку, можете "
 #~ "зробити це."
 
@@ -6294,7 +6287,7 @@ msgstr "Сеанс"
 #~ msgstr "Julian Sparber"
 
 #~ msgid "Learn more about Fractal"
-#~ msgstr "Дізнайтеся більше про «Фрактал»"
+#~ msgstr "Дізнайтеся більше про «Fractal»"
 
 #~ msgid "A Matrix client for GNOME"
 #~ msgstr "Клієнт Matrix для GNOME"
@@ -6560,7 +6553,7 @@ msgstr "Сеанс"
 #~ "натисніть «Продовжити»."
 
 #~ msgid "Fractal [{}]"
-#~ msgstr "Фрактал [{}]"
+#~ msgstr "Fractal [{}]"
 
 #~ msgid "An audio file has been added to the conversation."
 #~ msgstr "До спілкування було додано файл звукових даних."
