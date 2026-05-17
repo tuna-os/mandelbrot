@@ -6,9 +6,6 @@ targets = [
 
 [advisories]
 yanked = "deny"
-ignore = [
-   { id = "RUSTSEC-2026-0097", reason = "rand 0.8 is used upstream, and this vulnerability does not affect us because the `log` feature is not enabled" },
-]
 
 [bans]
 multiple-versions = "allow"
