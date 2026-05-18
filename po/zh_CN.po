@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fractal master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
-"POT-Creation-Date: 2026-05-08 06:08+0000\n"
-"PO-Revision-Date: 2026-05-09 07:35+0800\n"
+"POT-Creation-Date: 2026-05-17 15:37+0000\n"
+"PO-Revision-Date: 2026-05-18 08:21+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -2025,7 +2025,7 @@ msgid "Command copied to clipboard"
 msgstr "命令已复制到剪贴板"
 
 #: src/identity_verification_view/accept_request_page.rs:130
-#: src/session/notifications/mod.rs:387
+#: src/session/notifications/mod.rs:396
 msgid "Login Request From Another Session"
 msgstr "来自另一个会话的登录请求"
 
@@ -2037,7 +2037,7 @@ msgstr "从当前会话验证新会话。"
 #: src/identity_verification_view/choose_method_page.rs:184
 #: src/identity_verification_view/sas_page.rs:160
 #: src/identity_verification_view/scan_qr_code_page.rs:159
-#: src/session/notifications/mod.rs:325
+#: src/session/notifications/mod.rs:334
 msgid "Verification Request"
 msgstr "验证请求"
 
@@ -2633,59 +2633,83 @@ msgstr "无法登出该会话"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session/notifications/mod.rs:329
+#: src/session/notifications/mod.rs:338
 #, rust-format
 msgid "{user} sent a verification request"
 msgstr "{user} 发送了一个验证请求"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session/notifications/mod.rs:391
+#: src/session/notifications/mod.rs:400
 #, rust-format
 msgid "Verify your new session “{name}”"
 msgstr "验证您的新会话“{name}”"
 
-#: src/session/notifications/mod.rs:483
+#: src/session/notifications/mod.rs:492
 #, rust-format
 msgid "{user} sent an audio file."
 msgstr "{user} 发送了一个音频文件。"
 
-#: src/session/notifications/mod.rs:486
+#: src/session/notifications/mod.rs:495
 #, rust-format
 msgid "{user} sent a file."
 msgstr "{user} 发送了一个文件。"
 
-#: src/session/notifications/mod.rs:488
+#: src/session/notifications/mod.rs:497
 #, rust-format
 msgid "{user} sent an image."
 msgstr "{user} 发送了一张图片。"
 
-#: src/session/notifications/mod.rs:491
+#: src/session/notifications/mod.rs:500
 #, rust-format
 msgid "{user} sent their location."
 msgstr "{user} 发送了他们的位置。"
 
-#: src/session/notifications/mod.rs:503
+#: src/session/notifications/mod.rs:512
 #, rust-format
 msgid "{user} sent a video."
 msgstr "{user} 发送了一段视频。"
 
-#: src/session/notifications/mod.rs:510
+#: src/session/notifications/mod.rs:519
 #, rust-format
 msgid "{user} sent a sticker."
 msgstr "{user} 发送了一张贴纸。"
 
-#: src/session/notifications/mod.rs:520
+#: src/session/notifications/mod.rs:529
 #, rust-format
 msgid "{user}: {message}"
 msgstr "{user}：{message}"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session/notifications/mod.rs:570
+#: src/session/notifications/mod.rs:579
 #, rust-format
 msgid "{user} invited you"
 msgstr "{user} 邀请了您"
+
+#: src/session/notifications/mod.rs:607
+msgid "Incoming video call. Use another client to answer."
+msgstr "收到视频通话。使用另一个客户端应答。"
+
+#. Translators: Do NOT translate the content between '{' and '}', this
+#. is a variable name.
+#: src/session/notifications/mod.rs:613
+#: src/session_view/room_history/call_row.rs:127
+#, rust-format
+msgid "Incoming video call from {user}. Use another client to answer."
+msgstr "来自 {user} 的视频通话。使用另一个客户端应答。"
+
+#: src/session/notifications/mod.rs:617
+msgid "Incoming call. Use another client to answer."
+msgstr "收到语音通话。使用另一个客户端应答。"
+
+#. Translators: Do NOT translate the content between '{' and '}', this
+#. is a variable name.
+#: src/session/notifications/mod.rs:621
+#: src/session_view/room_history/call_row.rs:141
+#, rust-format
+msgid "Incoming call from {user}. Use another client to answer."
+msgstr "来自 {user} 的语音通话。使用另一个客户端应答。"
 
 #: src/session/room/join_rule.rs:259
 msgid "Only invited users, and users can request an invite"
@@ -4039,16 +4063,13 @@ msgstr ""
 "升级之后，您将成为该聊天室中唯一的创建者。当前的创建者将被降级为默认的权力级"
 "别。"
 
-#: src/session_view/room_history/call_row.rs:115
-msgid "Outgoing call."
-msgstr "拨出呼叫。"
+#: src/session_view/room_history/call_row.rs:122
+msgid "Outgoing video call."
+msgstr "发出视频通话。"
 
-#. Translators: Do NOT translate the content between '{' and '}', this is a
-#. variable name.
-#: src/session_view/room_history/call_row.rs:121
-#, rust-format
-msgid "Incoming call from {sender}."
-msgstr "{sender} 来电。"
+#: src/session_view/room_history/call_row.rs:136
+msgid "Outgoing call."
+msgstr "发出语音通话。"
 
 #: src/session_view/room_history/divider_row.rs:90
 msgid "This is the start of the visible history"
