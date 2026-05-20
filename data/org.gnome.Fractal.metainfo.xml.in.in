@@ -72,6 +72,41 @@
   </content_rating>
 
   <releases>@development-release@
+    <release version="14~rc" type="development" date="2026-05-20">
+      <description>
+        <p>
+          This release candidate comes with a fair amount of quality of life improvements:
+        </p>
+        <ul>
+          <li>
+            The sidebar room filter has been improved: Enter goes to first room result, and there’s
+            an empty state when no results match the term.
+          </li>
+          <li>
+            The performance of the room list has also been improved, it should be mostly noticeable
+            for accounts that have joined a lot of rooms.
+          </li>
+          <li>
+            Informative events (Unable to decrypt, server notices…) are now styled differently to
+            reflect their special nature and differentiate them from regular text messages that
+            anyone can send.
+          </li>
+          <li>
+            Calls are rendered in the timeline and incoming calls trigger a notification. We still
+            don’t support calls, but at least now you know when someone is calling and can open
+            another client to answer.
+          </li>
+        </ul>
+        <p>
+          As usual, this release includes other improvements, fixes and new translations thanks to
+          all our contributors, and our upstream projects.
+        </p>
+        <p>
+          As the version implies, it should be mostly stable and we expect to only include minor
+          improvements until the release of Fractal 14.
+        </p>
+      </description>
+    </release>
     <release version="14~beta" type="development" date="2026-04-01">
       <description>
         <p>
