@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: fractal master\n"
+"Project-Id-Version: fractal main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
 "POT-Creation-Date: 2026-05-20 06:36+0000\n"
-"PO-Revision-Date: 2026-05-23 09:05+0900\n"
+"PO-Revision-Date: 2026-05-23 09:15+0900\n"
 "Last-Translator: Ryo Nakano <ryonakaknock3@gmail.com>\n"
 "Language-Team: Japanese <https://l10n.gnome.org/teams/ja/>\n"
 "Language: ja\n"
@@ -4264,7 +4264,7 @@ msgstr "破棄(_D)"
 
 #: src/session_view/room_history/event_actions/context_menu.blp:98
 msgid "Rep_ort…"
-msgstr "報告…(_O)"
+msgstr "報告(_O)…"
 
 #: src/session_view/room_history/event_actions/context_menu.blp:104
 msgid "Re_move"
@@ -4730,7 +4730,7 @@ msgstr "ルームの詳細(_D)"
 
 #: src/session_view/room_history/mod.blp:13
 msgid "_Invite New Members…"
-msgstr "新しいメンバーを招待…(_I)"
+msgstr "新しいメンバーを招待(_I)…"
 
 #: src/session_view/room_history/mod.blp:21
 #: src/session_view/sidebar/mod.blp:104
@@ -5017,15 +5017,15 @@ msgstr "認証中"
 
 #: src/session_view/sidebar/mod.blp:7
 msgid "New _Direct Chat…"
-msgstr "新しいダイレクトチャット…(_D)"
+msgstr "新しいダイレクトチャット(_D)…"
 
 #: src/session_view/sidebar/mod.blp:12
 msgid "_New Room…"
-msgstr "新しいルーム…(_N)"
+msgstr "新しいルーム(_N)…"
 
 #: src/session_view/sidebar/mod.blp:17
 msgid "_Join Room…"
-msgstr "ルームに参加…(_J)"
+msgstr "ルームに参加(_J)…"
 
 #: src/session_view/sidebar/mod.blp:24
 msgid "_Keyboard Shortcuts"
