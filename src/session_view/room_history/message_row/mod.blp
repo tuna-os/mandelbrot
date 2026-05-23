@@ -51,11 +51,6 @@ template $ContentMessageRow: Adw.Bin {
       $EventTimestamp timestamp {
         hexpand: true;
         datetime: bind template.event as <$RoomEvent>.timestamp;
-
-        layout {
-          column: 2;
-          row: 0;
-        }
       }
     }
 
