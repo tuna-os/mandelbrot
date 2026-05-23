@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fractal master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
-"POT-Creation-Date: 2026-05-08 06:08+0000\n"
-"PO-Revision-Date: 2026-05-17 20:10+0900\n"
+"POT-Creation-Date: 2026-05-20 06:36+0000\n"
+"PO-Revision-Date: 2026-05-23 09:05+0900\n"
 "Last-Translator: Ryo Nakano <ryonakaknock3@gmail.com>\n"
 "Language-Team: Japanese <https://l10n.gnome.org/teams/ja/>\n"
 "Language: ja\n"
@@ -931,7 +931,6 @@ msgid "Not verified"
 msgstr "未確認"
 
 #: src/account_settings/user_session/user_session_subpage.blp:14
-#| msgid "Matrix ID"
 msgid "Matrix Session ID"
 msgstr "Matrix セッション ID"
 
@@ -2108,7 +2107,7 @@ msgid "Command copied to clipboard"
 msgstr "コマンドをクリップボードにコピーしました"
 
 #: src/identity_verification_view/accept_request_page.rs:130
-#: src/session/notifications/mod.rs:387
+#: src/session/notifications/mod.rs:396
 msgid "Login Request From Another Session"
 msgstr "他のセッションからのログイン要求"
 
@@ -2120,7 +2119,7 @@ msgstr "現在のセッションから新しいセッションを確認してく
 #: src/identity_verification_view/choose_method_page.rs:184
 #: src/identity_verification_view/sas_page.rs:160
 #: src/identity_verification_view/scan_qr_code_page.rs:159
-#: src/session/notifications/mod.rs:325
+#: src/session/notifications/mod.rs:334
 msgid "Verification Request"
 msgstr "認証要求"
 
@@ -2750,60 +2749,87 @@ msgstr "セッションからログアウトできませんでした"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session/notifications/mod.rs:329
+#: src/session/notifications/mod.rs:338
 #, rust-format
 msgid "{user} sent a verification request"
 msgstr "{user} が認証要求を送信しました"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session/notifications/mod.rs:391
+#: src/session/notifications/mod.rs:400
 #, rust-format
 msgid "Verify your new session “{name}”"
 msgstr "新しいセッション “{name}” を確認してください"
 
-#: src/session/notifications/mod.rs:483
+#: src/session/notifications/mod.rs:492
 #, rust-format
 msgid "{user} sent an audio file."
 msgstr "{user} が音声ファイルを送信しました。"
 
-#: src/session/notifications/mod.rs:486
+#: src/session/notifications/mod.rs:495
 #, rust-format
-#| msgid "Select a file"
 msgid "{user} sent a file."
 msgstr "{user} がファイルを送信しました。"
 
-#: src/session/notifications/mod.rs:488
+#: src/session/notifications/mod.rs:497
 #, rust-format
 msgid "{user} sent an image."
 msgstr "{user} が画像を送信しました。"
 
-#: src/session/notifications/mod.rs:491
+#: src/session/notifications/mod.rs:500
 #, rust-format
 msgid "{user} sent their location."
 msgstr "{user} が位置情報を送信しました。"
 
-#: src/session/notifications/mod.rs:503
+#: src/session/notifications/mod.rs:512
 #, rust-format
 msgid "{user} sent a video."
 msgstr "{user} がビデオを送信しました。"
 
-#: src/session/notifications/mod.rs:510
+#: src/session/notifications/mod.rs:519
 #, rust-format
 msgid "{user} sent a sticker."
 msgstr "{user} がステッカーを送信しました。"
 
-#: src/session/notifications/mod.rs:520
+#: src/session/notifications/mod.rs:529
 #, rust-format
 msgid "{user}: {message}"
 msgstr "{user}: {message}"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session/notifications/mod.rs:570
+#: src/session/notifications/mod.rs:579
 #, rust-format
 msgid "{user} invited you"
 msgstr "{user} があなたを招待しました"
+
+#: src/session/notifications/mod.rs:607
+msgid "Incoming video call. Use another client to answer."
+msgstr ""
+"ビデオ通話の着信があります。応答するには他のクライアントを使用してください。"
+
+#. Translators: Do NOT translate the content between '{' and '}', this
+#. is a variable name.
+#: src/session/notifications/mod.rs:613
+#: src/session_view/room_history/call_row.rs:127
+#, rust-format
+msgid "Incoming video call from {user}. Use another client to answer."
+msgstr ""
+"{user} からのビデオ通話の着信があります。応答するには他のクライアントを使用し"
+"てください。"
+
+#: src/session/notifications/mod.rs:617
+msgid "Incoming call. Use another client to answer."
+msgstr "着信があります。応答するには他のクライアントを使用してください。"
+
+#. Translators: Do NOT translate the content between '{' and '}', this
+#. is a variable name.
+#: src/session/notifications/mod.rs:621
+#: src/session_view/room_history/call_row.rs:141
+#, rust-format
+msgid "Incoming call from {user}. Use another client to answer."
+msgstr ""
+"{user} からの着信があります。応答するには他のクライアントを使用してください。"
 
 #: src/session/room/join_rule.rs:259
 msgid "Only invited users, and users can request an invite"
@@ -4165,16 +4191,13 @@ msgstr ""
 "アップグレードの後、あなたはルームの唯一の作成者になります。現在の作成者はデ"
 "フォルトの権限に降格となります。"
 
-#: src/session_view/room_history/call_row.rs:115
+#: src/session_view/room_history/call_row.rs:122
+msgid "Outgoing video call."
+msgstr "ビデオ通話を発信しています。"
+
+#: src/session_view/room_history/call_row.rs:136
 msgid "Outgoing call."
 msgstr "発信しています。"
-
-#. Translators: Do NOT translate the content between '{' and '}', this is a
-#. variable name.
-#: src/session_view/room_history/call_row.rs:121
-#, rust-format
-msgid "Incoming call from {sender}."
-msgstr "{sender} からの着信があります。"
 
 #: src/session_view/room_history/divider_row.rs:90
 msgid "This is the start of the visible history"
@@ -4241,7 +4264,7 @@ msgstr "破棄(_D)"
 
 #: src/session_view/room_history/event_actions/context_menu.blp:98
 msgid "Rep_ort…"
-msgstr "報告(_O)…"
+msgstr "報告…(_O)"
 
 #: src/session_view/room_history/event_actions/context_menu.blp:104
 msgid "Re_move"
@@ -4707,7 +4730,7 @@ msgstr "ルームの詳細(_D)"
 
 #: src/session_view/room_history/mod.blp:13
 msgid "_Invite New Members…"
-msgstr "新しいメンバーを招待(_I)…"
+msgstr "新しいメンバーを招待…(_I)"
 
 #: src/session_view/room_history/mod.blp:21
 #: src/session_view/sidebar/mod.blp:104
@@ -4994,15 +5017,15 @@ msgstr "認証中"
 
 #: src/session_view/sidebar/mod.blp:7
 msgid "New _Direct Chat…"
-msgstr "新しいダイレクトチャット(_D)…"
+msgstr "新しいダイレクトチャット…(_D)"
 
 #: src/session_view/sidebar/mod.blp:12
 msgid "_New Room…"
-msgstr "新しいルーム(_N)…"
+msgstr "新しいルーム…(_N)"
 
 #: src/session_view/sidebar/mod.blp:17
 msgid "_Join Room…"
-msgstr "ルームに参加(_J)…"
+msgstr "ルームに参加…(_J)"
 
 #: src/session_view/sidebar/mod.blp:24
 msgid "_Keyboard Shortcuts"
