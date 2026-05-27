@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fractal main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
-"POT-Creation-Date: 2026-05-20 06:36+0000\n"
-"PO-Revision-Date: 2026-05-23 09:15+0900\n"
+"POT-Creation-Date: 2026-05-27 15:22+0000\n"
+"PO-Revision-Date: 2026-05-28 06:56+0900\n"
 "Last-Translator: Ryo Nakano <ryonakaknock3@gmail.com>\n"
 "Language-Team: Japanese <https://l10n.gnome.org/teams/ja/>\n"
 "Language: ja\n"
@@ -1853,9 +1853,8 @@ msgid "Notify the whole room"
 msgstr "ルーム全体に通知"
 
 #. Translators: As in 'Custom role'.
-#. Translators: As in, 'Custom power level', meaning permissions.
 #: src/components/power_level_selection/popover.blp:127
-#: src/session/room/permissions.rs:66
+msgctxt "role"
 msgid "Custom"
 msgstr "カスタム"
 
@@ -2884,6 +2883,12 @@ msgstr "不明"
 #: src/session/room/permissions.rs:64
 msgid "Default"
 msgstr "デフォルト"
+
+#. Translators: As in, 'Custom power level', meaning permissions.
+#: src/session/room/permissions.rs:66
+msgctxt "power level"
+msgid "Custom"
+msgstr "カスタム"
 
 #: src/session/room/permissions.rs:67
 msgid "Moderator"
