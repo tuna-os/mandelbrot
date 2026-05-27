@@ -1,6 +1,6 @@
 use std::fmt;
 
-use gettextrs::gettext;
+use gettextrs::{gettext, pgettext};
 use gtk::{
     glib,
     glib::{clone, closure_local},
@@ -63,7 +63,7 @@ impl fmt::Display for MemberRole {
             // Translators: As in 'Default power level', meaning permissions.
             Self::Default => write!(f, "{}", gettext("Default")),
             // Translators: As in, 'Custom power level', meaning permissions.
-            Self::Custom => write!(f, "{}", gettext("Custom")),
+            Self::Custom => write!(f, "{}", pgettext("power level", "Custom")),
             Self::Moderator => write!(f, "{}", gettext("Moderator")),
             Self::Administrator => write!(f, "{}", gettext("Admin")),
             Self::Creator => write!(f, "{}", gettext("Creator")),
