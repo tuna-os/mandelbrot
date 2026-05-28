@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fractal master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
-"POT-Creation-Date: 2026-05-17 15:37+0000\n"
-"PO-Revision-Date: 2026-05-18 17:46+0200\n"
+"POT-Creation-Date: 2026-05-27 15:22+0000\n"
+"PO-Revision-Date: 2026-05-28 09:19+0200\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -1719,8 +1719,8 @@ msgid "Notify the whole room"
 msgstr "Obvesti celotno klepetalnico"
 
 #. Translators: As in 'Custom role'.
-#. Translators: As in, 'Custom power level', meaning permissions.
-#: src/components/power_level_selection/popover.blp:127 src/session/room/permissions.rs:66
+#: src/components/power_level_selection/popover.blp:127
+msgctxt "role"
 msgid "Custom"
 msgstr "Po meri"
 
@@ -2664,6 +2664,12 @@ msgstr "Neznano"
 #: src/session/room/permissions.rs:64
 msgid "Default"
 msgstr "Privzeto"
+
+#. Translators: As in, 'Custom power level', meaning permissions.
+#: src/session/room/permissions.rs:66
+msgctxt "power level"
+msgid "Custom"
+msgstr "Po meri"
 
 #: src/session/room/permissions.rs:67
 msgid "Moderator"
