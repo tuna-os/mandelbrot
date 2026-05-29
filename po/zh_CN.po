@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fractal master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
-"POT-Creation-Date: 2026-05-17 15:37+0000\n"
-"PO-Revision-Date: 2026-05-18 08:21+0800\n"
+"POT-Creation-Date: 2026-05-27 15:22+0000\n"
+"PO-Revision-Date: 2026-05-29 08:15+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -1779,9 +1779,8 @@ msgid "Notify the whole room"
 msgstr "通知整个房间"
 
 #. Translators: As in 'Custom role'.
-#. Translators: As in, 'Custom power level', meaning permissions.
 #: src/components/power_level_selection/popover.blp:127
-#: src/session/room/permissions.rs:66
+msgctxt "role"
 msgid "Custom"
 msgstr "自定义"
 
@@ -2764,6 +2763,12 @@ msgstr "未知"
 #: src/session/room/permissions.rs:64
 msgid "Default"
 msgstr "默认"
+
+#. Translators: As in, 'Custom power level', meaning permissions.
+#: src/session/room/permissions.rs:66
+msgctxt "power level"
+msgid "Custom"
+msgstr "自定义"
 
 #: src/session/room/permissions.rs:67
 msgid "Moderator"
