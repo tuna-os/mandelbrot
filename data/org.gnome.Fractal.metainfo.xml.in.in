@@ -35,15 +35,15 @@
 
   <screenshots>
     <screenshot type="default">
-      <image type="source">https://gitlab.gnome.org/World/fractal/raw/fractal-13/screenshots/main.png</image>
+      <image type="source">https://gitlab.gnome.org/World/fractal/raw/fractal-14/screenshots/main.png</image>
       <caption>Fractal’s main window</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.gnome.org/World/fractal/raw/fractal-13/screenshots/media-history.png</image>
+      <image type="source">https://gitlab.gnome.org/World/fractal/raw/fractal-14/screenshots/media-history.png</image>
       <caption>View the media history of a Matrix room</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.gnome.org/World/fractal/raw/fractal-13/screenshots/adaptive.png</image>
+      <image type="source">https://gitlab.gnome.org/World/fractal/raw/fractal-14/screenshots/adaptive.png</image>
       <caption>Fractal’s interface adapts to small screens</caption>
     </screenshot>
   </screenshots>
@@ -72,12 +72,26 @@
   </content_rating>
 
   <releases>@development-release@
-    <release version="14~rc" type="development" date="2026-05-20">
+    <release version="14" type="stable" date="2026-06-12">
       <description>
         <p>
-          This release candidate comes with a fair amount of quality of life improvements:
+          This one is packed with lots of small changes, that make for an even better experience.
         </p>
         <ul>
+          <li>
+            Call rooms are identified with a camera icon in the sidebar and show a banner to warn
+            that other users might not read messages in these rooms.
+          </li>
+          <li>
+            Calls are rendered in the timeline and incoming calls trigger a notification. We still
+            don’t support calls, but at least now you know when someone is calling and can open
+            another client to answer.
+          </li>
+          <li>
+            While we still support signing in via SSO, we have dropped support for identity
+            providers, to simplify our code and a have a closer experience to signing in with OAuth
+            2.0.
+          </li>
           <li>
             The sidebar room filter has been improved: Enter goes to first room result, and there’s
             an empty state when no results match the term.
@@ -92,56 +106,17 @@
             anyone can send.
           </li>
           <li>
-            Calls are rendered in the timeline and incoming calls trigger a notification. We still
-            don’t support calls, but at least now you know when someone is calling and can open
-            another client to answer.
-          </li>
-        </ul>
-        <p>
-          As usual, this release includes other improvements, fixes and new translations thanks to
-          all our contributors, and our upstream projects.
-        </p>
-        <p>
-          As the version implies, it should be mostly stable and we expect to only include minor
-          improvements until the release of Fractal 14.
-        </p>
-      </description>
-    </release>
-    <release version="14~beta" type="development" date="2026-04-01">
-      <description>
-        <p>
-          Things have been fairly quiet since the AI takeover.
-        </p>
-        <ul>
-          <li>
             Sending files &amp; location is properly disabled while editing/replying, as it doesn’t
             work anyway.
           </li>
-          <li>
-            Call rooms are identified with a camera icon in the sidebar and show a banner to warn
-            that other users might not read messages in these rooms.
-          </li>
-          <li>
-            While we still support signing in via SSO, we have dropped support for identity
-            providers, to simplify our code and a have a closer experience to signing in with OAuth
-            2.0.
-          </li>
-          <li>
-            Map markers now use a darker variant of the accent color to have a better contrast with
-            the map underneath.
-          </li>
-          <li>
-            Many small behind the scenes changes, mostly through dependency updates, and we have
-            removed a few of them. Small improvements to the technical docs as well.
-          </li>
         </ul>
         <p>
-          As usual, this release includes other improvements, fixes and new translations thanks to
-          all our contributors, and our upstream projects.
+          As usual, this release includes other improvements and fixes thanks to all our
+          contributors, and our upstream projects.
         </p>
         <p>
-          As the version implies, there might be a slight risk of regressions, but it should be
-          mostly stable. If all goes well the next step is the release candidate!
+          We want to address special thanks to the translators who worked on this version. We know
+          this is a huge undertaking and have a deep appreciation for what you’ve done.
         </p>
       </description>
     </release>

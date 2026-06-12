@@ -1,7 +1,7 @@
 project(
     'fractal',
     'rust',
-    version: '14.rc',
+    version: '14',
     license: 'GPL-3.0-or-later',
     meson_version: '>= 1.4',
 )
@@ -14,7 +14,7 @@ base_id = 'org.gnome.Fractal'
 application_id = base_id
 
 major_version = '14'
-pre_release_version = 'rc'
+pre_release_version = ''
 
 version = major_version
 if pre_release_version != ''
