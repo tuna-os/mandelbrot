@@ -6,6 +6,9 @@ targets = [
 
 [advisories]
 yanked = "deny"
+ignore = [
+    { id = "RUSTSEC-2026-0173", reason = "proc-macro-error2 is unmaintained but used by dependencies of matrix-sdk" },
+]
 
 [bans]
 multiple-versions = "allow"
