@@ -986,7 +986,7 @@ impl GlycinFrameExt for glycin::Frame {
         self.has_delay()
             .then(|| u64::try_from(self.delay()).ok())
             .flatten()
-            .map(Duration::from_millis)
+            .map(Duration::from_micros)
     }
 
     fn texture(&self) -> gdk::Texture {
