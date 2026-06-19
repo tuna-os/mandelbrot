@@ -8,15 +8,16 @@
 # Álvaro Burns <>, 2025.
 # Juliano de Souza Camargo <julianosc@pm.me>, 2024-2025.
 # Rafael Fontenelle <rafaelff@gnome.org>, 2018-2026.
+# Luiggi R. Cardoso <luiggicardoso@outlook.com>, 2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: fractal main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
-"POT-Creation-Date: 2026-04-10 08:44+0000\n"
-"PO-Revision-Date: 2026-04-16 17:09-0300\n"
-"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
-"Language-Team: Brazilian Portuguese <https://br.gnome.org/traducao>\n"
+"POT-Creation-Date: 2026-05-27 15:22+0000\n"
+"PO-Revision-Date: 2026-06-04 11:44-0300\n"
+"Last-Translator: Luiggi R. Cardoso <luiggicardoso@outlook.com>\n"
+"Language-Team: Brazilian Portuguese <https://br.gnome.org/traducao/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -271,11 +272,11 @@ msgstr[1] "Importado {n} chaves de criptografia da sala"
 msgid "Could not export the keys"
 msgstr "Falha ao exportar as chaves"
 
-#: src/account_settings/encryption_page/import_export_keys_subpage.rs:355
+#: src/account_settings/encryption_page/import_export_keys_subpage.rs:354
 msgid "The passphrase doesn't match the one used to export the keys."
 msgstr "A frase de segurança não corresponde à usada para exportar as chaves."
 
-#: src/account_settings/encryption_page/import_export_keys_subpage.rs:360
+#: src/account_settings/encryption_page/import_export_keys_subpage.rs:359
 msgid "Could not import the keys"
 msgstr "Falha ao importar as chaves"
 
@@ -642,43 +643,43 @@ msgstr "Copiar ID de sessão local"
 msgid "Local session ID copied to clipboard"
 msgstr "ID da sessão local copiado para a área de transferência"
 
-#: src/account_settings/general_page/mod.rs:323
+#: src/account_settings/general_page/mod.rs:309
 #: src/session_view/room_details/edit_details_subpage.rs:149
 msgid "Avatar removed successfully"
 msgstr "Avatar removido com sucesso"
 
-#: src/account_settings/general_page/mod.rs:325
+#: src/account_settings/general_page/mod.rs:311
 #: src/session_view/room_details/edit_details_subpage.rs:151
 msgid "Avatar changed successfully"
 msgstr "Avatar alterado com sucesso"
 
-#: src/account_settings/general_page/mod.rs:343
-#: src/account_settings/general_page/mod.rs:353
+#: src/account_settings/general_page/mod.rs:329
+#: src/account_settings/general_page/mod.rs:339
 #: src/session_view/room_details/edit_details_subpage.rs:176
 #: src/session_view/room_details/edit_details_subpage.rs:186
 msgid "Could not load file"
 msgstr "Falha ao carregar arquivo"
 
-#: src/account_settings/general_page/mod.rs:372
+#: src/account_settings/general_page/mod.rs:358
 #: src/session_view/room_details/edit_details_subpage.rs:213
 msgid "Could not upload avatar"
 msgstr "Falha ao carregar o avatar"
 
-#: src/account_settings/general_page/mod.rs:403
+#: src/account_settings/general_page/mod.rs:389
 #: src/session_view/room_details/edit_details_subpage.rs:236
 msgid "Could not change avatar"
 msgstr "Falha ao alterar o avatar"
 
-#: src/account_settings/general_page/mod.rs:420
+#: src/account_settings/general_page/mod.rs:406
 #: src/session_view/room_details/edit_details_subpage.rs:261
 msgid "Remove Avatar?"
 msgstr "Remover Avatar?"
 
-#: src/account_settings/general_page/mod.rs:421
+#: src/account_settings/general_page/mod.rs:407
 msgid "Do you really want to remove your avatar?"
 msgstr "Tem certeza que deseja remover seu avatar?"
 
-#: src/account_settings/general_page/mod.rs:424
+#: src/account_settings/general_page/mod.rs:410
 #: src/components/dialogs/message_dialogs.rs:58
 #: src/components/dialogs/message_dialogs.rs:323
 #: src/components/dialogs/message_dialogs.rs:409
@@ -687,7 +688,7 @@ msgstr "Tem certeza que deseja remover seu avatar?"
 #: src/components/dialogs/message_dialogs.rs:513
 #: src/identity_verification_view/confirm_qr_code_page.blp:55
 #: src/session_view/room_details/edit_details_subpage.rs:267
-#: src/session_view/room_details/general_page.rs:999
+#: src/session_view/room_details/general_page.rs:1001
 #: src/session_view/room_details/upgrade_dialog/mod.blp:134
 #: src/session_view/room_history/event_actions/group.rs:584
 #: src/session_view/room_history/event_actions/group.rs:648
@@ -696,23 +697,23 @@ msgstr "Tem certeza que deseja remover seu avatar?"
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: src/account_settings/general_page/mod.rs:425
+#: src/account_settings/general_page/mod.rs:411
 #: src/components/dialogs/message_dialogs.rs:232
 #: src/session_view/room_details/edit_details_subpage.rs:268
 #: src/session_view/room_history/event_actions/group.rs:585
 msgid "Remove"
 msgstr "Remover"
 
-#: src/account_settings/general_page/mod.rs:459
+#: src/account_settings/general_page/mod.rs:445
 #: src/session_view/room_details/edit_details_subpage.rs:293
 msgid "Could not remove avatar"
 msgstr "Falha ao remover o avatar"
 
-#: src/account_settings/general_page/mod.rs:508
+#: src/account_settings/general_page/mod.rs:494
 msgid "Name changed successfully"
 msgstr "Nome alterado com sucesso"
 
-#: src/account_settings/general_page/mod.rs:558
+#: src/account_settings/general_page/mod.rs:544
 msgid "Could not change display name"
 msgstr "Falha ao exibir o nome"
 
@@ -1014,7 +1015,8 @@ msgstr ""
 "Rafael Fontenelle <Rafaelff@gnome.org>\n"
 "Samuel Schlemper <samuelschlepmer2006@gmail.com>\n"
 "Juliano de Souza Camargo <julianosc@pm.me>\n"
-"Filipe Motta <luizfilipemotta@gmail.com>"
+"Filipe Motta <luizfilipemotta@gmail.com>\n"
+"Luiggi R. Cardoso <luiggicardoso@outlook.com>"
 
 #. This can't be added via the builder
 #: src/application.rs:268
@@ -1209,7 +1211,7 @@ msgid "Recovery Passphrase or Key"
 msgstr "Senha de recuperação ou chave"
 
 #: src/components/crypto/recovery_setup_view.blp:77
-#: src/session_view/sidebar/mod.rs:351
+#: src/session_view/sidebar/mod.rs:362
 msgid "Recover"
 msgstr "Recuperação"
 
@@ -1892,11 +1894,10 @@ msgid "Notify the whole room"
 msgstr "Notificar a sala inteira"
 
 #. Translators: As in 'Custom role'.
-#. Translators: As in, 'Custom power level', meaning permissions.
 #: src/components/power_level_selection/popover.blp:127
-#: src/session/room/permissions.rs:66
+msgctxt "role"
 msgid "Custom"
-msgstr "Personalizar"
+msgstr "Personalizado"
 
 #: src/components/power_level_selection/popover.blp:141
 msgid "Confirm Custom Role"
@@ -1955,7 +1956,7 @@ msgstr "Segurança"
 #: src/components/user_page.blp:199
 #: src/identity_verification_view/accept_request_page.blp:66
 #: src/session_view/room_history/verification_info_bar.rs:172
-#: src/session_view/sidebar/mod.rs:344
+#: src/session_view/sidebar/mod.rs:355
 msgid "Verify"
 msgstr "Verificar"
 
@@ -2150,7 +2151,7 @@ msgid "Command copied to clipboard"
 msgstr "Comando copiado para a área de transferência"
 
 #: src/identity_verification_view/accept_request_page.rs:130
-#: src/session/notifications/mod.rs:387
+#: src/session/notifications/mod.rs:396
 msgid "Login Request From Another Session"
 msgstr "Solicitação de Autenticação de outra Sessão"
 
@@ -2162,7 +2163,7 @@ msgstr "Verifique a nova sessão a partir da sessão atual."
 #: src/identity_verification_view/choose_method_page.rs:184
 #: src/identity_verification_view/sas_page.rs:160
 #: src/identity_verification_view/scan_qr_code_page.rs:159
-#: src/session/notifications/mod.rs:325
+#: src/session/notifications/mod.rs:334
 msgid "Verification Request"
 msgstr "Solicitação de verificação"
 
@@ -2798,59 +2799,83 @@ msgstr "Falha ao encerrar a sessão"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session/notifications/mod.rs:329
+#: src/session/notifications/mod.rs:338
 #, rust-format
 msgid "{user} sent a verification request"
 msgstr "{user} enviou uma mensagem de verificação"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session/notifications/mod.rs:391
+#: src/session/notifications/mod.rs:400
 #, rust-format
 msgid "Verify your new session “{name}”"
 msgstr "Verifique a nova sessão “{name}”"
 
-#: src/session/notifications/mod.rs:483
+#: src/session/notifications/mod.rs:492
 #, rust-format
 msgid "{user} sent an audio file."
 msgstr "{user} enviou um áudio."
 
-#: src/session/notifications/mod.rs:486
+#: src/session/notifications/mod.rs:495
 #, rust-format
 msgid "{user} sent a file."
 msgstr "{user} enviou um arquivo."
 
-#: src/session/notifications/mod.rs:488
+#: src/session/notifications/mod.rs:497
 #, rust-format
 msgid "{user} sent an image."
 msgstr "{user} enviou uma imagem."
 
-#: src/session/notifications/mod.rs:491
+#: src/session/notifications/mod.rs:500
 #, rust-format
 msgid "{user} sent their location."
 msgstr "{user} enviou sua localização."
 
-#: src/session/notifications/mod.rs:503
+#: src/session/notifications/mod.rs:512
 #, rust-format
 msgid "{user} sent a video."
 msgstr "{user} enviou um vídeo."
 
-#: src/session/notifications/mod.rs:510
+#: src/session/notifications/mod.rs:519
 #, rust-format
 msgid "{user} sent a sticker."
 msgstr "{user} enviou um adesivo."
 
-#: src/session/notifications/mod.rs:520
+#: src/session/notifications/mod.rs:529
 #, rust-format
 msgid "{user}: {message}"
 msgstr "{user}: {message}"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session/notifications/mod.rs:570
+#: src/session/notifications/mod.rs:579
 #, rust-format
 msgid "{user} invited you"
 msgstr "{user} convidou você"
+
+#: src/session/notifications/mod.rs:607
+msgid "Incoming video call. Use another client to answer."
+msgstr "Chamada de vídeo recebida. Use outro cliente para atender."
+
+#. Translators: Do NOT translate the content between '{' and '}', this
+#. is a variable name.
+#: src/session/notifications/mod.rs:613
+#: src/session_view/room_history/call_row.rs:127
+#, rust-format
+msgid "Incoming video call from {user}. Use another client to answer."
+msgstr "Chamada de vídeo recebida de {user}. Use outro cliente para atender."
+
+#: src/session/notifications/mod.rs:617
+msgid "Incoming call. Use another client to answer."
+msgstr "Chamada recebida. Use outro cliente para atender."
+
+#. Translators: Do NOT translate the content between '{' and '}', this
+#. is a variable name.
+#: src/session/notifications/mod.rs:621
+#: src/session_view/room_history/call_row.rs:141
+#, rust-format
+msgid "Incoming call from {user}. Use another client to answer."
+msgstr "Chamada recebida de {user}. Use outro cliente para atender."
 
 # Tenho a impressão que bater não é a tradução correta aqui
 #: src/session/room/join_rule.rs:259
@@ -2880,7 +2905,7 @@ msgid "Any registered user"
 msgstr "Qualquer usuário registrado"
 
 #: src/session/room/join_rule.rs:288
-#: src/session_view/room_details/general_page.rs:944
+#: src/session_view/room_details/general_page.rs:946
 msgid "Unsupported rule"
 msgstr "Regra sem suporte"
 
@@ -2906,6 +2931,12 @@ msgstr "Desconhecido"
 #: src/session/room/permissions.rs:64
 msgid "Default"
 msgstr "Padrão"
+
+#. Translators: As in, 'Custom power level', meaning permissions.
+#: src/session/room/permissions.rs:66
+msgctxt "power level"
+msgid "Custom"
+msgstr "Personalizado"
 
 #: src/session/room/permissions.rs:67
 msgid "Moderator"
@@ -3179,7 +3210,7 @@ msgstr "Não é possível desativar mais tarde"
 
 #: src/session_view/create_room_dialog.blp:128
 #: src/session_view/room_details/addresses_subpage/mod.rs:431
-#: src/session_view/room_details/general_page.rs:687
+#: src/session_view/room_details/general_page.rs:689
 msgid "Main Address"
 msgstr "Endereço principal"
 
@@ -3634,79 +3665,79 @@ msgstr "Atualizar…"
 msgid "Federation"
 msgstr "Federação"
 
-#: src/session_view/room_details/general_page.rs:464
-#: src/session_view/room_details/general_page.rs:515
+#: src/session_view/room_details/general_page.rs:466
+#: src/session_view/room_details/general_page.rs:517
 #: src/session_view/room_details/invite_subpage/list.rs:260
 msgid "Member"
 msgstr "Membro"
 
-#: src/session_view/room_details/general_page.rs:466
-#: src/session_view/room_details/general_page.rs:517
+#: src/session_view/room_details/general_page.rs:468
+#: src/session_view/room_details/general_page.rs:519
 msgid "Members"
 msgstr "Membros"
 
-#: src/session_view/room_details/general_page.rs:642
+#: src/session_view/room_details/general_page.rs:644
 msgid "Could not change notifications setting"
 msgstr "Falha ao mudar a configuração de notificações"
 
-#: src/session_view/room_details/general_page.rs:682
-#: src/session_view/room_details/general_page.rs:721
+#: src/session_view/room_details/general_page.rs:684
+#: src/session_view/room_details/general_page.rs:723
 msgid "Copy address"
 msgstr "Copiar endereço"
 
-#: src/session_view/room_details/general_page.rs:683
-#: src/session_view/room_details/general_page.rs:722
+#: src/session_view/room_details/general_page.rs:685
+#: src/session_view/room_details/general_page.rs:724
 msgid "Address copied to clipboard"
 msgstr "Endereço copiado para a área de transferência"
 
-#: src/session_view/room_details/general_page.rs:764
+#: src/session_view/room_details/general_page.rs:766
 msgid "Room link copied to clipboard"
 msgstr "Link da sala copiado para a área de transferência"
 
-#: src/session_view/room_details/general_page.rs:823
+#: src/session_view/room_details/general_page.rs:825
 msgid "Could not change guest access"
 msgstr "Falha ao alterar o acesso de convidados"
 
 #. Translators: Do NOT translate the content between '{' and '}',
 #. this is a variable name.
-#: src/session_view/room_details/general_page.rs:840
+#: src/session_view/room_details/general_page.rs:842
 #, rust-format
 msgid "Publish in the {homeserver} directory"
 msgstr "Publicar no diretório {homeserver}"
 
-#: src/session_view/room_details/general_page.rs:915
+#: src/session_view/room_details/general_page.rs:917
 msgid "Could not publish room in directory"
 msgstr "Falha ao publicar sala no diretório"
 
-#: src/session_view/room_details/general_page.rs:917
+#: src/session_view/room_details/general_page.rs:919
 msgid "Could not unpublish room from directory"
 msgstr "Falha ao despublicar a sala do diretório"
 
-#: src/session_view/room_details/general_page.rs:935
+#: src/session_view/room_details/general_page.rs:937
 #: src/session_view/room_details/history_visibility_subpage.blp:53
 msgid "Anyone, even if they are not in the room"
 msgstr "Qualquer um, mesmo que eles não estejam na sala"
 
-#: src/session_view/room_details/general_page.rs:938
+#: src/session_view/room_details/general_page.rs:940
 #: src/session_view/room_details/history_visibility_subpage.blp:59
 msgid "Members only, since this option was selected"
 msgstr "Apenas membros, já que esta opção foi selecionada"
 
-#: src/session_view/room_details/general_page.rs:940
+#: src/session_view/room_details/general_page.rs:942
 #: src/session_view/room_details/history_visibility_subpage.blp:65
 msgid "Members only, since they were invited"
 msgstr "Membros apenas, uma vez que foram convidados"
 
-#: src/session_view/room_details/general_page.rs:942
+#: src/session_view/room_details/general_page.rs:944
 #: src/session_view/room_details/history_visibility_subpage.blp:71
 msgid "Members only, since they joined the room"
 msgstr "Apenas membros, uma vez que entraram na sala"
 
-#: src/session_view/room_details/general_page.rs:994
+#: src/session_view/room_details/general_page.rs:996
 msgid "Enable Encryption?"
 msgstr "Habilitar Encriptação?"
 
-#: src/session_view/room_details/general_page.rs:995
+#: src/session_view/room_details/general_page.rs:997
 msgid ""
 "Enabling encryption will prevent new members to read the history before they "
 "arrived. This cannot be disabled later."
@@ -3714,30 +3745,30 @@ msgstr ""
 "Habilitar criptografia impedirá que novos membros leiam o histórico antes de "
 "sua chegada. Isso não pode ser desativado depois."
 
-#: src/session_view/room_details/general_page.rs:1000
-#: src/session_view/sidebar/mod.rs:342 src/session_view/sidebar/mod.rs:348
+#: src/session_view/room_details/general_page.rs:1002
+#: src/session_view/sidebar/mod.rs:353 src/session_view/sidebar/mod.rs:359
 msgid "Enable"
 msgstr "Habilitar"
 
-#: src/session_view/room_details/general_page.rs:1011
+#: src/session_view/room_details/general_page.rs:1013
 msgid "Could not enable encryption"
 msgstr "Falha ao habilitar criptografia"
 
 #. Translators: As in, 'Room federated'.
-#: src/session_view/room_details/general_page.rs:1071
+#: src/session_view/room_details/general_page.rs:1073
 msgid "Federated"
 msgstr "Federada"
 
 #. Translators: As in, 'Room not federated'.
-#: src/session_view/room_details/general_page.rs:1074
+#: src/session_view/room_details/general_page.rs:1076
 msgid "Not federated"
 msgstr "Não federada"
 
-#: src/session_view/room_details/general_page.rs:1108
+#: src/session_view/room_details/general_page.rs:1110
 msgid "Room upgraded successfully"
 msgstr "Sala atualizada com sucesso"
 
-#: src/session_view/room_details/general_page.rs:1112
+#: src/session_view/room_details/general_page.rs:1114
 msgid "Could not upgrade room"
 msgstr "Falha ao atualizar a sala"
 
@@ -4221,6 +4252,14 @@ msgstr ""
 "Após a atualização, você será o único criador na sala. Os criadores atuais "
 "serão rebaixados ao nível de poder padrão."
 
+#: src/session_view/room_history/call_row.rs:122
+msgid "Outgoing video call."
+msgstr "Chamada de vídeo efetuada."
+
+#: src/session_view/room_history/call_row.rs:136
+msgid "Outgoing call."
+msgstr "Chamada efetuada."
+
 #: src/session_view/room_history/divider_row.rs:90
 msgid "This is the start of the visible history"
 msgstr "Este é o início do histórico visível"
@@ -4293,7 +4332,7 @@ msgid "Re_move"
 msgstr "Re_mover"
 
 #: src/session_view/room_history/event_actions/context_menu.rs:83
-#: src/session_view/sidebar/mod.rs:394
+#: src/session_view/sidebar/mod.rs:405
 msgid "Context Menu"
 msgstr "Menu de contexto"
 
@@ -4449,6 +4488,11 @@ msgstr "Enviar uma reação"
 msgid "More Reactions"
 msgstr "Mais reações"
 
+#: src/session_view/room_history/event_timestamp.rs:96
+#, rust-format
+msgid "Sent at {time}"
+msgstr "Enviado às {time}"
+
 #. Translators: this is a date and a time in 12h format.
 #. For example, "May 5 at 01:20 PM".
 #. Do not change the time format as it will follow the system settings.
@@ -4527,11 +4571,6 @@ msgstr "Editado"
 #: src/session_view/room_history/message_row/mod.blp:13
 msgid "Show Sender Profile"
 msgstr "Mostrar perfil do remetente"
-
-#: src/session_view/room_history/message_row/mod.rs:255
-#, rust-format
-msgid "Sent at {time}"
-msgstr "Enviado às {time}"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -4797,12 +4836,12 @@ msgstr "Rolar à parte inferior"
 msgid "Drop Here to Send"
 msgstr "Solte aqui para enviar"
 
-#: src/session_view/room_history/mod.rs:418
+#: src/session_view/room_history/mod.rs:422
 msgid "Error getting file from drop"
 msgstr "Erro ao obter arquivo largado"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a variable name.
-#: src/session_view/room_history/mod.rs:1023
+#: src/session_view/room_history/mod.rs:1027
 #: src/session_view/sidebar/row.rs:747
 #, rust-format
 msgid "Could not leave {room}"
@@ -4810,14 +4849,14 @@ msgstr "Falha ao deixar {room}"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
-#: src/session_view/room_history/mod.rs:1046
+#: src/session_view/room_history/mod.rs:1050
 #: src/session_view/sidebar/row.rs:736
 #, rust-format
 msgid "Could not join {room}"
 msgstr "Não pôde entrar em {room}"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a variable name.
-#: src/session_view/room_history/mod.rs:1063
+#: src/session_view/room_history/mod.rs:1067
 #: src/session_view/sidebar/row.rs:780
 #, rust-format
 msgid "Could not forget {room}"
@@ -4825,7 +4864,7 @@ msgstr "Falha em esquecer {room}"
 
 #. Translators: Do NOT translate the content between '{' and '}',
 #. this is a variable name.
-#: src/session_view/room_history/mod.rs:1107
+#: src/session_view/room_history/mod.rs:1111
 #, rust-format
 msgid "There is a pending invite request"
 msgid_plural "There are {n} pending invite requests"
@@ -5127,19 +5166,19 @@ msgstr "Lista de salas"
 msgid "Allows to navigate between rooms"
 msgstr "Permite navegar entre salas"
 
-#: src/session_view/sidebar/mod.rs:342
+#: src/session_view/sidebar/mod.rs:353
 msgid "No crypto identity"
 msgstr "Nenhuma identidade criptográfica"
 
-#: src/session_view/sidebar/mod.rs:344
+#: src/session_view/sidebar/mod.rs:355
 msgid "Crypto identity incomplete"
 msgstr "Identidade criptográfica incompleta"
 
-#: src/session_view/sidebar/mod.rs:348
+#: src/session_view/sidebar/mod.rs:359
 msgid "Account recovery disabled"
 msgstr "Recuperação de conta desativada"
 
-#: src/session_view/sidebar/mod.rs:351
+#: src/session_view/sidebar/mod.rs:362
 msgid "Account recovery incomplete"
 msgstr "Recuperação de conta incompleta"
 
