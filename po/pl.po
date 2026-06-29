@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: fractal\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
 "POT-Creation-Date: 2026-06-19 09:16+0000\n"
-"PO-Revision-Date: 2026-06-29 12:02+0200\n"
+"PO-Revision-Date: 2026-06-29 14:07+0200\n"
 "Last-Translator: Victoria Niedzielska <victorian@gnome.org>\n"
 "Language-Team: Polish <https://l10n.gnome.org/teams/pl/>\n"
 "Language: pl\n"
@@ -310,7 +310,7 @@ msgstr "Brak tożsamości kryptograficznej"
 
 #: src/account_settings/encryption_page/mod.rs:153
 msgid "Verifying your own devices or other users is not possible"
-msgstr "Weryfikowane swoich urządzeń lub innych osób nie jest możliwe"
+msgstr "Weryfikowane swoich urządzeń lub innych użytkowników nie jest możliwe"
 
 #: src/account_settings/encryption_page/mod.rs:156
 #: src/account_settings/encryption_page/mod.rs:229
@@ -816,15 +816,15 @@ msgstr "Ignorowani użytkownicy"
 
 #: src/account_settings/safety_page/ignored_users_subpage/mod.blp:18
 msgid "Toggle Ignored Users Search"
-msgstr "Przełącz wyszukiwanie ignorowanych osób"
+msgstr "Przełącz wyszukiwanie ignorowanych użytkowników"
 
 #: src/account_settings/safety_page/ignored_users_subpage/mod.blp:32
 msgid "Search for ignored users"
-msgstr "Wyszukiwanie ignorowanych osób"
+msgstr "Wyszukaj ignorowanych użytkowników"
 
 #: src/account_settings/safety_page/ignored_users_subpage/mod.blp:64
 msgid "No Ignored Users"
-msgstr "Brak ignorowanych osób"
+msgstr "Brak ignorowanych użytkowników"
 
 #: src/account_settings/safety_page/ignored_users_subpage/mod.blp:65
 msgid "You can add users to this list from their room member profile"
@@ -1316,7 +1316,7 @@ msgstr "Alternatywnie możesz zresetować odzyskiwanie konta"
 
 #: src/components/crypto/recovery_setup_view.rs:221
 msgid "Invalidates the verifications of all users and sessions"
-msgstr "Unieważnia weryfikację wszystkich osób i sesji"
+msgstr "Unieważnia weryfikację wszystkich użytkowników i sesji"
 
 #: src/components/crypto/recovery_setup_view.rs:227
 msgid ""
@@ -1324,7 +1324,7 @@ msgid ""
 "Invalidates the verifications of all users and sessions."
 msgstr ""
 "Wymagane, ponieważ tożsamość kryptograficzna w danych odzyskiwania jest "
-"niekompletna. To unieważni weryfikację wszystkich osób i sesji."
+"niekompletna. To unieważni weryfikację wszystkich użytkowników i sesji."
 
 #: src/components/crypto/recovery_setup_view.rs:238
 msgid "You might not be able to read your past encrypted messages anymore"
@@ -1503,8 +1503,8 @@ msgid ""
 "Are you sure you want to ban {user_id}? They will not be able to join the "
 "room again until someone unbans them."
 msgstr ""
-"Czy na pewno chcesz wykluczyć użytkownika {user_id}? Nie będzie w stanie dołączyć do "
-"pokoju, dopóki ktoś nie cofnie wykluczenia."
+"Czy na pewno chcesz wykluczyć użytkownika {user_id}? Nie będzie w stanie "
+"dołączyć do pokoju, dopóki ktoś nie cofnie wykluczenia."
 
 #. Translators: As in, 'Ban room member'.
 #: src/components/dialogs/message_dialogs.rs:139
@@ -1528,8 +1528,8 @@ msgid ""
 "Are you sure you want to revoke the invite for {user_id}? They will still be "
 "able to join the room on their own."
 msgstr ""
-"Czy na pewno cofnąć zaproszenie dla użytkownika {user_id}? Nadal będzie w stanie "
-"samodzielnie dołączyć do pokoju."
+"Czy na pewno cofnąć zaproszenie dla użytkownika {user_id}? Nadal będzie "
+"w stanie samodzielnie dołączyć do pokoju."
 
 #. Translators: Do NOT translate the content between '{' and '}',
 #. this is a variable name.
@@ -1539,8 +1539,8 @@ msgid ""
 "Are you sure you want to revoke the invite for {user_id}? They will not be "
 "able to join the room again until someone reinvites them."
 msgstr ""
-"Czy na pewno chcesz cofnąć zaproszenie dla użytkownika {user_id}? Nie będzie w stanie "
-"dołączyć do tego pokoju bez ponownego zaproszenia."
+"Czy na pewno chcesz cofnąć zaproszenie dla użytkownika {user_id}? Nie będzie "
+"w stanie dołączyć do tego pokoju bez ponownego zaproszenia."
 
 #: src/components/dialogs/message_dialogs.rs:168
 #: src/components/user_page.rs:390
@@ -2320,8 +2320,8 @@ msgid ""
 "{user} is verified and you can now be sure that your communication will be "
 "private."
 msgstr ""
-"Użytkownik {user} jest zweryfikowany i możesz mieć pewność, że komunikacja będzie "
-"prywatna."
+"Użytkownik {user} jest zweryfikowany i możesz mieć pewność, że komunikacja "
+"będzie prywatna."
 
 #: src/identity_verification_view/confirm_qr_code_page.blp:19
 msgid "Confirm Scan"
@@ -2425,8 +2425,8 @@ msgid ""
 "{user} sent a verification request, but none of the methods offered by the "
 "other client are supported by Fractal."
 msgstr ""
-"Otrzymano prośbę o weryfikację od użytkownika {user}, ale żadna z metod oferowanych "
-"przez jego klienta nie jest wspierana przez Fractala."
+"Otrzymano prośbę o weryfikację od użytkownika {user}, ale żadna z metod "
+"oferowanych przez jego klienta nie jest wspierana przez Fractala."
 
 #: src/identity_verification_view/no_supported_methods_page.rs:170
 msgid "Decline Verification"
@@ -2452,7 +2452,8 @@ msgid ""
 "You scanned the QR code successfully. {user} may need to confirm the "
 "verification."
 msgstr ""
-"Pomyślnie zeskanowano kod QR. Użytkownik {user} może musieć potwierdzić weryfikację."
+"Pomyślnie zeskanowano kod QR. Użytkownik {user} może musieć potwierdzić "
+"weryfikację."
 
 #: src/identity_verification_view/room_left_page.blp:38
 msgid "You are no longer in the room where the verification was taking place"
@@ -2490,8 +2491,8 @@ msgid ""
 "Ask {user} if they see the following emoji appear in the same order on their "
 "screen."
 msgstr ""
-"Proszę zapytać użytkownika {user}, czy widzi następujące emoji w tej samej kolejności na "
-"swoim ekranie."
+"Proszę zapytać użytkownika {user}, czy widzi następujące emoji w tej samej "
+"kolejności na swoim ekranie."
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2501,8 +2502,8 @@ msgid ""
 "Ask {user} if they see the following numbers appear in the same order on "
 "their screen."
 msgstr ""
-"Proszę zapytać użytkownika {user}, czy widzi następujące liczby w tej samej kolejności "
-"na swoim ekranie."
+"Proszę zapytać użytkownika {user}, czy widzi następujące liczby w tej samej "
+"kolejności na swoim ekranie."
 
 #: src/identity_verification_view/sas_page.rs:253
 msgid "Could not send that the data does not match"
@@ -3158,21 +3159,21 @@ msgstr "Nowa rozmowa bezpośrednia"
 #: src/session_view/room_details/invite_subpage/mod.blp:53
 #: src/session_view/room_details/invite_subpage/mod.blp:59
 msgid "Search"
-msgstr "Wyszukiwanie"
+msgstr "Wyszukaj"
 
 #: src/session_view/create_direct_chat_dialog/mod.blp:51
 msgid "Search for people to start a new chat with"
-msgstr "Wyszukiwanie osób do rozpoczęcia nowej rozmowy"
+msgstr "Wyszukaj użytkowników do rozpoczęcia nowej rozmowy"
 
 #: src/session_view/create_direct_chat_dialog/mod.blp:83
 #: src/session_view/room_details/invite_subpage/mod.blp:98
 #: src/session_view/room_details/invite_subpage/mod.blp:102
 msgid "No Users Found"
-msgstr "Nie odnaleziono żadnych osób"
+msgstr "Nie odnaleziono użytkowników"
 
 #: src/session_view/create_direct_chat_dialog/mod.blp:84
 msgid "No users matching the search pattern were found"
-msgstr "Nie odnaleziono pasujących osób"
+msgstr "Nie odnaleziono użytkowników pasujących wyszukiwaniu"
 
 #: src/session_view/create_direct_chat_dialog/mod.blp:94
 #: src/session_view/explore/mod.blp:118
@@ -3182,7 +3183,7 @@ msgstr "Wystąpił błąd podczas wyszukiwania"
 
 #: src/session_view/create_direct_chat_dialog/mod.rs:160
 msgid "An error occurred while searching for users"
-msgstr "Wystąpił błąd podczas wyszukiwania osób"
+msgstr "Wystąpił błąd podczas wyszukiwania użytkowników"
 
 #: src/session_view/create_room_dialog.blp:36
 msgid "New Room"
@@ -3260,7 +3261,7 @@ msgstr "Adres jest już zajęty."
 
 #: src/session_view/explore/mod.blp:26
 msgid "Public Rooms Search"
-msgstr "Wyszukiwanie publicznych pokojów"
+msgstr "Wyszukaj publiczne pokoje"
 
 #: src/session_view/explore/mod.blp:27
 msgid "Search for a room in the public directory of the selected server"
@@ -3903,11 +3904,11 @@ msgstr "Pasujący użytkownicy"
 
 #: src/session_view/room_details/invite_subpage/mod.blp:103
 msgid "No users matching the search were found"
-msgstr "Nie odnaleziono pasujących osób"
+msgstr "Nie odnaleziono pasujących użytkowników"
 
 #: src/session_view/room_details/invite_subpage/mod.blp:120
 msgid "Searching for Users"
-msgstr "Wyszukiwanie osób"
+msgstr "Wyszukaj użytkowników"
 
 #. Translators: Do NOT translate the content between '{' and '}', these
 #. are variable names.
@@ -4062,11 +4063,11 @@ msgstr "Wyniki wyszukiwania"
 #: src/session_view/room_details/permissions/add_members_subpage.blp:84
 #: src/session_view/room_details/permissions/add_members_subpage.blp:88
 msgid "No Matching Members Found"
-msgstr "Nie odnaleziono pasujących osób"
+msgstr "Nie odnaleziono pasujących członków"
 
 #: src/session_view/room_details/permissions/add_members_subpage.blp:89
 msgid "No room members matching the search were found"
-msgstr "Nie odnaleziono osób w pokoju pasujących wyszukiwaniu"
+msgstr "Nie odnaleziono członków pokoju pasujących wyszukiwaniu"
 
 #. Translators: value used to assign room member roles.
 #: src/session_view/room_details/permissions/members_subpage.blp:6
@@ -4080,12 +4081,12 @@ msgstr "Dodaj"
 
 #: src/session_view/room_details/permissions/members_subpage.rs:195
 msgid "There are no room members with assigned power levels in this room"
-msgstr "Brak osób w pokoju z przypisanym poziomem"
+msgstr "Brak członków pokoju z przypisanym poziomem"
 
 #: src/session_view/room_details/permissions/members_subpage.rs:197
 msgid ""
 "There are no room members with assigned power levels matching the search"
-msgstr "Brak osób w pokoju z przypisanym poziomem pasującym wyszukiwaniu"
+msgstr "Brak członków pokoju z przypisanym poziomem pasującym wyszukiwaniu"
 
 #: src/session_view/room_details/permissions/permissions_subpage.blp:44
 msgid "Room Actions"
@@ -4106,7 +4107,7 @@ msgstr "Usunięcie własnych wiadomości"
 
 #: src/session_view/room_details/permissions/permissions_subpage.blp:71
 msgid "Remove Messages of Other Members"
-msgstr "Usunięcie wiadomości innych osób"
+msgstr "Usunięcie wiadomości innych członków"
 
 #: src/session_view/room_details/permissions/permissions_subpage.blp:82
 msgid "Notify Entire Room"
@@ -4150,7 +4151,7 @@ msgstr "Aktualizacja pokoju"
 
 #: src/session_view/room_details/permissions/permissions_subpage.blp:204
 msgid "Member Actions"
-msgstr "Czynności osób w pokoju"
+msgstr "Czynności członków"
 
 #. Translators: value used to assign room member roles.
 #: src/session_view/room_details/permissions/permissions_subpage.blp:206
@@ -5162,11 +5163,11 @@ msgstr "Przełącz wyszukiwanie pokojów"
 
 #: src/session_view/sidebar/mod.blp:163
 msgid "Room Search"
-msgstr "Wyszukiwanie pokojów"
+msgstr "Wyszukaj pokoje"
 
 #: src/session_view/sidebar/mod.blp:164
 msgid "Search for a room"
-msgstr "Wyszukiwanie pokoju"
+msgstr "Wyszukaj pokój"
 
 #: src/session_view/sidebar/mod.blp:214
 msgid "Room List"
