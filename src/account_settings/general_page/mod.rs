@@ -221,8 +221,8 @@ mod imp {
                 )
             });
 
-            let capabilities = match handle.await.expect("Capabilities fetching task failed") {
-                Ok((can_change_password, can_change_avatar, can_change_displayname)) => {
+            let capabilities = match handle.await.expect("task was not aborted") {
+                Ok((can_change_avatar, can_change_displayname, can_change_password)) => {
                     CapabilitiesData {
                         can_change_avatar,
                         can_change_displayname,
@@ -230,7 +230,7 @@ mod imp {
                     }
                 }
                 Err(error) => {
-                    error!("SDK failed to fetch capabilities: {error}");
+                    error!("Could not fetch capabilities: {error}");
                     CapabilitiesData::default()
                 }
             };
