@@ -364,18 +364,17 @@ impl UpgradeInfo {
             maximum_stable_version.into_iter().cloned().collect()
         };
 
-        // Add the current and default room versions if they are unstable.
-        let current_is_default = *current_room_version == capability.default;
-        self.unstable_room_versions = Some(current_room_version)
-            .filter(|_| !current_is_stable)
-            .cloned()
-            .into_iter()
-            .chain(
-                Some(&capability.default)
-                    .filter(|_| !current_is_default && !default_is_stable)
-                    .cloned(),
-            )
-            .collect::<Vec<_>>();
+        // Add the current version if it is unstable.
+        if !current_is_stable {
+            self.unstable_room_versions
+                .push(current_room_version.clone());
+        }
+
+        // Add the default version if it is different from the current version and it is
+        // unstable.
+        if *current_room_version != capability.default && !default_is_stable {
+            self.unstable_room_versions.push(capability.default.clone());
+        }
 
         // Sort all the versions.
         self.stable_room_versions
