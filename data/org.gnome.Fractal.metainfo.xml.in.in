@@ -72,6 +72,15 @@
   </content_rating>
 
   <releases>@development-release@
+    <release version="14.1" type="stable" date="2026-07-19">
+      <description>
+        <p>
+          A regression in Fractal 14 meant that display names could not be changed in account
+          settings anymore for some servers. This minor release addresses this issue. Thanks to
+          Jack S. for discovering it soon after the 14 release!
+        </p>
+      </description>
+    </release>
     <release version="14" type="stable" date="2026-06-12">
       <description>
         <p>
