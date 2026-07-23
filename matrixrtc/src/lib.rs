@@ -19,14 +19,25 @@
 
 pub mod call_membership;
 pub mod client;
+pub mod encryption_manager;
+pub mod key_transport;
 pub mod membership_data;
 pub mod membership_manager;
+pub mod outdated_key_filter;
 pub mod session;
 
 pub use call_membership::{CallMembership, MemberStateEvent};
 pub use client::{
-    ClientError, RtcClientApi, SendDelayedEventResponse, SendEventResponse,
-    UpdateDelayedEventAction,
+    ClientError, RtcClientApi, SendDelayedEventResponse, SendEventResponse, ToDeviceEvent,
+    ToDeviceTarget, UpdateDelayedEventAction,
+};
+pub use encryption_manager::{
+    EncryptionConfig, KeyRingEntry, RtcEncryptionManager, decode_base64, encode_unpadded_base64,
+};
+pub use key_transport::{
+    CALL_ENCRYPTION_KEYS_EVENT_TYPE, CallMembershipIdentity, KeyTransport, MalformedKeyEvent,
+    ParticipantDeviceInfo, ReceivedKeyEvent, Statistics, ToDeviceKeyTransport,
+    encryption_key_map_key,
 };
 pub use membership_data::{
     DEFAULT_EXPIRE_DURATION_MS, FocusActive, MembershipParseError, SessionMembershipData,
@@ -35,4 +46,5 @@ pub use membership_data::{
 pub use membership_manager::{
     MembershipConfig, MembershipManager, MembershipManagerEvent, RtcRoom, Status,
 };
+pub use outdated_key_filter::{InboundEncryptionSession, OutdatedKeyFilter};
 pub use session::{MatrixRtcSession, SlotDescription};

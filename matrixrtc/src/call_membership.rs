@@ -33,6 +33,9 @@ pub struct CallMembership {
     sender: String,
     origin_server_ts: u64,
     data: SessionMembershipData,
+    /// See [`Self::rtc_backend_identity`]. `None` means the legacy
+    /// `{user_id}:{device_id}` form.
+    rtc_backend_identity: Option<String>,
 }
 
 impl CallMembership {
@@ -48,6 +51,7 @@ impl CallMembership {
             sender: event.sender.clone(),
             origin_server_ts: event.origin_server_ts,
             data,
+            rtc_backend_identity: None,
         })
     }
 
@@ -64,7 +68,29 @@ impl CallMembership {
             sender,
             origin_server_ts,
             data,
+            rtc_backend_identity: None,
         }
+    }
+
+    /// The identity used to represent this member on the RTC backend (e.g.
+    /// the participant identity on a LiveKit SFU).
+    ///
+    /// For legacy session memberships this is `{user_id}:{device_id}`. The
+    /// pseudonymous (hashed) identity of the MSC4354 sticky event format can
+    /// be injected with [`Self::set_rtc_backend_identity`]; computing it is
+    /// out of scope for now.
+    pub fn rtc_backend_identity(&self) -> String {
+        self.rtc_backend_identity
+            .clone()
+            .unwrap_or_else(|| format!("{}:{}", self.sender, self.data.device_id))
+    }
+
+    /// Override the RTC backend identity of this member.
+    ///
+    /// This is the seam for the pseudonymous identity of the sticky event
+    /// membership format.
+    pub fn set_rtc_backend_identity(&mut self, identity: String) {
+        self.rtc_backend_identity = Some(identity);
     }
 
     /// Whether two memberships have equal membership data.

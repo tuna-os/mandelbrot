@@ -13,7 +13,7 @@ use std::time::Duration;
 use mandelbrot_matrixrtc::{
     CallMembership, ClientError, MemberStateEvent, MembershipConfig, MembershipManager,
     MembershipManagerEvent, RtcClientApi, RtcRoom, SendDelayedEventResponse, SendEventResponse,
-    SlotDescription, Transport,
+    SlotDescription, ToDeviceTarget, Transport,
 };
 use ruma::{OwnedDeviceId, OwnedRoomId, OwnedUserId, RoomId, events::StateEventType};
 use serde_json::{Value as JsonValue, json};
@@ -32,6 +32,7 @@ pub enum Method {
     CancelDelayedEvent,
     SendDelayedEvent,
     SendEvent,
+    EncryptAndSendToDevice,
 }
 
 /// A recorded call to the mock client.
@@ -59,6 +60,11 @@ pub enum RecordedCall {
         event_type: String,
         content: JsonValue,
     },
+    EncryptAndSendToDevice {
+        event_type: String,
+        targets: Vec<ToDeviceTarget>,
+        content: JsonValue,
+    },
 }
 
 impl RecordedCall {
@@ -68,6 +74,7 @@ impl RecordedCall {
             Self::SendDelayedStateEvent { .. } => Method::SendDelayedStateEvent,
             Self::UpdateDelayedEvent { method, .. } => *method,
             Self::SendEvent { .. } => Method::SendEvent,
+            Self::EncryptAndSendToDevice { .. } => Method::EncryptAndSendToDevice,
         }
     }
 }
@@ -112,6 +119,7 @@ impl MockClient {
         client.set_default(Method::CancelDelayedEvent, Ok(json!({})));
         client.set_default(Method::SendDelayedEvent, Ok(json!({})));
         client.set_default(Method::SendEvent, Ok(json!({ "event_id": "$id:e.org" })));
+        client.set_default(Method::EncryptAndSendToDevice, Ok(json!({})));
         Arc::new(client)
     }
 
@@ -297,6 +305,23 @@ impl RtcClientApi for MockClient {
             .map(|_| SendEventResponse {
                 event_id: ruma::OwnedEventId::try_from("$id:e.org").unwrap(),
             })
+    }
+
+    async fn encrypt_and_send_to_device(
+        &self,
+        event_type: &str,
+        targets: &[ToDeviceTarget],
+        content: JsonValue,
+    ) -> Result<(), ClientError> {
+        self.calls
+            .lock()
+            .unwrap()
+            .push(RecordedCall::EncryptAndSendToDevice {
+                event_type: event_type.to_owned(),
+                targets: targets.to_vec(),
+                content,
+            });
+        self.reply(Method::EncryptAndSendToDevice).await.map(|_| ())
     }
 }
 

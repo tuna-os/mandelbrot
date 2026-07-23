@@ -7,6 +7,8 @@ description = "Pure-logic MatrixRTC session and membership management for Mandel
 
 [dependencies]
 async-trait = "0.1"
+base64 = "0.22"
+getrandom = "0.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"

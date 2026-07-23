@@ -159,11 +159,33 @@ impl ClientError {
     }
 }
 
+/// A target device for an encrypted to-device message.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ToDeviceTarget {
+    /// The user ID of the target.
+    pub user_id: String,
+    /// The device ID of the target.
+    pub device_id: String,
+}
+
+/// An incoming to-device event, as fed into the key transport by the
+/// application.
+#[derive(Clone, Debug)]
+pub struct ToDeviceEvent {
+    /// The (verified) sender of the event.
+    pub sender: String,
+    /// The type of the event.
+    pub event_type: String,
+    /// The (decrypted) content of the event.
+    pub content: serde_json::Value,
+}
+
 /// The client API used to send MatrixRTC membership events.
 ///
 /// This mirrors the mock surface used by the `matrix-js-sdk` MatrixRTC test
 /// suite: `sendStateEvent`, `_unstable_sendDelayedStateEvent`,
-/// `_unstable_updateDelayedEvent` (restart/cancel/send) and `sendEvent`.
+/// `_unstable_updateDelayedEvent` (restart/cancel/send), `sendEvent` and
+/// `encryptAndSendToDevice`.
 #[async_trait::async_trait]
 pub trait RtcClientApi: Send + Sync {
     /// Send a state event to the given room.
@@ -199,4 +221,12 @@ pub trait RtcClientApi: Send + Sync {
         event_type: &str,
         content: JsonValue,
     ) -> Result<SendEventResponse, ClientError>;
+
+    /// Encrypt and send a to-device event to the given target devices.
+    async fn encrypt_and_send_to_device(
+        &self,
+        event_type: &str,
+        targets: &[ToDeviceTarget],
+        content: JsonValue,
+    ) -> Result<(), ClientError>;
 }
