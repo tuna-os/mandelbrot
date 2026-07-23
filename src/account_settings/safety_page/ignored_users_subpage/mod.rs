@@ -16,7 +16,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/account_settings/safety_page/ignored_users_subpage/mod.ui"
+        resource = "/org/tunaos/mandelbrot/ui/account_settings/safety_page/ignored_users_subpage/mod.ui"
     )]
     #[properties(wrapper_type = super::IgnoredUsersSubpage)]
     pub struct IgnoredUsersSubpage {

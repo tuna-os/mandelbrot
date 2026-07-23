@@ -1,30 +1,16 @@
-[![Our chat room](https://img.shields.io/matrix/fractal-gtk:matrix.org?color=blue&label=%23fractal%3Agnome.org&logo=matrix)](https://matrix.to/#/#fractal:gnome.org)
-[![Our Gitlab project](https://img.shields.io/badge/gitlab.gnome.org%2F-World%2FFractal-green?logo=gitlab)](https://gitlab.gnome.org/World/fractal/)
-[![Our documentation](https://img.shields.io/badge/%F0%9F%95%AE-Docs-B7410E?logo=rust)](https://world.pages.gitlab.gnome.org/fractal/)
-[![Official package](https://img.shields.io/flathub/downloads/org.gnome.Fractal?logo=flathub)](https://flathub.org/apps/org.gnome.Fractal)
-
 <div align="center">
 
-<img
-    src="https://gitlab.gnome.org/World/fractal/-/raw/main/data/icons/org.gnome.Fractal.svg"
-    alt=""
-/>
+<img src="data/icons/org.tunaos.mandelbrot.svg" alt="" />
 
-# Fractal
+# Mandelbrot
 
 </div>
 
-Fractal is a Matrix messaging app for GNOME written in Rust. Its interface is optimized for
-collaboration in large groups, such as free software projects, and will fit all screens, big or small.
-
-<div align="center">
-<img
-    src="https://gitlab.gnome.org/World/fractal/raw/main/screenshots/main.png"
-    alt="Fractal’s main window"
-    width="882"
-    height="672"
-/>
-</div>
+Mandelbrot is a Matrix messaging app for GNOME written in Rust, forked from
+[Fractal](https://gitlab.gnome.org/World/fractal/) to push further into the modern Matrix feature
+set: native MatrixRTC voice/video calling, simplified sliding sync, QR login, threads, and more.
+Its interface is optimized for collaboration in large groups, such as free software projects, and
+will fit all screens, big or small.
 
 Highlights:
 
@@ -36,176 +22,22 @@ Highlights:
 * See who has read messages, and who is typing
 * Log into multiple accounts at once (with Single-Sign On support)
 
-## Contents
+## Installation
 
-<!-- toc -->
-* [Installation instructions](#installation-instructions)
-* [Security Best Practices](#security-best-practices)
-* [Contributing](#contributing)
-* [Frequently Asked Questions](#frequently-asked-questions)
-* [The origin of Fractal](#the-origin-of-fractal)
-* [Code of Conduct](#code-of-conduct)
-<!-- /toc -->
-
-## Installation instructions
-
-Flatpak is the recommended installation method. For installing any of our Flatpaks, you need to
-make sure your system is [set up with the Flathub remote](https://flathub.org/setup).
-
-All of our Flatpaks can be installed in parallel, offering you the opportunity to try out the
-development version while keeping the stable release around for daily use.
-
-### Stable version
-
-The current stable version is 14.1 (released July 19th 2026).
-
-You can get the official Fractal Flatpak from Flathub.
-
-<a href="https://flathub.org/apps/details/org.gnome.Fractal">
-<img
-    src="https://flathub.org/assets/badges/flathub-badge-i-en.svg"
-    alt="Download Fractal on Flathub"
-    width="240px"
-    height="80px"
-/>
-</a>
-
-### Beta version
-
-The current beta version is 14.1 (same as stable).
-
-It is available as a Flatpak on Flathub Beta.
-
-To get it, first set up the Flathub Beta remote:
-
-<a href="https://flathub.org/beta-repo/flathub-beta.flatpakrepo">
-<img
-    src="https://gitlab.gnome.org/World/fractal/uploads/81944cf92504343a03121a58722345a2/flathub-beta-badge.svg"
-    alt="Add Flathub Beta repository"
-    width="240px"
-    height="80px"
-/>
-</a>
-
-Then install the application.
-
-<a href="https://flathub.org/beta-repo/appstream/org.gnome.Fractal.flatpakref">
-<img
-    src="https://gitlab.gnome.org/World/fractal/uploads/31a40da5d71a30c47f135e78ffef3df5/fractal-beta-badge.svg"
-    alt="Download Fractal Beta"
-    width="240px"
-    height="80px"
-/>
-</a>
-
-Or from the command line:
+Install from the TunaOS flatpak remote:
 
 ```sh
-# Add the Flathub Beta repo
-flatpak remote-add --user --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
-
-# Install Fractal Beta
-flatpak install --user flathub-beta org.gnome.Fractal
+flatpak remote-add --if-not-exists tuna-os https://tunaos.org/flatpak/tuna-os.flatpakrepo
+flatpak install tuna-os org.tunaos.mandelbrot
 ```
 
-Finally, run the application:
+## Relationship to Fractal
 
-```sh
-flatpak run org.gnome.Fractal//beta
-```
-
-If you have both the stable and beta versions installed, your system will only show one icon in the
-apps list and launch the stable version by default. If you want to run the beta version by default,
-use this command:
-
-```sh
-flatpak make-current org.gnome.Fractal beta
-```
-
-_Note that you can go back to using the stable version by default by using the same command and
-replacing `beta` with `stable`._
-
-### Development version
-
-If you want to try the upcoming version of Fractal without building it yourself, it is available as
-a nightly Flatpak in [the gnome-nightly repo](https://nightly.gnome.org/).
-
-First, set up the GNOME nightlies.
-
-<a href="https://nightly.gnome.org/gnome-nightly.flatpakrepo">
-<img
-    src="https://gitlab.gnome.org/World/fractal/uploads/c276f92660dcf50067714ac08e193fea/gnome-nightly-badge.svg"
-    alt="Add gnome-nightly repository"
-    width="240px"
-    height="80px"
-/>
-</a>
-
-Then install the application.
-
-<a href="https://nightly.gnome.org/repo/appstream/org.gnome.Fractal.Devel.flatpakref">
-<img
-    src="https://gitlab.gnome.org/World/fractal/uploads/5e42d322eaacc7da2a52bfda9f7a4e53/fractal-nightly-badge.svg"
-    alt="Download Fractal Nightly"
-    width="240px"
-    height="80px"
-/>
-</a>
-
-Or from the command line:
-
-```sh
-# Add the gnome-nightly repo
-flatpak remote-add --user --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo
-
-# Install the nightly build
-flatpak install --user gnome-nightly org.gnome.Fractal.Devel
-```
-
-### Runtime Dependencies
-
-On top of the dependencies required at build time and checked by Meson, Fractal depends on the
-following dependencies at runtime:
-
-* xdg-desktop-portal and its backends: some functionalities are dependant on the following portals,
-  and a permission will be asked when necessary, but Fractal should work without them:
-  * Secret: this portal or a Secret Service is required, see [storing secrets](#storing-secrets).
-  * Camera: scan QR codes during verification.
-  * Location: send the user’s location in a conversation.
-  * Settings: get the 12h/24h time format system preference.
-* GStreamer plugins:
-  * gst-plugin-gtk4 (gstgtk4): required to preview videos in the timeline and to present the output
-    of the camera.
-  * libgstpipewire with the `pipewiredeviceprovider`: used to list and access the cameras.
-
-#### Storing secrets
-
-Fractal doesn’t store your **password**, but it stores your **access token** and the **passphrase**
-used to encrypt the database and the local cache.
-
-The Fractal Flatpaks use the [Secret **Portal**](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Secret.html)
-to store those secrets. If you are using GNOME this should just work. If you are using a different
-desktop environment or are facing issues, make sure `xdg-desktop-portal` is installed along with a
-service that provides the [Secret portal backend interface](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.impl.portal.Secret.html),
-like gnome-keyring or KWallet (since version 6.2).
-
-Any version that is not sandboxed relies on software that implements the [Secret **Service** API](https://www.freedesktop.org/wiki/Specifications/secret-storage-spec/)
-to store those secrets. Therefore, you need to have software providing that service on your system,
-like gnome-keyring, pass with [pass_secret_service](https://github.com/mdellweg/pass_secret_service/),
-or KWallet. Once again, if you are using GNOME this should just work.
-
-If you prefer to use software that only implements the Secret Service API while using the Flatpaks,
-you need to make sure that no service implementing the Secret portal backend interface is running,
-and you need to allow Fractal to access the D-Bus service with this command:
-
-```sh
-flatpak override --user --talk-name=org.freedesktop.secrets org.gnome.Fractal
-```
-
-_For the nightly version, change the application name to `org.gnome.Fractal.Devel`._
-
-Or with [Flatseal](https://flathub.org/apps/details/com.github.tchx84.Flatseal), by adding
-`org.freedesktop.secrets` in the **Session Bus** > **Talk** list of Fractal.
+Mandelbrot is a friendly downstream fork of GNOME Fractal (GPL-3.0-or-later). All Fractal
+functionality is retained, and we aim to track upstream releases. See [MANDELBROT.md](MANDELBROT.md)
+for the roadmap and the feature gap analysis. Please report issues with core messaging that also
+reproduce in Fractal to the [Fractal project](https://gitlab.gnome.org/World/fractal/-/issues), and
+Mandelbrot-specific issues (calls, sliding sync, QR login…) to this repo.
 
 ## Security Best Practices
 

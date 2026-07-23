@@ -12,7 +12,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/room_history/state/row.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/state/row.ui")]
     #[properties(wrapper_type = super::StateRow)]
     pub struct StateRow {
         /// The state event displayed by this widget.

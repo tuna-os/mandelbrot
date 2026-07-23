@@ -29,7 +29,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/org/gnome/Fractal/ui/error_page.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/error_page.ui")]
     pub struct ErrorPage {
         #[template_child]
         stack: TemplateChild<gtk::Stack>,

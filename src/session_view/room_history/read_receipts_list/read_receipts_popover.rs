@@ -13,7 +13,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/read_receipts_list/read_receipts_popover.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/read_receipts_list/read_receipts_popover.ui"
     )]
     #[properties(wrapper_type = super::ReadReceiptsPopover)]
     pub struct ReadReceiptsPopover {

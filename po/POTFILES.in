@@ -1,8 +1,8 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
-data/org.gnome.Fractal.desktop.in.in
-data/org.gnome.Fractal.gschema.xml.in
-data/org.gnome.Fractal.metainfo.xml.in.in
+data/org.tunaos.mandelbrot.desktop.in.in
+data/org.tunaos.mandelbrot.gschema.xml.in
+data/org.tunaos.mandelbrot.metainfo.xml.in.in
 
 src/account_chooser_dialog/mod.blp
 src/account_settings/encryption_page/import_export_keys_subpage.blp

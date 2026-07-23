@@ -7,7 +7,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/org/gnome/Fractal/ui/identity_verification_view/sas_emoji.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/identity_verification_view/sas_emoji.ui")]
     pub struct SasEmoji {
         #[template_child]
         pub emoji: TemplateChild<gtk::Label>,

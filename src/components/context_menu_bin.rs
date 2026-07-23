@@ -25,7 +25,7 @@ mod imp {
     }
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/context_menu_bin.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/context_menu_bin.ui")]
     #[properties(wrapper_type = super::ContextMenuBin)]
     pub struct ContextMenuBin {
         #[template_child]

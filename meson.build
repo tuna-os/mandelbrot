@@ -10,7 +10,7 @@ fs = import('fs')
 gnome = import('gnome')
 i18n = import('i18n')
 
-base_id = 'org.gnome.Fractal'
+base_id = 'org.tunaos.mandelbrot'
 application_id = base_id
 
 major_version = '14.1'

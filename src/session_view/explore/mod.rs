@@ -29,7 +29,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/explore/mod.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/explore/mod.ui")]
     #[properties(wrapper_type = super::Explore)]
     pub struct Explore {
         #[template_child]

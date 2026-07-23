@@ -11,7 +11,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/dialogs/auth/password_page.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/dialogs/auth/password_page.ui")]
     pub struct AuthDialogPasswordPage {
         #[template_child]
         pub(super) password: TemplateChild<gtk::PasswordEntry>,

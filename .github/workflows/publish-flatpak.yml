@@ -1,0 +1,96 @@
+name: Build and Publish Flatpak OCI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-oci:
+    name: "Build Flatpak OCI"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
+      options: --privileged
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v7
+
+    - name: Build Flatpak
+      uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+      with:
+        manifest-path: org.tunaos.mandelbrot.json
+        cache-key: flatpak-builder-${{ github.sha }}
+        build-bundle: false
+        upload-artifact: false
+
+    - name: Export OCI Directory
+      run: |
+        flatpak build-bundle --oci --arch=x86_64 repo mandelbrot.oci org.tunaos.mandelbrot
+
+    - name: Upload OCI Artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: mandelbrot-oci
+        path: mandelbrot.oci/
+        retention-days: 1
+
+  publish-oci:
+    name: "Publish OCI & Update Index"
+    needs: build-oci
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v7
+
+    - name: Download OCI Artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: mandelbrot-oci
+        path: mandelbrot.oci
+
+    - name: Log in to GHCR
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+    - name: Push OCI to GHCR
+      run: |
+        echo "Pushing latest tag..."
+        skopeo copy oci:mandelbrot.oci docker://ghcr.io/tuna-os/mandelbrot:latest
+
+        if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+          VERSION_TAG="${{ github.ref_name }}"
+          echo "Pushing version tag ${VERSION_TAG}..."
+          skopeo copy oci:mandelbrot.oci docker://ghcr.io/tuna-os/mandelbrot:${VERSION_TAG}
+        fi
+
+    - name: Update central index (tuna-os/docs)
+      run: |
+        git clone --depth 1 \
+          https://x-access-token:${{ secrets.FLATPAK_INDEX_TOKEN }}@github.com/tuna-os/docs.git \
+          index-repo
+        pip install requests
+        python3 .github/scripts/update-index.py \
+          --oci-dir mandelbrot.oci \
+          --index-file index-repo/static/flatpak/index/static \
+          --repo-name tuna-os/mandelbrot \
+          --tags latest
+        cd index-repo
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add static/flatpak/index/static
+        if git diff --cached --quiet; then
+          echo "No index changes"
+        else
+          git commit -m "chore(flatpak): update Mandelbrot OCI index"
+          git push origin main
+        fi

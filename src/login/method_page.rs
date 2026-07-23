@@ -14,7 +14,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/login/method_page.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/login/method_page.ui")]
     #[properties(wrapper_type = super::LoginMethodPage)]
     pub struct LoginMethodPage {
         #[template_child]
@@ -143,7 +143,7 @@ mod imp {
                 client
                     .matrix_auth()
                     .login_username(&username, &password)
-                    .initial_device_display_name("Fractal")
+                    .initial_device_display_name("Mandelbrot")
                     .send()
                     .await
             });

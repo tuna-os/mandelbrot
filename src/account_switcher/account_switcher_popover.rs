@@ -9,7 +9,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/account_switcher/account_switcher_popover.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/account_switcher/account_switcher_popover.ui")]
     #[properties(wrapper_type = super::AccountSwitcherPopover)]
     pub struct AccountSwitcherPopover {
         #[template_child]

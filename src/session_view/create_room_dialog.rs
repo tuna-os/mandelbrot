@@ -31,7 +31,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/create_room_dialog.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/create_room_dialog.ui")]
     #[properties(wrapper_type = super::CreateRoomDialog)]
     pub struct CreateRoomDialog {
         #[template_child]

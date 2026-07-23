@@ -6,8 +6,8 @@ stages:
 
 variables:
   FLATPAK_MODULE: "fractal"
-  MANIFEST_PATH: "build-aux/org.gnome.Fractal.Devel.json"
-  APP_ID: "org.gnome.Fractal.Devel"
+  MANIFEST_PATH: "build-aux/org.tunaos.mandelbrot.Devel.json"
+  APP_ID: "org.tunaos.mandelbrot.Devel"
 
 workflow:
   rules:

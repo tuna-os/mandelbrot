@@ -18,7 +18,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/account_settings/general_page/change_password_subpage.ui"
+        resource = "/org/tunaos/mandelbrot/ui/account_settings/general_page/change_password_subpage.ui"
     )]
     #[properties(wrapper_type = super::ChangePasswordSubpage)]
     pub struct ChangePasswordSubpage {

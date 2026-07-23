@@ -15,7 +15,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/identity_verification_view/qr_code_scanned_page.ui"
+        resource = "/org/tunaos/mandelbrot/ui/identity_verification_view/qr_code_scanned_page.ui"
     )]
     #[properties(wrapper_type = super::QrCodeScannedPage)]
     pub struct QrCodeScannedPage {

@@ -13,7 +13,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_details/history_viewer/audio_row.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/history_viewer/audio_row.ui"
     )]
     #[properties(wrapper_type = super::AudioRow)]
     pub struct AudioRow {

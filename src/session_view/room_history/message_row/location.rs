@@ -14,7 +14,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/message_row/location.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_row/location.ui"
     )]
     pub struct MessageLocation {
         #[template_child]

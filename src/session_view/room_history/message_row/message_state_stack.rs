@@ -16,7 +16,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/message_row/message_state_stack.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_row/message_state_stack.ui"
     )]
     #[properties(wrapper_type = super::MessageStateStack)]
     pub struct MessageStateStack {

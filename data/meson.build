@@ -91,7 +91,7 @@ service_conf = configuration_data()
 service_conf.set('application_id', application_id)
 service_conf.set('bindir', bindir)
 configure_file(
-    input: 'org.gnome.Fractal.service.in',
+    input: 'org.tunaos.mandelbrot.service.in',
     output: '@0@.service'.format(application_id),
     configuration: service_conf,
     install: true,

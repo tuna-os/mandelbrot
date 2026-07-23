@@ -33,7 +33,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/identity_verification_view/mod.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/identity_verification_view/mod.ui")]
     #[properties(wrapper_type = super::IdentityVerificationView)]
     pub struct IdentityVerificationView {
         /// The current identity verification.

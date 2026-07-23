@@ -25,7 +25,7 @@ mod imp {
 
     #[derive(Debug, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/read_receipts_list/mod.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/read_receipts_list/mod.ui"
     )]
     #[properties(wrapper_type = super::ReadReceiptsList)]
     pub struct ReadReceiptsList {

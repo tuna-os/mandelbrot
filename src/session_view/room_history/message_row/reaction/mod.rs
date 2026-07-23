@@ -20,7 +20,7 @@ mod imp {
 
     #[derive(Debug, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/message_row/reaction/mod.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_row/reaction/mod.ui"
     )]
     #[properties(wrapper_type = super::MessageReaction)]
     pub struct MessageReaction {

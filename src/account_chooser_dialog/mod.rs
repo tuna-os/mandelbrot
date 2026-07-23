@@ -17,7 +17,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/account_chooser_dialog/mod.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/account_chooser_dialog/mod.ui")]
     #[properties(wrapper_type = super::AccountChooserDialog)]
     pub struct AccountChooserDialog {
         #[template_child]

@@ -21,7 +21,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, gtk::CompositeTemplate, Default, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/camera/qrcode_scanner.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/camera/qrcode_scanner.ui")]
     #[properties(wrapper_type = super::QrCodeScanner)]
     pub struct QrCodeScanner {
         #[template_child]

@@ -1,6 +1,6 @@
 #![doc(
-    html_logo_url = "https://gitlab.gnome.org/World/fractal/-/raw/main/data/icons/org.gnome.Fractal.svg?inline=false",
-    html_favicon_url = "https://gitlab.gnome.org/World/fractal/-/raw/main/data/icons/org.gnome.Fractal-symbolic.svg?inline=false"
+    html_logo_url = "https://gitlab.gnome.org/World/fractal/-/raw/main/data/icons/org.tunaos.mandelbrot.svg?inline=false",
+    html_favicon_url = "https://gitlab.gnome.org/World/fractal/-/raw/main/data/icons/org.tunaos.mandelbrot-symbolic.svg?inline=false"
 )]
 
 mod account_chooser_dialog;
@@ -60,7 +60,7 @@ fn main() {
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR).expect("Invalid argument passed to bindtextdomain");
     textdomain(GETTEXT_PACKAGE).expect("Invalid string passed to textdomain");
 
-    gtk::glib::set_application_name("Fractal");
+    gtk::glib::set_application_name("Mandelbrot");
 
     gtk::init().expect("Could not start GTK4");
     gst::init().expect("Could not initialize gst");
@@ -74,7 +74,7 @@ fn main() {
     gio::resources_register(&ui_res);
 
     IconTheme::for_display(&Display::default().unwrap())
-        .add_resource_path("/org/gnome/Fractal/icons");
+        .add_resource_path("/org/tunaos/mandelbrot/icons");
 
     let app = Application::new();
     app.run();

@@ -19,7 +19,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/room_history/call_row.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/call_row.ui")]
     #[properties(wrapper_type = super::CallRow)]
     pub struct CallRow {
         /// The call icon shown to the user.

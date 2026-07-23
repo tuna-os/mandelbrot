@@ -13,7 +13,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/media/location_viewer.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/media/location_viewer.ui")]
     #[properties(wrapper_type = super::LocationViewer)]
     pub struct LocationViewer {
         #[template_child]
@@ -49,7 +49,7 @@ mod imp {
             self.marker.set_child(Some(&*self.marker_img));
 
             let style = gio::resources_lookup_data(
-                "/org/gnome/Fractal/mapstyle/osm-liberty/style.json",
+                "/org/tunaos/mandelbrot/mapstyle/osm-liberty/style.json",
                 gio::ResourceLookupFlags::NONE,
             )
             .expect("should be able to load map style");
@@ -64,9 +64,9 @@ mod imp {
                 .expect("renderer should have sprite sheet");
 
             let sprites_texture =
-                gdk::Texture::from_resource("/org/gnome/Fractal/mapstyle/osm-liberty/sprites.png");
+                gdk::Texture::from_resource("/org/tunaos/mandelbrot/mapstyle/osm-liberty/sprites.png");
             let sprites_json = gio::resources_lookup_data(
-                "/org/gnome/Fractal/mapstyle/osm-liberty/sprites.json",
+                "/org/tunaos/mandelbrot/mapstyle/osm-liberty/sprites.json",
                 gio::ResourceLookupFlags::NONE,
             )
             .expect("should be able to load map sprite sheet");
@@ -79,10 +79,10 @@ mod imp {
                 .expect("should be able to add map sprite sheet page");
 
             let sprites_2x_texture = gdk::Texture::from_resource(
-                "/org/gnome/Fractal/mapstyle/osm-liberty/sprites@2x.png",
+                "/org/tunaos/mandelbrot/mapstyle/osm-liberty/sprites@2x.png",
             );
             let sprites_2x_json = gio::resources_lookup_data(
-                "/org/gnome/Fractal/mapstyle/osm-liberty/sprites@2x.json",
+                "/org/tunaos/mandelbrot/mapstyle/osm-liberty/sprites@2x.json",
                 gio::ResourceLookupFlags::NONE,
             )
             .expect("should be able to load map 2x sprite sheet");

@@ -20,7 +20,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/explore/public_room_row.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/explore/public_room_row.ui")]
     #[properties(wrapper_type = super::PublicRoomRow)]
     pub struct PublicRoomRow {
         #[template_child]

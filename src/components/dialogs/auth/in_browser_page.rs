@@ -14,7 +14,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/dialogs/auth/in_browser_page.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/dialogs/auth/in_browser_page.ui")]
     #[properties(wrapper_type = super::AuthDialogInBrowserPage)]
     pub struct AuthDialogInBrowserPage {
         #[template_child]

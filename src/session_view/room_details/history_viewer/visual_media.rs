@@ -25,7 +25,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_details/history_viewer/visual_media.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/history_viewer/visual_media.ui"
     )]
     #[properties(wrapper_type = super::VisualMediaHistoryViewer)]
     pub struct VisualMediaHistoryViewer {

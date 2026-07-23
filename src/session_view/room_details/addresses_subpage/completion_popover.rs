@@ -13,7 +13,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_details/addresses_subpage/completion_popover.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/addresses_subpage/completion_popover.ui"
     )]
     #[properties(wrapper_type = super::CompletionPopover)]
     pub struct CompletionPopover {

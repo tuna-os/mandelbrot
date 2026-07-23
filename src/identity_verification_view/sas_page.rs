@@ -18,7 +18,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/identity_verification_view/sas_page.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/identity_verification_view/sas_page.ui")]
     #[properties(wrapper_type = super::SasPage)]
     pub struct SasPage {
         /// The current identity verification.
@@ -283,7 +283,7 @@ fn sas_emoji_i18n() -> HashMap<String, String> {
         .flat_map(|locale| glib::locale_variants(&locale))
     {
         if let Some(emoji_i18n) = gio::resources_lookup_data(
-            &format!("/org/gnome/Fractal/sas-emoji/{lang}.json"),
+            &format!("/org/tunaos/mandelbrot/sas-emoji/{lang}.json"),
             gio::ResourceLookupFlags::NONE,
         )
         .ok()

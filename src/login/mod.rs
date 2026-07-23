@@ -93,7 +93,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/login/mod.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/login/mod.ui")]
     #[properties(wrapper_type = super::Login)]
     pub struct Login {
         #[template_child]

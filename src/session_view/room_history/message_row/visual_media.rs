@@ -50,7 +50,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/message_row/visual_media.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_row/visual_media.ui"
     )]
     #[properties(wrapper_type = super::MessageVisualMedia)]
     pub struct MessageVisualMedia {

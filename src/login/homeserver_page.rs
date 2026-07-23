@@ -22,7 +22,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/login/homeserver_page.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/login/homeserver_page.ui")]
     #[properties(wrapper_type = super::LoginHomeserverPage)]
     pub struct LoginHomeserverPage {
         #[template_child]

@@ -11,7 +11,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/room_history/message_row/reply.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_row/reply.ui")]
     #[properties(wrapper_type = super::MessageReply)]
     pub struct MessageReply {
         #[template_child]

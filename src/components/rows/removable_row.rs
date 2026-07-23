@@ -11,7 +11,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/rows/removable_row.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/rows/removable_row.ui")]
     #[properties(wrapper_type = super::RemovableRow)]
     pub struct RemovableRow {
         #[template_child]

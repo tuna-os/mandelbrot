@@ -54,7 +54,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/avatar/mod.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/avatar/mod.ui")]
     #[properties(wrapper_type = super::Avatar)]
     pub struct Avatar {
         #[template_child]

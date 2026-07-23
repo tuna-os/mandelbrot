@@ -22,7 +22,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_details/history_viewer/audio.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/history_viewer/audio.ui"
     )]
     #[properties(wrapper_type = super::AudioHistoryViewer)]
     pub struct AudioHistoryViewer {

@@ -16,7 +16,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/member_timestamp/row.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/member_timestamp/row.ui"
     )]
     #[properties(wrapper_type = super::MemberTimestampRow)]
     pub struct MemberTimestampRow {

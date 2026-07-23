@@ -13,7 +13,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/room_history/message_row/file.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_row/file.ui")]
     #[properties(wrapper_type = super::MessageFile)]
     pub struct MessageFile {
         /// The filename of the file.

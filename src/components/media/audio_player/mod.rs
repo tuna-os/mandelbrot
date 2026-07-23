@@ -29,7 +29,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/media/audio_player/mod.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/media/audio_player/mod.ui")]
     #[properties(wrapper_type = super::AudioPlayer)]
     pub struct AudioPlayer {
         #[template_child]

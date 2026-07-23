@@ -11,7 +11,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/message_row/reaction_list.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_row/reaction_list.ui"
     )]
     pub struct MessageReactionList {
         #[template_child]

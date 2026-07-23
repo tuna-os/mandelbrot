@@ -4,12 +4,13 @@
 <component type="desktop-application">
   <id>@app-id@</id>
   <launchable type="desktop-id">@app-id@.desktop</launchable>
-  <name>Fractal</name>
+  <name>Mandelbrot</name>
   <summary>Chat on Matrix</summary>
   <description>
     <p>
-      Fractal is a Matrix messaging app for GNOME written in Rust. Its interface is optimized for
-      collaboration in large groups, such as free software projects, and will fit all screens, big or small.
+      Mandelbrot is a Matrix messaging app for GNOME written in Rust, based on Fractal. Its interface is
+      optimized for collaboration in large groups, such as free software projects, and will fit all
+      screens, big or small.
     </p>
     <p>Highlights:</p>
     <ul>
@@ -27,10 +28,10 @@
   </branding>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0+</project_license>
-  <developer id="org.gnome.fractal">
-    <name>The Fractal Team</name>
+  <developer id="org.tunaos">
+    <name>TunaOS (based on Fractal by The Fractal Team)</name>
   </developer>
-  <update_contact>jsparber@gnome.org</update_contact>
+  <update_contact>jreilly1821@gmail.com</update_contact>
   <translation type="gettext">fractal</translation>
 
   <screenshots>

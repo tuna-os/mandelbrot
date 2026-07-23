@@ -29,7 +29,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_details/members_page/members_list_view/mod.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/members_page/members_list_view/mod.ui"
     )]
     #[properties(wrapper_type = super::MembersListView)]
     pub struct MembersListView {

@@ -24,7 +24,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/login/in_browser_page.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/login/in_browser_page.ui")]
     #[properties(wrapper_type = super::LoginInBrowserPage)]
     pub struct LoginInBrowserPage {
         #[template_child]

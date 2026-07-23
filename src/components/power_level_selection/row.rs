@@ -20,7 +20,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/power_level_selection/row.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/power_level_selection/row.ui")]
     #[properties(wrapper_type = super::PowerLevelSelectionRow)]
     pub struct PowerLevelSelectionRow {
         #[template_child]

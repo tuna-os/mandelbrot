@@ -11,7 +11,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/account_switcher/avatar_with_selection.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/account_switcher/avatar_with_selection.ui")]
     #[properties(wrapper_type = super::AvatarWithSelection)]
     pub struct AvatarWithSelection {
         #[template_child]

@@ -85,7 +85,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/crypto/recovery_setup_view.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/crypto/recovery_setup_view.ui")]
     #[properties(wrapper_type = super::CryptoRecoverySetupView)]
     pub struct CryptoRecoverySetupView {
         #[template_child]

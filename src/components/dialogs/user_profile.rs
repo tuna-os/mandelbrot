@@ -18,7 +18,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/dialogs/user_profile.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/dialogs/user_profile.ui")]
     pub struct UserProfileDialog {
         #[template_child]
         stack: TemplateChild<gtk::Stack>,

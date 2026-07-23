@@ -11,7 +11,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/pill/source_row.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/pill/source_row.ui")]
     #[properties(wrapper_type = super::PillSourceRow)]
     pub struct PillSourceRow {
         #[template_child]

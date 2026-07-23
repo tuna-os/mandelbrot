@@ -16,7 +16,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/account_switcher/session_item.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/account_switcher/session_item.ui")]
     #[properties(wrapper_type = super::SessionItemRow)]
     pub struct SessionItemRow {
         #[template_child]

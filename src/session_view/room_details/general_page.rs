@@ -48,7 +48,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/room_details/general_page.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/general_page.ui")]
     #[properties(wrapper_type = super::GeneralPage)]
     pub struct GeneralPage {
         #[template_child]

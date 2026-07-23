@@ -14,7 +14,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/account_switcher/account_switcher_button.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/account_switcher/account_switcher_button.ui")]
     #[properties(wrapper_type = super::AccountSwitcherButton)]
     pub struct AccountSwitcherButton {
         /// The popover of this button.

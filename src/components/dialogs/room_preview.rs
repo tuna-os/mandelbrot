@@ -24,7 +24,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/dialogs/room_preview.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/dialogs/room_preview.ui")]
     #[properties(wrapper_type = super::RoomPreviewDialog)]
     pub struct RoomPreviewDialog {
         #[template_child]

@@ -41,7 +41,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/action_button.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/action_button.ui")]
     #[properties(wrapper_type = super::ActionButton)]
     pub struct ActionButton {
         #[template_child]

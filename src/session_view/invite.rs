@@ -22,7 +22,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/invite.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/invite.ui")]
     #[properties(wrapper_type = super::Invite)]
     pub struct Invite {
         #[template_child]

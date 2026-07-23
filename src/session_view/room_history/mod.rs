@@ -70,7 +70,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/room_history/mod.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/mod.ui")]
     #[properties(wrapper_type = super::RoomHistory)]
     pub struct RoomHistory {
         #[template_child]

@@ -11,7 +11,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/login/advanced_dialog.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/login/advanced_dialog.ui")]
     #[properties(wrapper_type = super::LoginAdvancedDialog)]
     pub struct LoginAdvancedDialog {
         /// Whether auto-discovery is enabled.

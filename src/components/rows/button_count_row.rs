@@ -9,7 +9,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/rows/button_count_row.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/rows/button_count_row.ui")]
     #[properties(wrapper_type = super::ButtonCountRow)]
     pub struct ButtonCountRow {
         #[template_child]

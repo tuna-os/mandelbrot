@@ -70,7 +70,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/event_actions/quick_reaction_chooser.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/event_actions/quick_reaction_chooser.ui"
     )]
     #[properties(wrapper_type = super::QuickReactionChooser)]
     pub struct QuickReactionChooser {

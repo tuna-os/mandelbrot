@@ -57,7 +57,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/login/session_setup_view.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/login/session_setup_view.ui")]
     #[properties(wrapper_type = super::SessionSetupView)]
     pub struct SessionSetupView {
         #[template_child]

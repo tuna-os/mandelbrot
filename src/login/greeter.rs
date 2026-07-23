@@ -9,7 +9,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/org/gnome/Fractal/ui/login/greeter.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/login/greeter.ui")]
     pub struct Greeter {}
 
     #[glib::object_subclass]

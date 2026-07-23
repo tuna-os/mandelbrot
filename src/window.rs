@@ -68,7 +68,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/window.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/window.ui")]
     #[properties(wrapper_type = super::Window)]
     pub struct Window {
         #[template_child]

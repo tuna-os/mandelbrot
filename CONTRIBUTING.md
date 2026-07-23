@@ -106,7 +106,7 @@ After that, set up the project:
 
 ```sh
 # Set up the flatpak environment
-fenv gen build-aux/org.gnome.Fractal.Devel.json
+fenv gen build-aux/org.tunaos.mandelbrot.Devel.json
 ```
 
 Finally, build and run the application:
@@ -141,13 +141,13 @@ GNOME Builder can export a flatpak of the app after it has been successfully bui
 Fractal can then be installed with:
 
 ```sh
-flatpak install --user --bundle path/to/org.gnome.Fractal.Devel.flatpak
+flatpak install --user --bundle path/to/org.tunaos.mandelbrot.Devel.flatpak
 ```
 
 Alternatively, it can be built and installed with flatpak-builder:
 
 ```sh
-flatpak-builder --user --install app build-aux/org.gnome.Fractal.Devel.json
+flatpak-builder --user --install app build-aux/org.tunaos.mandelbrot.Devel.json
 ```
 
 _Note that the `flatpak-builder` command can be replaced with `flatpak run org.flatpak.Builder`._
@@ -155,7 +155,7 @@ _Note that the `flatpak-builder` command can be replaced with `flatpak run org.f
 It can then be entirely removed from your system with:
 
 ```sh
-flatpak remove --delete-data org.gnome.Fractal.Devel
+flatpak remove --delete-data org.tunaos.mandelbrot.Devel
 ```
 
 ### GNU/Linux

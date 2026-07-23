@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: "Code checks (fmt, typos, deny, i18n)"
+    runs-on: ubuntu-latest
+    container:
+      image: rustlang/rust:nightly-slim
+    steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y --no-install-recommends git
+      - uses: actions/checkout@v7
+      - name: Run pre-commit checks
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          RUST_BACKTRACE=1 cargo run --manifest-path hooks/checks/Cargo.toml -- --verbose --force-install --cargo-binstall
+
+  clippy:
+    name: "Clippy (flatpak sandbox)"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v7
+      - name: Initialize flatpak build sandbox
+        run: |
+          flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse \
+            --stop-at=fractal flatpak_app org.tunaos.mandelbrot.json
+      - name: Run clippy
+        run: |
+          echo "cargo clippy --workspace --all-targets -- -D warnings" | \
+            flatpak-builder --disable-rofiles-fuse --build-shell=fractal \
+            flatpak_app org.tunaos.mandelbrot.json
+
+  flatpak:
+    name: "Flatpak build + tests"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v7
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: Mandelbrot-Linux-CI.flatpak
+          manifest-path: org.tunaos.mandelbrot.json
+          cache-key: flatpak-builder-${{ github.sha }}
+      - name: Upload Flatpak Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Mandelbrot-Linux-CI
+          path: Mandelbrot-Linux-CI.flatpak

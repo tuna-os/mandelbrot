@@ -9,7 +9,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/identity_verification_view/room_left_page.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/identity_verification_view/room_left_page.ui")]
     #[properties(wrapper_type = super::RoomLeftPage)]
     pub struct RoomLeftPage {
         /// The current identity verification.

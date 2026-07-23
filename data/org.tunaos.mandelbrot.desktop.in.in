@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=Fractal
-Comment=Fractal is a decentralized, secure messaging client for collaborative group communication.
-GenericName=Fractal group messaging
+Name=Mandelbrot
+Comment=Mandelbrot is a decentralized, secure messaging client for collaborative group communication.
+GenericName=Mandelbrot group messaging
 Exec=fractal %U
 # Translators: Do NOT translate or transliterate this text (this is an icon file name)!
 Icon=@icon@

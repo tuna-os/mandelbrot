@@ -10,7 +10,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/message_toolbar/attachment_dialog.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_toolbar/attachment_dialog.ui"
     )]
     pub struct AttachmentDialog {
         #[template_child]

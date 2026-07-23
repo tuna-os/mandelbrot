@@ -70,7 +70,7 @@ fn replace_html_variable(html: &mut String, name: &str, value: &str) {
 fn svg_icon() -> String {
     // Load the icon from the application resources.
     let bytes = gio::resources_lookup_data(
-        "/org/gnome/Fractal/icons/scalable/apps/org.gnome.Fractal.svg",
+        "/org/tunaos/mandelbrot/icons/scalable/apps/org.tunaos.mandelbrot.svg",
         gio::ResourceLookupFlags::NONE,
     )
     .expect("Application SVG icon should be present in GResources");

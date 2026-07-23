@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/org/gnome/Fractal/">
+  <gresource prefix="/org/tunaos/mandelbrot/">
     <file preprocess="xml-stripblanks">assets/homeserver.svg</file>
     <file preprocess="xml-stripblanks">assets/other-device.svg</file>
     <file preprocess="xml-stripblanks">assets/setup-complete.svg</file>
@@ -33,7 +33,7 @@
     <file preprocess="xml-stripblanks">icons/scalable/actions/settings-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/actions/system-search-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/actions/user-add-symbolic.svg</file>
-    <file preprocess="xml-stripblanks">icons/scalable/apps/org.gnome.Fractal.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/apps/org.tunaos.mandelbrot.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/audio-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/checkmark-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/status/devices-symbolic.svg</file>

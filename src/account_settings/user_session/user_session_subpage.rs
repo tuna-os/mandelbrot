@@ -23,7 +23,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/account_settings/user_session/user_session_subpage.ui"
+        resource = "/org/tunaos/mandelbrot/ui/account_settings/user_session/user_session_subpage.ui"
     )]
     #[properties(wrapper_type = super::UserSessionSubpage)]
     pub struct UserSessionSubpage {

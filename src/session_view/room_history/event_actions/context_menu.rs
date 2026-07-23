@@ -70,7 +70,7 @@ impl EventActionsContextMenu {
 impl Default for EventActionsContextMenu {
     fn default() -> Self {
         let menu_model = gtk::Builder::from_resource(
-            "/org/gnome/Fractal/ui/session_view/room_history/event_actions/context_menu.ui",
+            "/org/tunaos/mandelbrot/ui/session_view/room_history/event_actions/context_menu.ui",
         )
         .object::<gio::Menu>("event-actions-menu")
         .expect("GResource and menu should exist");

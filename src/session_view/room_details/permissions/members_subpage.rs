@@ -18,7 +18,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_details/permissions/members_subpage.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/permissions/members_subpage.ui"
     )]
     #[properties(wrapper_type = super::PermissionsMembersSubpage)]
     pub struct PermissionsMembersSubpage {

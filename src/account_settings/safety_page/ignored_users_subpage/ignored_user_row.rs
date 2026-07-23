@@ -13,7 +13,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/account_settings/safety_page/ignored_users_subpage/ignored_user_row.ui"
+        resource = "/org/tunaos/mandelbrot/ui/account_settings/safety_page/ignored_users_subpage/ignored_user_row.ui"
     )]
     #[properties(wrapper_type = super::IgnoredUserRow)]
     pub struct IgnoredUserRow {

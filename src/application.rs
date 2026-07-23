@@ -20,7 +20,7 @@ use crate::{
 /// The key for the current session setting.
 pub(crate) const SETTINGS_KEY_CURRENT_SESSION: &str = "current-session";
 /// The name of the application.
-pub(crate) const APP_NAME: &str = "Fractal";
+pub(crate) const APP_NAME: &str = "Mandelbrot";
 /// The URL of the homepage of the application.
 pub(crate) const APP_HOMEPAGE_URL: &str = "https://gitlab.gnome.org/World/fractal/";
 
@@ -482,7 +482,7 @@ impl Application {
         glib::Object::builder()
             .property("application-id", Some(config::APP_ID))
             .property("flags", gio::ApplicationFlags::HANDLES_OPEN)
-            .property("resource-base-path", Some("/org/gnome/Fractal/"))
+            .property("resource-base-path", Some("/org/tunaos/mandelbrot/"))
             .build()
     }
 

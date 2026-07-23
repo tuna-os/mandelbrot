@@ -42,7 +42,7 @@ Make a single release commit containing the following changes:
   * **stable.** update the current stable version and its release date.
   * Update the current beta version. For stable versions, put `(same as stable)` instead of the
     release date.
-* Update `/data/org.gnome.Fractal.metainfo.xml.in.in`:
+* Update `/data/org.tunaos.mandelbrot.metainfo.xml.in.in`:
   * Add a new `release` entry at the top of the `releases`:
     * Its `version` should use the `major_version~pre_release_version` format.
     * For stable versions, its `type` should be `stable`, otherwise it should be `development`.
@@ -70,7 +70,7 @@ You will be prompted for a tag message. This message doesn't really matter so so
 
 ## Publishing a version on Flathub
 
-Publishing a version of Fractal on Flathub is done via its [Flathub repository on GitHub](https://github.com/flathub/org.gnome.Fractal/).
+Publishing a version of Fractal on Flathub is done via its [Flathub repository on GitHub](https://github.com/flathub/org.tunaos.mandelbrot/).
 A permission from the Flathub team granted to your GitHub account is necessary to merge PRs on this
 repository, but anyone can open a PR.
 

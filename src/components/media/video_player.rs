@@ -13,7 +13,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/media/video_player.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/media/video_player.ui")]
     #[properties(wrapper_type = super::VideoPlayer)]
     pub struct VideoPlayer {
         #[template_child]

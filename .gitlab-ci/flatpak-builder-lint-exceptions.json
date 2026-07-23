@@ -1,5 +1,5 @@
 {
-    "org.gnome.Fractal.Devel": [
+    "org.tunaos.mandelbrot.Devel": [
         "appstream-external-screenshot-url",
         "appstream-missing-developer-name",
         "appstream-screenshots-not-mirrored-in-ostree",

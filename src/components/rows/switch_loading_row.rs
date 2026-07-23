@@ -11,7 +11,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/components/rows/switch_loading_row.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/components/rows/switch_loading_row.ui")]
     #[properties(wrapper_type = super::SwitchLoadingRow)]
     pub struct SwitchLoadingRow {
         #[template_child]

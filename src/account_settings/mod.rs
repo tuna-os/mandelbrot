@@ -58,7 +58,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/account_settings/mod.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/account_settings/mod.ui")]
     #[properties(wrapper_type = super::AccountSettings)]
     pub struct AccountSettings {
         /// The current session.

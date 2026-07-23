@@ -21,7 +21,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/session_view/room_history/verification_info_bar.ui"
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/verification_info_bar.ui"
     )]
     #[properties(wrapper_type = super::VerificationInfoBar)]
     pub struct VerificationInfoBar {

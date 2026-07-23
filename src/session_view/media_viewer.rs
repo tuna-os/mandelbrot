@@ -27,7 +27,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/gnome/Fractal/ui/session_view/media_viewer.ui")]
+    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/media_viewer.ui")]
     #[properties(wrapper_type = super::MediaViewer)]
     pub struct MediaViewer {
         #[template_child]

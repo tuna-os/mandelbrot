@@ -16,7 +16,7 @@ mod imp {
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(
-        resource = "/org/gnome/Fractal/ui/identity_verification_view/no_supported_methods_page.ui"
+        resource = "/org/tunaos/mandelbrot/ui/identity_verification_view/no_supported_methods_page.ui"
     )]
     #[properties(wrapper_type = super::NoSupportedMethodsPage)]
     pub struct NoSupportedMethodsPage {
