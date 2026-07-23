@@ -164,8 +164,25 @@ use rustls features (`rustls-tls-webpki-roots` + `signal-client-tokio`;
 `native-tls` needs openssl/pkg-config and `signal-client-dispatcher` drags in
 isahc/curl/openssl); libwebrtc is statically linked (~200 MB debug binary);
 livekit 0.7 API drift vs docs (`NativeVideoSource::new` 2nd bool arg,
-`VideoFrame.frame_metadata`). Track A (prebuilt WebRTC-enabled WebKitGTK)
-still pending; verdict section to follow.
+`VideoFrame.frame_metadata`). ### Bake-off: Track A (WebKitGTK + Element Call widget) — FAIL (2026-07-23)
+Tested webkitgtk.org nightly MiniBrowser bundles (the only prebuilt
+WebRTC-enabled WebKitGTK; 245 MB/day, ~1-month retention — no stable
+distributable exists; GNOME runtime builds have WebRTC off). Transport plane
+works (DTLS-SRTP loopback with decoded video after NSS surgery), but three
+showstoppers: (1) **RTCRtpScriptTransform silently bypasses frames** (all
+webrtc-encoded-transform tests upstream-skipped, WebKit bug 235885) → LiveKit
+E2EE can't work and would fail UNSAFE (media sent unencrypted while looking
+fine); (2) **simulcast not negotiated in SDP**; (3) rice-proto ICE panic
+crashes the WebProcess in default config. Real call.element.io joins reach the
+in-call UI but never start ICE. Verdict: reject.
+
+### ARCHITECTURE DECISION (2026-07-23): native MatrixRTC
+Calls are implemented natively: `matrixrtc/` crate (MatrixRTC session,
+membership + MSC4140 delayed leave, E2EE key distribution — ported from
+matrix-js-sdk semantics with its test suite) + **livekit-rust SDK** (statically
+linked libwebrtc, E2EE frame cryptors) + gtk4paintablesink for video. UX
+follows the Cinny model (native chrome) and GNOME Calls/libcall-ui/Dino design
+language; notifications via portal v2 call categories. No browser engine.
 
 ## Flatpak distribution + CI (tuna-os pattern, researched 2026-07-23)
 Org convention (from Tavern / gtk-office-suite / flatpak-index clones): flatpaks
