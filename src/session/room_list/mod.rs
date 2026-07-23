@@ -13,6 +13,7 @@ use gtk::{
 };
 use indexmap::IndexMap;
 use matrix_sdk::sync::RoomUpdates;
+use matrix_sdk_ui::eyeball_im::VectorDiff;
 use ruma::{OwnedRoomId, OwnedRoomOrAliasId, OwnedServerName, RoomId, RoomOrAliasId, UserId};
 use tracing::{error, warn};
 
@@ -51,6 +52,15 @@ mod imp {
         /// The rooms metainfo that allow to restore this `RoomList` from its
         /// previous state.
         metainfo: RoomListMetainfo,
+        /// A mirror of the entries of the SDK's `RoomListService` room list,
+        /// when simplified sliding sync is used.
+        ///
+        /// It is only used to interpret the positional [`VectorDiff`]s
+        /// received from the SDK, the rooms are then added to or removed from
+        /// `list` by comparing the room membership before and after a batch of
+        /// diffs, since the ordering of the sidebar is handled on top of this
+        /// list.
+        sliding_sync_entries: RefCell<Vec<OwnedRoomId>>,
         pub(super) get_wait_source: RefCell<Option<glib::SourceId>>,
     }
 
@@ -291,6 +301,149 @@ mod imp {
                 let added = new_rooms.len();
                 self.list.borrow_mut().extend(new_rooms);
                 self.items_added(added);
+            }
+        }
+
+        /// Handle a batch of diffs of the sliding sync room list entries.
+        ///
+        /// The diffs are applied to the local mirror of the SDK's entries,
+        /// then the room membership of the mirror before and after the batch
+        /// is compared to add or remove rooms. This ignores reorderings, since
+        /// the ordering of the rooms is handled by the models on top of this
+        /// list.
+        pub(super) fn handle_sliding_sync_entries(&self, diff_list: Vec<VectorDiff<OwnedRoomId>>) {
+            let Some(session) = self.session.upgrade() else {
+                return;
+            };
+            let client = session.client();
+
+            let (old_set, new_set) = {
+                let mut entries = self.sliding_sync_entries.borrow_mut();
+                let old_set = entries.iter().cloned().collect::<HashSet<_>>();
+
+                for diff in diff_list {
+                    Self::apply_sliding_sync_entries_diff(&mut entries, diff);
+                }
+
+                let new_set = entries.iter().cloned().collect::<HashSet<_>>();
+                (old_set, new_set)
+            };
+
+            // Remove the rooms that are not in the entries anymore. This
+            // should only happen when a room was removed from the store, other
+            // removals are handled via the `room-forgotten` signal.
+            for room_id in old_set.difference(&new_set) {
+                if client.get_room(room_id).is_none() {
+                    self.remove(room_id);
+                }
+            }
+
+            // Add the new rooms.
+            let mut new_rooms = HashMap::new();
+            for room_id in new_set.difference(&old_set) {
+                self.remove_joining_room((**room_id).into());
+
+                if self.contains(room_id) {
+                    // The room is already in the list, e.g. because it was
+                    // restored from the store, and it is already watched.
+                    continue;
+                }
+
+                let Some(matrix_room) = client.get_room(room_id) else {
+                    warn!("Could not find room {room_id} from sliding sync entries");
+                    continue;
+                };
+
+                let room = Room::new(&session, matrix_room, None);
+                self.metainfo.watch_room(&room);
+                new_rooms.insert(room_id.clone(), room);
+            }
+
+            if !new_rooms.is_empty() {
+                let added = new_rooms.len();
+                self.list.borrow_mut().extend(new_rooms);
+                self.items_added(added);
+            }
+        }
+
+        /// Apply a single sliding sync entries diff to the local mirror of the
+        /// SDK's entries.
+        fn apply_sliding_sync_entries_diff(
+            entries: &mut Vec<OwnedRoomId>,
+            diff: VectorDiff<OwnedRoomId>,
+        ) {
+            match diff {
+                VectorDiff::Append { values } => {
+                    entries.extend(values);
+                }
+                VectorDiff::Clear => {
+                    entries.clear();
+                }
+                VectorDiff::PushFront { value } => {
+                    entries.insert(0, value);
+                }
+                VectorDiff::PushBack { value } => {
+                    entries.push(value);
+                }
+                VectorDiff::PopFront => {
+                    if entries.is_empty() {
+                        warn!("Could not pop front sliding sync entry: list is empty");
+                    } else {
+                        entries.remove(0);
+                    }
+                }
+                VectorDiff::PopBack => {
+                    if entries.pop().is_none() {
+                        warn!("Could not pop back sliding sync entry: list is empty");
+                    }
+                }
+                VectorDiff::Insert { index, value } => {
+                    if index <= entries.len() {
+                        entries.insert(index, value);
+                    } else {
+                        warn!("Could not insert sliding sync entry: index {index} out of bounds");
+                        entries.push(value);
+                    }
+                }
+                VectorDiff::Set { index, value } => {
+                    if let Some(entry) = entries.get_mut(index) {
+                        *entry = value;
+                    } else {
+                        warn!("Could not set sliding sync entry: index {index} out of bounds");
+                        entries.push(value);
+                    }
+                }
+                VectorDiff::Remove { index } => {
+                    if index < entries.len() {
+                        entries.remove(index);
+                    } else {
+                        warn!("Could not remove sliding sync entry: index {index} out of bounds");
+                    }
+                }
+                VectorDiff::Truncate { length } => {
+                    entries.truncate(length);
+                }
+                VectorDiff::Reset { values } => {
+                    *entries = values.into_iter().collect();
+                }
+            }
+        }
+
+        /// Handle the ambiguity changes of the room updates received via sync.
+        ///
+        /// This is used with sliding sync, where the room membership is
+        /// handled via the sliding sync entries instead.
+        pub(super) fn handle_ambiguity_changes(&self, rooms: &RoomUpdates) {
+            for (room_id, left_room) in &rooms.left {
+                if let Some(room) = self.get(room_id) {
+                    room.handle_ambiguity_changes(left_room.ambiguity_changes.values());
+                }
+            }
+
+            for (room_id, joined_room) in &rooms.joined {
+                if let Some(room) = self.get(room_id) {
+                    room.handle_ambiguity_changes(joined_room.ambiguity_changes.values());
+                }
             }
         }
 
@@ -537,6 +690,19 @@ impl RoomList {
     /// Handle room updates received via sync.
     pub(crate) fn handle_room_updates(&self, rooms: RoomUpdates) {
         self.imp().handle_room_updates(rooms);
+    }
+
+    /// Handle a batch of diffs of the sliding sync room list entries.
+    pub(crate) fn handle_sliding_sync_entries(&self, diff_list: Vec<VectorDiff<OwnedRoomId>>) {
+        self.imp().handle_sliding_sync_entries(diff_list);
+    }
+
+    /// Handle the ambiguity changes of the room updates received via sync.
+    ///
+    /// This is used with sliding sync, where the room membership is handled
+    /// via the sliding sync entries instead.
+    pub(crate) fn handle_ambiguity_changes(&self, rooms: &RoomUpdates) {
+        self.imp().handle_ambiguity_changes(rooms);
     }
 
     /// Join the room with the given identifier.

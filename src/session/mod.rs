@@ -1,16 +1,26 @@
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
-use futures_util::{StreamExt, lock::Mutex};
+use futures_util::{StreamExt, lock::Mutex, pin_mut};
 use gettextrs::gettext;
 use gtk::{gio, glib, glib::clone, prelude::*, subclass::prelude::*};
 use matrix_sdk::{
     Client, SessionChange, config::SyncSettings, media::MediaRetentionPolicy, sync::SyncResponse,
 };
+use matrix_sdk_ui::{
+    eyeball_im::VectorDiff,
+    room_list_service::{self, RoomListLoadingState, filters::new_filter_all},
+    sync_service::{self, State as SyncServiceState, SyncService},
+};
 use ruma::{
-    api::client::{
-        filter::{FilterDefinition, RoomFilter},
-        profile::{AvatarUrl, DisplayName},
-        search::search_events::v3::UserProfile,
+    OwnedRoomId,
+    api::{
+        FeatureFlag,
+        client::{
+            filter::{FilterDefinition, RoomFilter},
+            profile::{AvatarUrl, DisplayName},
+            search::search_events::v3::UserProfile,
+        },
+        error::ErrorKind,
     },
     assign,
 };
@@ -73,6 +83,51 @@ pub enum SessionState {
     Ready = 2,
 }
 
+/// The method used to synchronize this session with the homeserver.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+enum SyncMode {
+    /// Support for simplified sliding sync was not determined yet.
+    #[default]
+    Unknown,
+    /// Simplified sliding sync (MSC4186), via the SDK's `SyncService`.
+    SlidingSync,
+    /// Classic sync, via the `/sync` endpoint.
+    Classic,
+}
+
+/// Wrapper around [`SyncService`] that implements `Debug`.
+struct SyncServiceWrapper(Arc<SyncService>);
+
+impl std::fmt::Debug for SyncServiceWrapper {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SyncService").finish_non_exhaustive()
+    }
+}
+
+/// Whether the given sync service error means that the homeserver does not
+/// support simplified sliding sync.
+fn is_sliding_sync_unsupported_error(error: &sync_service::Error) -> bool {
+    let sdk_error = match error {
+        sync_service::Error::RoomList(room_list_service::Error::SlidingSync(error))
+        | sync_service::Error::EncryptionSync(
+            matrix_sdk_ui::encryption_sync_service::Error::SlidingSync(error),
+        ) => error,
+        _ => return false,
+    };
+
+    if matches!(
+        sdk_error.client_api_error_kind(),
+        Some(ErrorKind::Unrecognized)
+    ) {
+        return true;
+    }
+
+    // Some homeservers or reverse proxies reply with a plain 404 instead.
+    sdk_error
+        .as_client_api_error()
+        .is_some_and(|error| error.status_code.as_u16() == 404)
+}
+
 mod imp {
     use std::cell::{Cell, OnceCell, RefCell};
 
@@ -120,6 +175,13 @@ mod imp {
         remote_cache: OnceCell<RemoteCache>,
         session_changes_handle: RefCell<Option<AbortHandle>>,
         sync_handle: RefCell<Option<AbortHandle>>,
+        /// The method used to synchronize this session with the homeserver.
+        sync_mode: Cell<SyncMode>,
+        /// The sync service, when simplified sliding sync is used.
+        sync_service: RefCell<Option<TokioDrop<SyncServiceWrapper>>>,
+        sync_service_state_handle: RefCell<Option<AbortHandle>>,
+        room_list_entries_handle: RefCell<Option<AbortHandle>>,
+        room_updates_handle: RefCell<Option<AbortHandle>>,
         network_monitor_handler_id: RefCell<Option<glib::SignalHandlerId>>,
         homeserver_reachable_lock: Mutex<()>,
         homeserver_reachable_source: RefCell<Option<glib::SourceId>>,
@@ -155,6 +217,8 @@ mod imp {
             if let Some(handle) = self.sync_handle.take() {
                 handle.abort();
             }
+
+            self.stop_sliding_sync();
         }
     }
 
@@ -328,6 +392,15 @@ mod imp {
                 // Restart the sync loop.
                 self.sync();
             } else {
+                // Pause the sync service, it will be restarted when the
+                // homeserver is reachable again.
+                if let Some(sync_service) = &*self.sync_service.borrow() {
+                    let sync_service = sync_service.0.clone();
+                    spawn_tokio!(async move {
+                        sync_service.stop().await;
+                    });
+                }
+
                 self.set_offline(true);
             }
 
@@ -452,11 +525,349 @@ mod imp {
         }
 
         /// Start syncing the Matrix client.
+        ///
+        /// The first call detects whether the homeserver supports simplified
+        /// sliding sync (MSC4186) and then selects the sync method for the
+        /// rest of the session's lifetime, unless sliding sync fails with an
+        /// unsupported error, in which case we fall back to classic sync.
         fn sync(&self) {
             if self.state.get() < SessionState::InitialSync || !self.is_homeserver_reachable.get() {
                 return;
             }
 
+            match self.sync_mode.get() {
+                SyncMode::Unknown => self.detect_sync_mode(),
+                SyncMode::SlidingSync => self.sliding_sync(),
+                SyncMode::Classic => self.classic_sync(),
+            }
+        }
+
+        /// Detect whether the homeserver supports simplified sliding sync and
+        /// start the proper sync method.
+        fn detect_sync_mode(&self) {
+            let client = self.client().clone();
+
+            spawn!(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                async move {
+                    let handle = spawn_tokio!(async move { client.supported_versions().await });
+
+                    match handle.await.expect("task was not aborted") {
+                        Ok(supported) => {
+                            let mode = if supported.features.contains(&FeatureFlag::Msc4186) {
+                                info!(
+                                    session = imp.obj().session_id(),
+                                    "Homeserver supports simplified sliding sync (MSC4186), \
+                                     using sliding sync"
+                                );
+                                SyncMode::SlidingSync
+                            } else {
+                                info!(
+                                    session = imp.obj().session_id(),
+                                    "Homeserver does not support simplified sliding sync \
+                                     (MSC4186), using classic sync"
+                                );
+                                SyncMode::Classic
+                            };
+
+                            imp.sync_mode.set(mode);
+                            imp.sync();
+                        }
+                        Err(error) => {
+                            error!(
+                                session = imp.obj().session_id(),
+                                "Could not detect simplified sliding sync support: {error}"
+                            );
+                            imp.handle_missed_sync();
+                        }
+                    }
+                }
+            ));
+        }
+
+        /// Handle a failed synchronization attempt.
+        ///
+        /// Updates the offline state and schedules a new synchronization
+        /// attempt after a delay.
+        fn handle_missed_sync(&self) {
+            let missed_sync_count = self.missed_sync_count.get();
+
+            // If there are too many failed attempts, mark the session as offline.
+            if missed_sync_count == MISSED_SYNC_OFFLINE_COUNT {
+                self.set_offline(true);
+            }
+
+            // Increase the count of missed syncs, if we have not reached the maximum value.
+            if missed_sync_count < 4 {
+                self.missed_sync_count.set(missed_sync_count + 1);
+            }
+
+            // Wait a little before trying again.
+            let delay = MISSED_SYNC_DELAYS[missed_sync_count];
+            glib::timeout_add_seconds_local_once(
+                delay as u32,
+                clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move || {
+                        imp.sync();
+                    }
+                ),
+            );
+        }
+
+        /// Start or restart the sync service using simplified sliding sync.
+        fn sliding_sync(&self) {
+            if let Some(sync_service) = &*self.sync_service.borrow() {
+                // The service was already created, make sure it is running.
+                let sync_service = sync_service.0.clone();
+                spawn_tokio!(async move {
+                    sync_service.start().await;
+                });
+                return;
+            }
+
+            let client = self.client().clone();
+
+            spawn!(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                async move {
+                    let handle =
+                        spawn_tokio!(async move { SyncService::builder(client).build().await });
+
+                    match handle.await.expect("task was not aborted") {
+                        Ok(sync_service) => {
+                            let sync_service = Arc::new(sync_service);
+                            imp.sync_service
+                                .replace(Some(TokioDrop::new(SyncServiceWrapper(
+                                    sync_service.clone(),
+                                ))));
+
+                            imp.watch_sync_service_state(&sync_service);
+                            imp.watch_room_list_entries(&sync_service);
+                            imp.watch_room_updates();
+
+                            spawn_tokio!(async move {
+                                sync_service.start().await;
+                            });
+                        }
+                        Err(error) => {
+                            error!(
+                                session = imp.obj().session_id(),
+                                "Could not create sync service, falling back to classic sync: \
+                                 {error}"
+                            );
+                            imp.sync_mode.set(SyncMode::Classic);
+                            imp.sync();
+                        }
+                    }
+                }
+            ));
+        }
+
+        /// Watch the state of the sync service.
+        fn watch_sync_service_state(&self, sync_service: &SyncService) {
+            let state_stream = sync_service.state();
+            let obj_weak = glib::SendWeakRef::from(self.obj().downgrade());
+
+            let fut = state_stream.for_each(move |state| {
+                let obj_weak = obj_weak.clone();
+                async move {
+                    let ctx = glib::MainContext::default();
+                    ctx.spawn(async move {
+                        spawn!(async move {
+                            if let Some(obj) = obj_weak.upgrade() {
+                                obj.imp().handle_sync_service_state(&state);
+                            }
+                        });
+                    });
+                }
+            });
+
+            let handle = spawn_tokio!(fut).abort_handle();
+            self.sync_service_state_handle.replace(Some(handle));
+        }
+
+        /// Handle a state change of the sync service.
+        fn handle_sync_service_state(&self, state: &SyncServiceState) {
+            let obj = self.obj();
+            let session_id = obj.session_id();
+
+            match state {
+                SyncServiceState::Running => {
+                    debug!(session = session_id, "Sync service is running");
+                    self.set_offline(false);
+                    self.missed_sync_count.set(0);
+                }
+                SyncServiceState::Error(error) => {
+                    error!(session = session_id, "Sync service error: {error}");
+
+                    if is_sliding_sync_unsupported_error(error) {
+                        info!(
+                            session = session_id,
+                            "Homeserver rejected simplified sliding sync, falling back to \
+                             classic sync"
+                        );
+                        self.stop_sliding_sync();
+                        self.sync_mode.set(SyncMode::Classic);
+                        self.sync();
+                        return;
+                    }
+
+                    self.handle_missed_sync();
+                }
+                SyncServiceState::Idle
+                | SyncServiceState::Terminated
+                | SyncServiceState::Offline => {
+                    // Graceful states, nothing to do.
+                }
+            }
+        }
+
+        /// Watch the entries of the sync service's room list.
+        ///
+        /// This is the source of the room membership of the session's
+        /// `RoomList` when sliding sync is used. It also watches the loading
+        /// state of the SDK's room list to detect the end of the first
+        /// synchronization.
+        fn watch_room_list_entries(&self, sync_service: &SyncService) {
+            let room_list_service = sync_service.room_list_service();
+            let obj_weak = glib::SendWeakRef::from(self.obj().downgrade());
+
+            let fut = async move {
+                let all_rooms = match room_list_service.all_rooms().await {
+                    Ok(all_rooms) => all_rooms,
+                    Err(error) => {
+                        error!("Could not get the sync service's room list: {error}");
+                        return;
+                    }
+                };
+
+                // Watch the loading state to detect the end of the first sync.
+                let mut loading_state_stream = all_rooms.loading_state();
+                let obj_weak_clone = obj_weak.clone();
+                let loading_state_fut = async move {
+                    while let Some(state) = loading_state_stream.next().await {
+                        if matches!(state, RoomListLoadingState::Loaded { .. }) {
+                            let ctx = glib::MainContext::default();
+                            ctx.spawn(async move {
+                                spawn!(async move {
+                                    if let Some(obj) = obj_weak_clone.upgrade() {
+                                        obj.imp().handle_first_sync_done();
+                                    }
+                                });
+                            });
+                            break;
+                        }
+                    }
+                };
+
+                let entries_fut = async {
+                    let (entries_stream, entries_controller) =
+                        all_rooms.entries_with_dynamic_adapters(usize::MAX);
+                    // We want all the rooms, the filtering and sorting is done
+                    // by the models on top of the session's `RoomList`.
+                    entries_controller.set_filter(Box::new(new_filter_all(Vec::new())));
+
+                    pin_mut!(entries_stream);
+                    while let Some(diff_list) = entries_stream.next().await {
+                        let diff_list = diff_list
+                            .into_iter()
+                            .map(|diff| diff.map(|item| item.into_inner().room_id().to_owned()))
+                            .collect::<Vec<VectorDiff<OwnedRoomId>>>();
+
+                        let obj_weak = obj_weak.clone();
+                        let ctx = glib::MainContext::default();
+                        ctx.spawn(async move {
+                            spawn!(async move {
+                                if let Some(obj) = obj_weak.upgrade() {
+                                    obj.imp().room_list().handle_sliding_sync_entries(diff_list);
+                                }
+                            });
+                        });
+                    }
+                };
+
+                futures_util::future::join(loading_state_fut, entries_fut).await;
+            };
+
+            let handle = spawn_tokio!(fut).abort_handle();
+            self.room_list_entries_handle.replace(Some(handle));
+        }
+
+        /// Watch the room updates received via sync.
+        ///
+        /// With sliding sync, this is only used to forward the ambiguity
+        /// changes of the members to the rooms, the room membership is handled
+        /// via the sliding sync entries.
+        fn watch_room_updates(&self) {
+            let receiver = self.client().subscribe_to_all_room_updates();
+            let stream = BroadcastStream::new(receiver);
+            let obj_weak = glib::SendWeakRef::from(self.obj().downgrade());
+
+            let fut = stream.for_each(move |updates| {
+                let obj_weak = obj_weak.clone();
+                async move {
+                    let Ok(updates) = updates else {
+                        return;
+                    };
+
+                    let ctx = glib::MainContext::default();
+                    ctx.spawn(async move {
+                        spawn!(async move {
+                            if let Some(obj) = obj_weak.upgrade() {
+                                obj.imp().room_list().handle_ambiguity_changes(&updates);
+                            }
+                        });
+                    });
+                }
+            });
+
+            let handle = spawn_tokio!(fut).abort_handle();
+            self.room_updates_handle.replace(Some(handle));
+        }
+
+        /// Handle the end of the first synchronization with sliding sync.
+        fn handle_first_sync_done(&self) {
+            debug!(
+                session = self.obj().session_id(),
+                "First sliding sync completed"
+            );
+
+            if self.state.get() < SessionState::Ready {
+                self.set_state(SessionState::Ready);
+                self.init_notifications();
+            }
+
+            self.set_offline(false);
+            self.missed_sync_count.set(0);
+        }
+
+        /// Stop the sync service and the tasks watching it, if any.
+        fn stop_sliding_sync(&self) {
+            for handle in [
+                self.sync_service_state_handle.take(),
+                self.room_list_entries_handle.take(),
+                self.room_updates_handle.take(),
+            ]
+            .into_iter()
+            .flatten()
+            {
+                handle.abort();
+            }
+
+            if let Some(sync_service) = self.sync_service.take() {
+                let sync_service = sync_service.0.clone();
+                spawn_tokio!(async move {
+                    sync_service.stop().await;
+                });
+            }
+        }
+
+        /// Start syncing the Matrix client with the classic `/sync` endpoint.
+        fn classic_sync(&self) {
             let client = self.client().clone();
             let obj_weak = glib::SendWeakRef::from(self.obj().downgrade());
 
@@ -715,6 +1126,8 @@ mod imp {
             if let Some(handle) = self.sync_handle.take() {
                 handle.abort();
             }
+
+            self.stop_sliding_sync();
 
             if let Some(settings) = self.settings.get() {
                 settings.delete();
