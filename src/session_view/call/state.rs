@@ -104,10 +104,12 @@ impl CallParticipant {
 }
 
 mod imp_state {
-    use std::cell::{Cell, RefCell};
+    use std::{
+        cell::{Cell, RefCell},
+        sync::LazyLock,
+    };
 
     use glib::subclass::Signal;
-    use std::sync::LazyLock;
 
     use super::*;
 

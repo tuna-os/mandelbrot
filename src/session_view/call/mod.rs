@@ -169,9 +169,7 @@ mod imp {
                 self.state_handlers.replace(handlers);
             } else {
                 self.participants_grid
-                    .bind_model(gtk::gio::ListModel::NONE, |_| {
-                        adw::Bin::new().upcast()
-                    });
+                    .bind_model(gtk::gio::ListModel::NONE, |_| adw::Bin::new().upcast());
             }
 
             self.state.replace(state);
