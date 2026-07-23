@@ -1,5 +1,22 @@
 # Mandelbrot — Fractal fork roadmap
 
+## Status (2026-07-23 evening)
+- **Published**: repo github.com/tuna-os/mandelbrot · flatpak
+  `org.tunaos.mandelbrot` on the tuna-os remote (install verified end-to-end)
+  · landing page live at tunaos.org/mandelbrot · docs at
+  tunaos.org/docs/mandelbrot.
+- **Done**: fork rename/branding; CI (checks, matrixrtc conformance, clippy,
+  flatpak build+tests) + OCI publish pipeline; `matrixrtc/` engine crate
+  (membership + MSC4140, E2EE key distribution, RtcCallSession, livekit
+  connection behind feature flag — 114 ported conformance tests); native call
+  UI shell (CallView/prescreen/tiles/call bar, demo-driven).
+- **In progress**: sliding-sync migration (SyncService/RoomListService with
+  classic fallback); QR login (both directions).
+- **Next**: engine↔app integration (RtcClientApi over matrix-sdk, olm-encrypted
+  to-device, sync plumbing, gtk4paintablesink video, portal-v2 call
+  notifications); interop e2e harness (element-call compose stack); threads;
+  polls; spaces; voice-message recording.
+
 Goal: take Fractal (the most GNOME-native Matrix client, matrix-sdk 0.18 +
 matrix-sdk-ui) and adopt the modern Matrix Rust SDK features it doesn't use.
 State of research: July 2026. Reference checkouts live in `~/dev/mandelbrot-refs/`
