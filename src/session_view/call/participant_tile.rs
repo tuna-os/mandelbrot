@@ -137,7 +137,7 @@ impl CallParticipantTile {
     /// Set the paintable displaying the video stream of this participant.
     ///
     /// Integration point: this will receive the `gdk::Paintable` of a
-    /// `gtk4paintablesink` fed by the LiveKit video track.
+    /// `gtk4paintablesink` fed by the `LiveKit` video track.
     pub fn set_video_paintable(&self, paintable: Option<&gtk::gdk::Paintable>) {
         self.imp().video_picture.set_paintable(paintable);
     }

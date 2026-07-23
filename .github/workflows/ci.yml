@@ -14,16 +14,16 @@ jobs:
   checks:
     name: "Code checks (fmt, typos, deny, i18n)"
     runs-on: ubuntu-latest
-    container:
-      image: rustlang/rust:nightly-slim
     steps:
-      - name: Install git
-        run: apt-get update && apt-get install -y --no-install-recommends git
       - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: hooks/checks
       - name: Run pre-commit checks
         run: |
-          rustup component add rustfmt
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           RUST_BACKTRACE=1 cargo run --manifest-path hooks/checks/Cargo.toml -- --verbose --force-install --cargo-binstall
 
   matrixrtc-conformance:

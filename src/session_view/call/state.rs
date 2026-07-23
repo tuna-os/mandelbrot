@@ -251,7 +251,7 @@ impl CallState {
     ///
     /// This is a placeholder for the engine binding: it simulates a connected
     /// call with a few remote participants so the UI can be exercised without
-    /// a LiveKit connection.
+    /// a `LiveKit` connection.
     pub fn start_demo(&self) {
         let participants = self.participants();
         participants.remove_all();
