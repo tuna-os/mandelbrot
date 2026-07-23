@@ -15,7 +15,9 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/account_settings/general_page/log_out_subpage.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/account_settings/general_page/log_out_subpage.ui"
+    )]
     #[properties(wrapper_type = super::LogOutSubpage)]
     pub struct LogOutSubpage {
         #[template_child]

@@ -33,6 +33,9 @@ jobs:
       options: --privileged
     steps:
       - uses: actions/checkout@v7
+      - name: Install SDK extensions
+        run: |
+          flatpak install --user -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08
       - name: Initialize flatpak build sandbox
         run: |
           flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse \

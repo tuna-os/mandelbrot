@@ -12,7 +12,9 @@ mod imp {
     use crate::utils::TemplateCallbacks;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/invite_subpage/row.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/invite_subpage/row.ui"
+    )]
     #[properties(wrapper_type = super::InviteRow)]
     pub struct InviteRow {
         #[template_child]

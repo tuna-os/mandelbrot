@@ -21,7 +21,9 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/history_viewer/file.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/history_viewer/file.ui"
+    )]
     #[properties(wrapper_type = super::FileHistoryViewer)]
     pub struct FileHistoryViewer {
         #[template_child]

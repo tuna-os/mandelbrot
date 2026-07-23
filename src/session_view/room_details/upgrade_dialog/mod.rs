@@ -22,7 +22,9 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/upgrade_dialog/mod.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/upgrade_dialog/mod.ui"
+    )]
     pub struct UpgradeDialog {
         #[template_child]
         version_combo: TemplateChild<adw::ComboRow>,

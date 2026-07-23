@@ -63,8 +63,9 @@ mod imp {
                 .sprite_sheet()
                 .expect("renderer should have sprite sheet");
 
-            let sprites_texture =
-                gdk::Texture::from_resource("/org/tunaos/mandelbrot/mapstyle/osm-liberty/sprites.png");
+            let sprites_texture = gdk::Texture::from_resource(
+                "/org/tunaos/mandelbrot/mapstyle/osm-liberty/sprites.png",
+            );
             let sprites_json = gio::resources_lookup_data(
                 "/org/tunaos/mandelbrot/mapstyle/osm-liberty/sprites.json",
                 gio::ResourceLookupFlags::NONE,

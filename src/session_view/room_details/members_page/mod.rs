@@ -12,7 +12,9 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/members_page/mod.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/members_page/mod.ui"
+    )]
     #[properties(wrapper_type = super::MembersPage)]
     pub struct MembersPage {
         #[template_child]

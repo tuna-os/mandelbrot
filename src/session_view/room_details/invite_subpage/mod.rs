@@ -27,7 +27,9 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/invite_subpage/mod.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/invite_subpage/mod.ui"
+    )]
     #[properties(wrapper_type = super::InviteSubpage)]
     pub struct InviteSubpage {
         #[template_child]

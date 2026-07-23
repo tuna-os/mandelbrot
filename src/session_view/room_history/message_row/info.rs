@@ -23,7 +23,9 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_row/info.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_row/info.ui"
+    )]
     #[properties(wrapper_type = super::MessageInfo)]
     pub struct MessageInfo {
         #[template_child]

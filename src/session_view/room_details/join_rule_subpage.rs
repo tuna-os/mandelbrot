@@ -20,7 +20,9 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/join_rule_subpage.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_details/join_rule_subpage.ui"
+    )]
     #[properties(wrapper_type = super::JoinRuleSubpage)]
     pub struct JoinRuleSubpage {
         #[template_child]

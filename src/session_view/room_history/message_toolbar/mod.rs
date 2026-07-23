@@ -98,7 +98,9 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_toolbar/mod.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/session_view/room_history/message_toolbar/mod.ui"
+    )]
     #[properties(wrapper_type = super::MessageToolbar)]
     pub struct MessageToolbar {
         #[template_child]

@@ -13,7 +13,9 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, glib::Properties)]
-    #[template(resource = "/org/tunaos/mandelbrot/ui/components/power_level_selection/combo_box.ui")]
+    #[template(
+        resource = "/org/tunaos/mandelbrot/ui/components/power_level_selection/combo_box.ui"
+    )]
     #[properties(wrapper_type = super::PowerLevelSelectionComboBox)]
     pub struct PowerLevelSelectionComboBox {
         #[template_child]
