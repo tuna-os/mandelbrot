@@ -7,30 +7,34 @@
 //!
 //! - Sending the user's delayed leave event before sending the membership.
 //! - Sending the user's membership state event when joining.
-//! - Checking if the delayed event was cancelled due to sending the
-//!   membership, and rescheduling it if so.
+//! - Checking if the delayed event was cancelled due to sending the membership,
+//!   and rescheduling it if so.
 //! - Restarting ("keep-alive") the delayed leave event.
 //! - Updating the state event before its `expires` timeout passes.
 //! - Rejoining when the membership got removed externally.
 //! - Falling back to plain state events when the server does not support
 //!   MSC4140 delayed events.
 
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
 use ruma::{OwnedDeviceId, OwnedRoomId, OwnedUserId, events::StateEventType};
 use serde_json::json;
-use tokio::sync::{mpsc, watch};
-use tokio::time::Instant;
+use tokio::{
+    sync::{mpsc, watch},
+    time::Instant,
+};
 use tracing::{debug, error, info, warn};
 
-use crate::call_membership::CallMembership;
-use crate::client::{ClientError, RtcClientApi, UpdateDelayedEventAction};
-use crate::membership_data::{
-    DEFAULT_EXPIRE_DURATION_MS, FocusActive, SessionMembershipData, Transport,
+use crate::{
+    call_membership::CallMembership,
+    client::{ClientError, RtcClientApi, UpdateDelayedEventAction},
+    membership_data::{DEFAULT_EXPIRE_DURATION_MS, FocusActive, SessionMembershipData, Transport},
+    session::SlotDescription,
 };
-use crate::session::SlotDescription;
 
 /// Call membership should always remain sticky for this amount of time.
 const MEMBERSHIP_STICKY_DURATION_MS: u64 = 60 * 60 * 1000;

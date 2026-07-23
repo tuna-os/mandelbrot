@@ -9,6 +9,7 @@ mod file;
 mod info;
 mod location;
 mod message_state_stack;
+mod poll;
 mod reaction;
 mod reaction_list;
 mod reply;

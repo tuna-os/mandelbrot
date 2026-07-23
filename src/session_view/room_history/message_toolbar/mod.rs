@@ -14,7 +14,7 @@ use matrix_sdk_ui::timeline::{
 use ruma::{
     OwnedRoomId,
     events::{
-        Mentions,
+        AnyMessageLikeEventContent, Mentions,
         room::{
             message::{LocationMessageEventContent, MessageType, RoomMessageEventContent},
             tombstone::RoomTombstoneEventContent,
@@ -27,11 +27,12 @@ mod attachment_dialog;
 mod completion;
 mod composer_parser;
 mod composer_state;
+mod create_poll_dialog;
 
 pub(crate) use self::composer_state::{ComposerState, MessageEventSource, RelationInfo};
 use self::{
     attachment_dialog::AttachmentDialog, completion::CompletionPopover,
-    composer_parser::ComposerParser,
+    composer_parser::ComposerParser, create_poll_dialog::CreatePollDialog,
 };
 use super::message_row::MessageContent;
 use crate::{
@@ -161,6 +162,14 @@ mod imp {
                 None,
                 |obj, _, _| async move {
                     obj.imp().send_location().await;
+                },
+            );
+
+            klass.install_action_async(
+                "message-toolbar.create-poll",
+                None,
+                |obj, _, _| async move {
+                    obj.imp().create_poll().await;
                 },
             );
 
@@ -890,6 +899,42 @@ mod imp {
             if let Err(error) = handle.await.unwrap() {
                 error!("Could not send location: {error}");
                 toast!(self.obj(), gettext("Could not send location"));
+            }
+        }
+
+        /// Create a poll and send it.
+        ///
+        /// Opens a dialog to create the poll and asks the user to confirm the
+        /// action.
+        async fn create_poll(&self) {
+            let Some(_send_guard) = self.send_guard.try_lock() else {
+                return;
+            };
+            if !self.can_compose_message() {
+                return;
+            }
+            let Some(timeline) = self.timeline.upgrade() else {
+                return;
+            };
+
+            let obj = self.obj();
+            let dialog = CreatePollDialog::new();
+            let Some(content) = dialog.response_future(&*obj).await else {
+                return;
+            };
+
+            let matrix_timeline = timeline.matrix_timeline();
+            let handle = spawn_tokio!(async move {
+                matrix_timeline
+                    .send(AnyMessageLikeEventContent::UnstablePollStart(
+                        content.into(),
+                    ))
+                    .await
+            });
+
+            if let Err(error) = handle.await.expect("task was not aborted") {
+                error!("Could not send poll: {error}");
+                toast!(self.obj(), gettext("Could not send poll"));
             }
         }
 

@@ -288,6 +288,18 @@ message-location, message-visual-media {
   @include vendor.focus-ring();
 }
 
+message-poll {
+  padding-top: 3px;
+  padding-bottom: 3px;
+
+  progressbar {
+    trough,
+    progress {
+      min-height: 6px;
+    }
+  }
+}
+
 .visual-content {
   &.opaque-bg {
     background-color: var(--border-color);

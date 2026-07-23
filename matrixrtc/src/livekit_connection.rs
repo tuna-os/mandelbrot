@@ -10,20 +10,22 @@
 //!
 //! [`RtcEncryptionManager`]: crate::encryption_manager::RtcEncryptionManager
 
-use livekit::e2ee::key_provider::{KeyProvider, KeyProviderOptions};
-use livekit::e2ee::{E2eeOptions, EncryptionType};
-use livekit::id::ParticipantIdentity;
-use livekit::options::TrackPublishOptions;
-use livekit::track::{LocalAudioTrack, LocalTrack, LocalVideoTrack, TrackSource};
-use livekit::webrtc::audio_source::RtcAudioSource;
-use livekit::webrtc::video_source::RtcVideoSource;
-use livekit::{Room, RoomEvent, RoomOptions};
+use livekit::{
+    Room, RoomEvent, RoomOptions,
+    e2ee::{
+        E2eeOptions, EncryptionType,
+        key_provider::{KeyProvider, KeyProviderOptions},
+    },
+    id::ParticipantIdentity,
+    options::TrackPublishOptions,
+    track::{LocalAudioTrack, LocalTrack, LocalVideoTrack, TrackSource},
+    webrtc::{audio_source::RtcAudioSource, video_source::RtcVideoSource},
+};
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 use tracing::info;
 
-use crate::encryption_manager::KeyRingEntry;
-use crate::key_transport::CallMembershipIdentity;
+use crate::{encryption_manager::KeyRingEntry, key_transport::CallMembershipIdentity};
 
 /// An error from the LiveKit connection layer.
 #[derive(Debug, thiserror::Error)]

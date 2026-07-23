@@ -5,8 +5,10 @@
 //! This is a port of `matrix-js-sdk`'s `IKeyTransport`/`ToDeviceKeyTransport`
 //! using `io.element.call.encryption_keys` to-device messages.
 
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::{
+    Arc, Mutex,
+    atomic::{AtomicBool, Ordering},
+};
 
 use serde_json::{Value as JsonValue, json};
 use tokio::sync::mpsc;

@@ -3,9 +3,11 @@ use gtk::{gdk, glib, glib::clone};
 use ruma::{OwnedEventId, OwnedUserId, RoomId, RoomOrAliasId};
 use tracing::{error, warn};
 
-// TODO: Use these widgets when the call UI is bound to the RTC engine.
+// TODO: Use the remaining widgets when the call UI is mounted in the room
+// view.
 #[allow(dead_code)]
 mod call;
+pub(crate) use self::call::{CallConnectionState, CallParticipant, CallState};
 mod content;
 mod create_direct_chat_dialog;
 mod create_room_dialog;

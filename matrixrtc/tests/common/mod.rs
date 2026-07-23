@@ -6,9 +6,11 @@
 #![allow(dead_code)]
 #![allow(clippy::enum_variant_names)]
 
-use std::collections::{HashMap, VecDeque};
-use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::{
+    collections::{HashMap, VecDeque},
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
 use mandelbrot_matrixrtc::{
     CallMembership, ClientError, MemberStateEvent, MembershipConfig, MembershipManager,

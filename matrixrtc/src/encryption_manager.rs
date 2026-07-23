@@ -7,21 +7,28 @@
 //! rotating the keys if needed. Used with the to-device transport it shares
 //! the existing key only with new joiners, and rotates when someone leaves.
 
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
-use base64::Engine as _;
-use base64::engine::general_purpose::STANDARD_NO_PAD;
-use base64::engine::{DecodePaddingMode, GeneralPurpose, GeneralPurposeConfig};
+use base64::{
+    Engine as _,
+    engine::{
+        DecodePaddingMode, GeneralPurpose, GeneralPurposeConfig, general_purpose::STANDARD_NO_PAD,
+    },
+};
 use tokio::time::Instant;
 use tracing::{debug, error, info, warn};
 
-use crate::call_membership::CallMembership;
-use crate::key_transport::{
-    CallMembershipIdentity, KeyTransport, ParticipantDeviceInfo, encryption_key_map_key,
+use crate::{
+    call_membership::CallMembership,
+    key_transport::{
+        CallMembershipIdentity, KeyTransport, ParticipantDeviceInfo, encryption_key_map_key,
+    },
+    outdated_key_filter::{InboundEncryptionSession, OutdatedKeyFilter},
 };
-use crate::outdated_key_filter::{InboundEncryptionSession, OutdatedKeyFilter};
 
 /// A lenient base64 engine matching the reference implementation's decoder:
 /// padding optional, non-canonical trailing bits accepted.
@@ -146,10 +153,10 @@ impl RtcEncryptionManager {
     /// * `transport` - The key transport used to distribute keys.
     /// * `on_encryption_keys_changed` - Callback notifying the media layer of
     ///   new keys `(key, key_index, membership, rtc_backend_identity)`.
-    /// * `rtc_identity_provider` - Optional provider computing the
-    ///   pseudonymous RTC backend identity from `(user_id, device_id,
-    ///   member_id)`. Only used with the sticky event format; this is the
-    ///   seam for MSC4354, which is otherwise out of scope for now.
+    /// * `rtc_identity_provider` - Optional provider computing the pseudonymous
+    ///   RTC backend identity from `(user_id, device_id, member_id)`. Only used
+    ///   with the sticky event format; this is the seam for MSC4354, which is
+    ///   otherwise out of scope for now.
     pub fn new(
         own_membership: CallMembershipIdentity,
         get_memberships: impl Fn() -> Vec<CallMembership> + Send + Sync + 'static,

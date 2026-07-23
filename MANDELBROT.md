@@ -158,7 +158,7 @@ WebKitGTK webview. Options:
   voice-call UI over a `CuiCall` interface we can implement for Matrix calls;
   telephony-shaped (no video). Reuse for voice + design language.
 - **GNOME Calls**: daemon + GNotification pattern; in-call layout from
-  Design/app-mockups `calls/` (incoming/ongoing/audio-source PNGs).
+  Design/app-mockups `calls/` (incoming/ongoing/audio-source mockup images).
 - **Notifications**: xdg-desktop-portal ≥ 1.19.1 notification v2 has
   first-class call support — `category=call.incoming/ongoing/unanswered`,
   button `purpose=call.accept/call.decline/call.hang-up`, urgent priority,

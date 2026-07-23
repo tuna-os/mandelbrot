@@ -11,6 +11,7 @@ use super::{
     file::MessageFile,
     info::{MessageInfo, MessageInfoIcon},
     location::MessageLocation,
+    poll::MessagePoll,
     reply::MessageReply,
     text::MessageText,
     visual_media::MessageVisualMedia,
@@ -309,6 +310,10 @@ trait MessageContentContainer: ChildPropertyExt {
                             is_edited: false,
                         },
                     );
+                }
+                MsgLikeKind::Poll(poll_state) => {
+                    let child = self.child_or_default::<MessagePoll>();
+                    child.set_poll(&room, event_id, &poll_state, format);
                 }
                 MsgLikeKind::UnableToDecrypt(_) => {
                     let child = self.child_or_default::<MessageInfo>();

@@ -4,7 +4,7 @@ use gtk::{gio, glib, glib::closure_local, prelude::*, subclass::prelude::*};
 use indexmap::IndexMap;
 use matrix_sdk_ui::timeline::{
     AnyOtherStateEventContentChange, EmbeddedEvent, Error as TimelineError, EventSendState,
-    EventTimelineItem, MembershipChange, Message, MsgLikeKind, TimelineDetails,
+    EventTimelineItem, MembershipChange, Message, MsgLikeKind, PollState, TimelineDetails,
     TimelineEventItemId, TimelineItemContent,
 };
 use ruma::{
@@ -627,18 +627,27 @@ impl Event {
         }
     }
 
+    /// The state of the poll of this event, if it is a poll.
+    ///
+    /// This definition matches the `m.poll.start` event type and its unstable
+    /// variant from MSC3381.
+    pub(crate) fn poll(&self) -> Option<PollState> {
+        self.item().content().as_poll().cloned()
+    }
+
     /// Whether this event contains a message-like content.
     ///
     /// This definition matches the following event types:
     ///
     /// - `m.room.message`
     /// - `m.sticker`
+    /// - `m.poll.start` and its unstable variant from MSC3381
     pub(crate) fn is_message_like(&self) -> bool {
         match self.item().content() {
             TimelineItemContent::MsgLike(msg_like) => {
                 matches!(
                     msg_like.kind,
-                    MsgLikeKind::Message(_) | MsgLikeKind::Sticker(_)
+                    MsgLikeKind::Message(_) | MsgLikeKind::Sticker(_) | MsgLikeKind::Poll(_)
                 )
             }
             _ => false,
@@ -783,8 +792,9 @@ impl Event {
 
     /// Whether this event can be reacted to.
     pub(crate) fn can_be_reacted_to(&self) -> bool {
-        // We only allow to react to messages (but not stickers).
-        if !self.item().content().is_message() {
+        // We only allow to react to messages and polls (but not stickers).
+        let content = self.content();
+        if !content.is_message() && !content.is_poll() {
             return false;
         }
 

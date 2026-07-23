@@ -12,6 +12,12 @@ menu message-menu-model {
     }
 
     item {
+      label: _("_Poll");
+      action: "message-toolbar.create-poll";
+      hidden-when: "action-disabled";
+    }
+
+    item {
       label: _("_Markdown");
       action: "message-toolbar.markdown";
     }

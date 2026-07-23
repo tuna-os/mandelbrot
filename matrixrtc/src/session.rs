@@ -5,8 +5,10 @@
 
 use tracing::{info, warn};
 
-use crate::call_membership::{CallMembership, MemberStateEvent};
-use crate::membership_data::{FocusActive, MembershipParseError, Transport};
+use crate::{
+    call_membership::{CallMembership, MemberStateEvent},
+    membership_data::{FocusActive, MembershipParseError, Transport},
+};
 
 /// The virtual address of a MatrixRTC session inside a room.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -43,10 +45,10 @@ impl MatrixRtcSession {
     /// `org.matrix.msc3401.call.member` state events of a room.
     ///
     /// * `member_events` - The current `m.call.member` state events.
-    /// * `is_joined_room_member` - Whether the given user ID is a joined
-    ///   member of the room.
-    /// * `now` - The current time in milliseconds since the Unix epoch, used
-    ///   to filter expired memberships.
+    /// * `is_joined_room_member` - Whether the given user ID is a joined member
+    ///   of the room.
+    /// * `now` - The current time in milliseconds since the Unix epoch, used to
+    ///   filter expired memberships.
     ///
     /// Invalid, expired, empty and foreign-slot memberships are ignored. The
     /// result is ordered by `created_ts`, oldest first.

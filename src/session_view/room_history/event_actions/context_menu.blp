@@ -35,6 +35,14 @@ menu event-actions-menu {
 
   section {
     item {
+      label: _("End _Poll");
+      action: "event.end-poll";
+      hidden-when: "action-missing";
+    }
+  }
+
+  section {
+    item {
       label: _("Revoke _Invite");
       action: "event.revoke-invite";
       hidden-when: "action-missing";

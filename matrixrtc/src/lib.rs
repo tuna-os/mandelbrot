@@ -12,10 +12,10 @@
 //!
 //! - [`CallMembership`] parses and validates `m.call.member` state events in
 //!   the [`SessionMembershipData`] format.
-//! - [`MembershipManager`] is the join/leave state machine with MSC4140
-//!   delayed leave events.
-//! - [`MatrixRtcSession`] builds the membership list of the room call from
-//!   room state.
+//! - [`MembershipManager`] is the join/leave state machine with MSC4140 delayed
+//!   leave events.
+//! - [`MatrixRtcSession`] builds the membership list of the room call from room
+//!   state.
 
 pub mod call_membership;
 pub mod call_session;

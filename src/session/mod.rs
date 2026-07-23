@@ -28,6 +28,7 @@ use tokio::{task::AbortHandle, time::sleep};
 use tokio_stream::wrappers::BroadcastStream;
 use tracing::{debug, error, info};
 
+mod call;
 mod global_account_data;
 mod ignored_users;
 mod notifications;
@@ -42,9 +43,9 @@ mod user_sessions_list;
 mod verification;
 
 pub(crate) use self::{
-    global_account_data::*, ignored_users::*, notifications::*, remote::*, room::*, room_list::*,
-    security::*, session_settings::*, sidebar_data::*, user::*, user_sessions_list::*,
-    verification::*,
+    call::*, global_account_data::*, ignored_users::*, notifications::*, remote::*, room::*,
+    room_list::*, security::*, session_settings::*, sidebar_data::*, user::*,
+    user_sessions_list::*, verification::*,
 };
 use crate::{
     Application,
@@ -107,12 +108,12 @@ impl std::fmt::Debug for SyncServiceWrapper {
 /// Whether the given sync service error means that the homeserver does not
 /// support simplified sliding sync.
 fn is_sliding_sync_unsupported_error(error: &sync_service::Error) -> bool {
-    let sdk_error = match error {
-        sync_service::Error::RoomList(room_list_service::Error::SlidingSync(error))
-        | sync_service::Error::EncryptionSync(
-            matrix_sdk_ui::encryption_sync_service::Error::SlidingSync(error),
-        ) => error,
-        _ => return false,
+    let (sync_service::Error::RoomList(room_list_service::Error::SlidingSync(sdk_error))
+    | sync_service::Error::EncryptionSync(
+        matrix_sdk_ui::encryption_sync_service::Error::SlidingSync(sdk_error),
+    )) = error
+    else {
+        return false;
     };
 
     if matches!(
@@ -162,6 +163,9 @@ mod imp {
         /// The notifications API for this session.
         #[property(get)]
         notifications: Notifications,
+        /// The native calls API for this session.
+        #[property(get)]
+        call_manager: CallManager,
         /// The ignored users API for this session.
         #[property(get)]
         ignored_users: IgnoredUsers,
@@ -239,6 +243,7 @@ mod imp {
 
             self.ignored_users.set_session(Some(obj.clone()));
             self.notifications.set_session(Some(obj.clone()));
+            self.call_manager.set_session(Some(obj.clone()));
             self.user_sessions.init(&obj, obj.user_id().clone());
 
             let monitor = gio::NetworkMonitor::default();

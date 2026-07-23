@@ -4,7 +4,6 @@ inout = "inout"
 numer = "numer" # Short for numerator in GStreamer
 ue = "ue" # End of word after mnemonic
 Commet = "Commet" # Matrix client name
-PNGs = "PNGs"
 
 [type.po]
 extend-glob = ["*.po"]

@@ -5,26 +5,30 @@
 //! session object, mirroring `matrix-js-sdk`'s
 //! `MatrixRTCSession.joinRTCSession` semantics.
 
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
 use ruma::{OwnedDeviceId, OwnedUserId};
 use serde_json::{Value as JsonValue, json};
 use tokio::sync::mpsc;
 use tracing::{error, info};
 
-use crate::call_membership::{CallMembership, MemberStateEvent};
-use crate::client::{RtcClientApi, ToDeviceEvent};
-use crate::encryption_manager::{EncryptionConfig, KeyRingEntry, RtcEncryptionManager};
-use crate::key_transport::{
-    CallMembershipIdentity, KeyTransport, MalformedKeyEvent, Statistics, ToDeviceKeyTransport,
+use crate::{
+    call_membership::{CallMembership, MemberStateEvent},
+    client::{RtcClientApi, ToDeviceEvent},
+    encryption_manager::{EncryptionConfig, KeyRingEntry, RtcEncryptionManager},
+    key_transport::{
+        CallMembershipIdentity, KeyTransport, MalformedKeyEvent, Statistics, ToDeviceKeyTransport,
+    },
+    membership_data::{FocusActive, Transport},
+    membership_manager::{
+        MembershipConfig, MembershipManager, MembershipManagerEvent, RtcRoom, Status,
+    },
+    session::{MatrixRtcSession, SlotDescription},
 };
-use crate::membership_data::{FocusActive, Transport};
-use crate::membership_manager::{
-    MembershipConfig, MembershipManager, MembershipManagerEvent, RtcRoom, Status,
-};
-use crate::session::{MatrixRtcSession, SlotDescription};
 
 /// The event type of MSC4075 call notifications.
 pub const RTC_NOTIFICATION_EVENT_TYPE: &str = "org.matrix.msc4075.rtc.notification";
@@ -413,10 +417,10 @@ impl RtcCallSession {
     /// Call this when the `m.call.member` room state (or the room member
     /// list) may have changed.
     ///
-    /// * `member_events` - The current `org.matrix.msc3401.call.member`
-    ///   state events of the room.
-    /// * `is_joined_room_member` - Whether the given user ID is a joined
-    ///   member of the room.
+    /// * `member_events` - The current `org.matrix.msc3401.call.member` state
+    ///   events of the room.
+    /// * `is_joined_room_member` - Whether the given user ID is a joined member
+    ///   of the room.
     /// * `now` - The current time in milliseconds since the Unix epoch.
     pub fn on_room_state_update(
         &self,

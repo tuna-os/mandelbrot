@@ -4,8 +4,10 @@
 
 mod common;
 
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::{
+    Arc, Mutex,
+    atomic::{AtomicUsize, Ordering},
+};
 
 use common::{advance, session_membership_template, settle};
 use mandelbrot_matrixrtc::{
@@ -672,8 +674,8 @@ async fn should_not_accept_keys_when_manage_media_keys_is_disabled() {
     harness.manager.on_new_key_received(
         identity("@bob:example.org", "BOBDEVICE"),
         "AAAAAAAAAAA",
-        0, /* KeyId */
-        0, /* Timestamp */
+        0, // KeyId
+        0, // Timestamp
     );
     settle().await;
 

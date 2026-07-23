@@ -4,7 +4,11 @@ use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
 use gtk::{gdk, gio, glib, glib::clone};
 use matrix_sdk_ui::timeline::MembershipChange;
-use ruma::events::room::{message::MessageType, power_levels::PowerLevelUserAction};
+use ruma::events::{
+    AnyMessageLikeEventContent,
+    poll::unstable_end::UnstablePollEndEventContent,
+    room::{message::MessageType, power_levels::PowerLevelUserAction},
+};
 use tracing::error;
 
 use super::EventPropertiesDialog;
@@ -236,6 +240,27 @@ pub(crate) trait EventActionsGroup: ObjectSubclass {
                         {
                             error!("Could not activate `room-history.reply` action");
                         }
+                    }
+                ))
+                .build()]);
+        }
+
+        // End the poll.
+        if has_event_id
+            && event
+                .poll()
+                .is_some_and(|poll| poll.results().end_time.is_none())
+            && (is_from_own_user || permissions.can_redact_other())
+            && permissions.can_send_message()
+        {
+            action_group.add_action_entries([gio::ActionEntry::builder("end-poll")
+                .activate(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |_, _, _| {
+                        spawn!(async move {
+                            imp.end_poll().await;
+                        });
                     }
                 ))
                 .build()]);
@@ -592,6 +617,53 @@ pub(crate) trait EventActionsGroup: ObjectSubclass {
 
         if event.room().redact(&[event_id], None).await.is_err() {
             toast!(obj, gettext("Could not remove message"));
+        }
+    }
+
+    /// End the poll of this row.
+    async fn end_poll(&self)
+    where
+        Self::Type: IsA<gtk::Widget>,
+    {
+        let Some(event) = self.event() else {
+            error!("Could not end poll of timeline item that is not an event");
+            return;
+        };
+        let Some(event_id) = event.event_id() else {
+            error!("Poll to end does not have an event ID");
+            return;
+        };
+        let obj = self.obj();
+
+        let confirm_dialog = adw::AlertDialog::builder()
+            .default_response("cancel")
+            .heading(gettext("End Poll?"))
+            .body(gettext(
+                "Do you really want to end this poll? This will reveal the final results and voting will be closed. This cannot be undone.",
+            ))
+            .build();
+        confirm_dialog.add_responses(&[
+            ("cancel", &gettext("Cancel")),
+            // Translators: This is a verb, as in 'End Poll'.
+            ("end", &gettext("End")),
+        ]);
+        confirm_dialog.set_response_appearance("end", adw::ResponseAppearance::Destructive);
+
+        if confirm_dialog.choose_future(Some(&*obj)).await != "end" {
+            return;
+        }
+
+        let content = UnstablePollEndEventContent::new(gettext("The poll has ended"), event_id);
+        let matrix_timeline = event.timeline().matrix_timeline();
+        let handle = spawn_tokio!(async move {
+            matrix_timeline
+                .send(AnyMessageLikeEventContent::UnstablePollEnd(content))
+                .await
+        });
+
+        if let Err(error) = handle.await.expect("task was not aborted") {
+            error!("Could not end poll: {error}");
+            toast!(obj, gettext("Could not end poll"));
         }
     }
 

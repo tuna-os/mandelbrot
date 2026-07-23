@@ -129,6 +129,7 @@ session_view/room_history/message_row/info.blp
 session_view/room_history/message_row/location.blp
 session_view/room_history/message_row/message_state_stack.blp
 session_view/room_history/message_row/mod.blp
+session_view/room_history/message_row/poll.blp
 session_view/room_history/message_row/reaction/mod.blp
 session_view/room_history/message_row/reaction/reaction_popover.blp
 session_view/room_history/message_row/reaction_list.blp
@@ -137,6 +138,7 @@ session_view/room_history/message_row/sender_name.blp
 session_view/room_history/message_row/visual_media.blp
 session_view/room_history/message_toolbar/attachment_dialog.blp
 session_view/room_history/message_toolbar/completion/completion_popover.blp
+session_view/room_history/message_toolbar/create_poll_dialog.blp
 session_view/room_history/message_toolbar/mod.blp
 session_view/room_history/mod.blp
 session_view/room_history/read_receipts_list/mod.blp

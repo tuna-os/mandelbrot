@@ -9,25 +9,21 @@
 //! ```
 //!
 //! This is a development harness, not a complete client:
-//! - To-device messages are sent WITHOUT encryption (the real client must
-//!   use Olm via its crypto stack), so media of other participants will not
-//!   be decryptable by clients that require encrypted key transport.
+//! - To-device messages are sent WITHOUT encryption (the real client must use
+//!   Olm via its crypto stack), so media of other participants will not be
+//!   decryptable by clients that require encrypted key transport.
 //! - It publishes a silent microphone track instead of capturing a device.
 //! - It syncs the call member state only once at startup.
 
 #![allow(clippy::too_many_lines, clippy::large_futures)]
 
-use std::process::exit;
-use std::sync::Arc;
-use std::time::Duration;
+use std::{process::exit, sync::Arc, time::Duration};
 
-use mandelbrot_matrixrtc::livekit_connection::{
-    LivekitCallConnection, OpenIdToken, fetch_sfu_config,
-};
 use mandelbrot_matrixrtc::{
     CallMembershipIdentity, ClientError, MemberStateEvent, RtcCallSession, RtcCallSessionConfig,
     RtcCallSessionEvent, RtcClientApi, RtcRoom, SendDelayedEventResponse, SendEventResponse,
     ToDeviceTarget, UpdateDelayedEventAction,
+    livekit_connection::{LivekitCallConnection, OpenIdToken, fetch_sfu_config},
 };
 use ruma::{OwnedEventId, RoomId, events::StateEventType};
 use serde_json::{Value as JsonValue, json};
