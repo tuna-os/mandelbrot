@@ -110,6 +110,12 @@ src/session/sidebar_data/icon_item.rs
 src/session/sidebar_data/section/name.rs
 src/session/user_sessions_list/user_session.rs
 src/session_list/mod.rs
+src/session_view/call/call_bar.blp
+src/session_view/call/call_bar.rs
+src/session_view/call/mod.blp
+src/session_view/call/mod.rs
+src/session_view/call/participant_tile.blp
+src/session_view/call/prescreen.blp
 src/session_view/content.blp
 src/session_view/create_direct_chat_dialog/mod.blp
 src/session_view/create_direct_chat_dialog/mod.rs

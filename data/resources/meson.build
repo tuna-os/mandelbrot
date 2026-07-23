@@ -14,6 +14,7 @@ endif
 
 # Keep ordered alphabetically.
 scss_deps = files(
+    'stylesheet/_call.scss',
     'stylesheet/_common.scss',
     'stylesheet/_components.scss',
     'stylesheet/_login.scss',
