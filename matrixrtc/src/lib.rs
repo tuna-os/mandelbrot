@@ -18,15 +18,22 @@
 //!   room state.
 
 pub mod call_membership;
+pub mod call_session;
 pub mod client;
 pub mod encryption_manager;
 pub mod key_transport;
+#[cfg(feature = "livekit")]
+pub mod livekit_connection;
 pub mod membership_data;
 pub mod membership_manager;
 pub mod outdated_key_filter;
 pub mod session;
 
 pub use call_membership::{CallMembership, MemberStateEvent};
+pub use call_session::{
+    RTC_NOTIFICATION_EVENT_TYPE, RtcCallSession, RtcCallSessionConfig, RtcCallSessionEvent,
+    SessionActivity, SessionActivityTracker,
+};
 pub use client::{
     ClientError, RtcClientApi, SendDelayedEventResponse, SendEventResponse, ToDeviceEvent,
     ToDeviceTarget, UpdateDelayedEventAction,
