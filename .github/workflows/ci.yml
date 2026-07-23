@@ -25,6 +25,24 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           RUST_BACKTRACE=1 cargo run --manifest-path hooks/checks/Cargo.toml -- --verbose --force-install --cargo-binstall
 
+  matrixrtc-conformance:
+    name: "MatrixRTC conformance tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: matrixrtc
+      - name: Format check
+        run: cargo fmt --manifest-path matrixrtc/Cargo.toml --check
+      - name: Clippy
+        run: cargo clippy --manifest-path matrixrtc/Cargo.toml --all-targets -- -D warnings
+      - name: Run conformance tests
+        run: cargo test --manifest-path matrixrtc/Cargo.toml
+
   clippy:
     name: "Clippy (flatpak sandbox)"
     runs-on: ubuntu-latest
