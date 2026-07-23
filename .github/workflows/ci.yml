@@ -22,6 +22,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Run pre-commit checks
         run: |
+          rustup component add rustfmt
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           RUST_BACKTRACE=1 cargo run --manifest-path hooks/checks/Cargo.toml -- --verbose --force-install --cargo-binstall
 
@@ -53,6 +54,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Install SDK extensions
         run: |
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install --user -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08
       - name: Initialize flatpak build sandbox
         run: |
