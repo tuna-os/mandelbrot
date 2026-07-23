@@ -190,6 +190,41 @@ ISO repos only), all on GitHub-hosted runners. Setup for Mandelbrot:
 - Expect 30–60 min cold flatpak builds (matrix-sdk); mold + flatpak-builder
   cache mitigate. x86_64 only initially.
 
+## MatrixRTC conformance testing (strategy, researched 2026-07-23)
+No official conformance suite exists for MSC4143/MSC4195/MSC4140; the de-facto
+spec is **matrix-js-sdk's `spec/unit/matrixrtc/` suite** (~4200 lines, pure
+logic, zero DOM/WebRTC deps — mocks 5 client methods; highly portable to Rust
+with `tokio::time::pause()`):
+- `MembershipManager.spec.ts` — join/leave state machine, MSC4140 delayed-leave
+  scheduling/rescheduling/keep-alive, 404→rejoin, rate-limit retry, fallback to
+  plain state events, expiry extension.
+- `RTCEncryptionManager.spec.ts` — key distribution: rotate on leave (delayed
+  rollout), no rotation within grace period, re-distribute on `created_ts`
+  change, out-of-order key handling.
+- `MatrixRTCSession.spec.ts` — session from room state, membership filtering,
+  oldest-membership foci selection, `m.rtc.notification` race rules.
+- `CallMembership.spec.ts` / `ToDeviceKeyTransport.spec.ts` /
+  `MembershipData.spec.ts` (identity-hash golden vector).
+Plan: (a) port ~20 named tests (list in research notes) as the test suite of a
+new `matrixrtc` module, mocking an `RtcClientApi` trait; (b) wire-level golden
+tests against the event templates in `spec/unit/matrixrtc/mocks.ts`;
+(c) interop e2e reusing **element-call's `docker-compose-dev.yml` +
+`backend/` stack verbatim** (synapse ×2 federated + livekit ×2 + lk-jwt +
+nginx TLS at `m.localhost`): headless Element Call joins the same room as
+Mandelbrot; assert mutual membership, decrypted media both ways, and
+delayed-leave cleanup after ungraceful kill (modeled on
+`playwright/spa-call-sticky.spec.ts` and `widget/hotswap-legacy-compat.test.ts`
+for the legacy/compat/2_0 matrix). Complement only covers MSC4140
+homeserver-side (`tests/msc4140/delayed_event_test.go`) — read as reference,
+not reusable for clients.
+Format target: **`m.call.member` + `SessionMembershipData` first** (what
+deployed Element Call interops with; ruma already types it as
+`CallMemberEventContent` — reuse ruma types instead of hand-validating), with
+the membership manager behind a trait so MSC4354 sticky `m.rtc.member` can slot
+in later (mirrors js-sdk's `IMembershipManager`/`StickyEventMembershipManager`
+split). matrix-rust-sdk has no MatrixRTC session logic to reuse (only widget
+passthrough + `m.call.member` room-state detection).
+
 ## Landmines
 
 - `matrix-sdk-ui` is officially "experimental" — expect API churn each SDK
