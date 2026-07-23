@@ -18,7 +18,7 @@ use self::{
     general_page::{ChangePasswordSubpage, DeactivateAccountSubpage, GeneralPage, LogOutSubpage},
     notifications_page::NotificationsPage,
     safety_page::{IgnoredUsersSubpage, SafetyPage},
-    user_session::{UserSessionListSubpage, UserSessionSubpage},
+    user_session::{LinkDeviceSubpage, UserSessionListSubpage, UserSessionSubpage},
 };
 use crate::{
     components::crypto::{CryptoIdentitySetupView, CryptoRecoverySetupView},
@@ -34,6 +34,8 @@ pub(crate) enum AccountSettingsSubpage {
     ChangePassword,
     /// A page to view the list of account's sessions.
     UserSessionList,
+    /// A page to link a new device by displaying a QR code.
+    LinkNewDevice,
     /// A page to confirm the logout.
     LogOut,
     /// A page to confirm the deactivation of the password.
@@ -264,6 +266,7 @@ impl AccountSettings {
             AccountSettingsSubpage::UserSessionList => {
                 UserSessionListSubpage::new(&session).upcast()
             }
+            AccountSettingsSubpage::LinkNewDevice => LinkDeviceSubpage::new(&session).upcast(),
             AccountSettingsSubpage::LogOut => LogOutSubpage::new(&session).upcast(),
             AccountSettingsSubpage::DeactivateAccount => {
                 DeactivateAccountSubpage::new(&session, self).upcast()

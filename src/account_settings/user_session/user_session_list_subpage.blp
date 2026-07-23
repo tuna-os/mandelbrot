@@ -9,6 +9,24 @@ template $UserSessionListSubpage: Adw.NavigationPage {
     Adw.HeaderBar {}
 
     content: Adw.PreferencesPage {
+      Adw.PreferencesGroup link_device_group {
+        visible: false;
+
+        Gtk.ListBox {
+          styles [
+            "boxed-list",
+          ]
+
+          Adw.ButtonRow {
+            selectable: false;
+            title: _("Link New Device…");
+            start-icon-name: "devices-symbolic";
+            action-name: "account-settings.show-subpage";
+            action-target: "'link-new-device'";
+          }
+        }
+      }
+
       Adw.PreferencesGroup current_session_group {
         title: _("Current Session");
 

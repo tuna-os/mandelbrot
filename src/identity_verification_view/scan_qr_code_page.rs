@@ -5,7 +5,7 @@ use matrix_sdk::encryption::verification::QrVerificationData;
 use tracing::error;
 
 use crate::{
-    components::{LoadingButton, QrCodeScanner},
+    components::{LoadingButton, QrCodeScanner, ScannedQrCode},
     gettext_f,
     prelude::*,
     session::{IdentityVerification, VerificationSupportedMethods},
@@ -194,7 +194,20 @@ impl ScanQrCodePage {
     }
 
     /// Handle a detected QR Code.
-    fn qrcode_detected(&self, data: QrVerificationData) {
+    fn qrcode_detected(&self, scanned: ScannedQrCode) {
+        let ScannedQrCode::Verification(data) = scanned else {
+            toast!(
+                self,
+                gettext("The scanned QR code is not a verification QR code")
+            );
+            return;
+        };
+
+        self.qr_verification_detected(*data);
+    }
+
+    /// Handle a detected identity verification QR Code.
+    fn qr_verification_detected(&self, data: QrVerificationData) {
         spawn!(clone!(
             #[weak(rename_to = obj)]
             self,

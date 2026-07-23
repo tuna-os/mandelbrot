@@ -4,6 +4,7 @@ use tracing::error;
 
 use super::UserSessionRow;
 use crate::{
+    prelude::*,
     session::{Session, UserSession, UserSessionsList},
     utils::{BoundObject, LoadingState},
 };
@@ -21,6 +22,8 @@ mod imp {
     )]
     #[properties(wrapper_type = super::UserSessionListSubpage)]
     pub struct UserSessionListSubpage {
+        #[template_child]
+        pub(super) link_device_group: TemplateChild<adw::PreferencesGroup>,
         #[template_child]
         current_session_group: TemplateChild<adw::PreferencesGroup>,
         #[template_child]
@@ -241,8 +244,15 @@ glib::wrapper! {
 impl UserSessionListSubpage {
     /// Construct a new `UserSessionListSubpage` for the given session.
     pub fn new(session: &Session) -> Self {
-        glib::Object::builder()
+        let obj: Self = glib::Object::builder()
             .property("user-sessions", session.user_sessions())
-            .build()
+            .build();
+
+        // Linking a new device with a QR code is only possible with the OAuth 2.0 API.
+        obj.imp()
+            .link_device_group
+            .set_visible(session.uses_oauth_api());
+
+        obj
     }
 }

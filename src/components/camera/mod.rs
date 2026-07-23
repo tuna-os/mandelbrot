@@ -5,12 +5,9 @@ mod linux;
 mod qrcode_scanner;
 mod viewfinder;
 
-pub(crate) use self::qrcode_scanner::QrCodeScanner;
-use self::{
-    qrcode_scanner::QrVerificationDataBoxed,
-    viewfinder::{
-        CameraViewfinder, CameraViewfinderExt, CameraViewfinderImpl, CameraViewfinderState,
-    },
+pub(crate) use self::qrcode_scanner::{QrCodeScanner, ScannedQrCode};
+use self::viewfinder::{
+    CameraViewfinder, CameraViewfinderExt, CameraViewfinderImpl, CameraViewfinderState,
 };
 
 cfg_if::cfg_if! {

@@ -112,6 +112,18 @@ template $Greeter: Adw.NavigationPage {
                 ]
               }
 
+              Gtk.Button qr_login_button {
+                can-shrink: true;
+                label: _("Sign in with _QR Code");
+                use-underline: true;
+                action-name: "navigation.push";
+                action-target: "'qr-code'";
+
+                styles [
+                  "pill",
+                ]
+              }
+
               Gtk.Button {
                 visible: false;
                 can-shrink: true;

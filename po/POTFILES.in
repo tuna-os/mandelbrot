@@ -25,6 +25,8 @@ src/account_settings/safety_page/ignored_users_subpage/ignored_user_row.rs
 src/account_settings/safety_page/ignored_users_subpage/mod.blp
 src/account_settings/safety_page/mod.blp
 src/account_settings/safety_page/mod.rs
+src/account_settings/user_session/link_device_subpage.blp
+src/account_settings/user_session/link_device_subpage.rs
 src/account_settings/user_session/user_session_list_subpage.blp
 src/account_settings/user_session/user_session_row.blp
 src/account_settings/user_session/user_session_subpage.blp
@@ -98,6 +100,8 @@ src/login/method_page.blp
 src/login/method_page.rs
 src/login/mod.blp
 src/login/mod.rs
+src/login/qr_code_page.blp
+src/login/qr_code_page.rs
 src/login/session_setup_view.blp
 src/secret/linux.rs
 src/session/mod.rs

@@ -22,6 +22,7 @@ mod homeserver_page;
 mod in_browser_page;
 mod local_server;
 mod method_page;
+mod qr_code_page;
 mod session_setup_view;
 
 use self::{
@@ -31,6 +32,7 @@ use self::{
     in_browser_page::{LoginInBrowserData, LoginInBrowserPage},
     local_server::spawn_local_server,
     method_page::LoginMethodPage,
+    qr_code_page::LoginQrCodePage,
     session_setup_view::SessionSetupView,
 };
 use crate::{
@@ -50,6 +52,8 @@ enum LoginPage {
     Method,
     /// The page to log in with the browser.
     InBrowser,
+    /// The page to log in by scanning a QR code.
+    QrCode,
     /// The session setup stack.
     SessionSetup,
     /// The login is completed.
@@ -64,6 +68,7 @@ impl LoginPage {
             Self::Homeserver => LoginHomeserverPage::TAG,
             Self::Method => LoginMethodPage::TAG,
             Self::InBrowser => LoginInBrowserPage::TAG,
+            Self::QrCode => LoginQrCodePage::TAG,
             Self::SessionSetup => SessionSetupView::TAG,
             Self::Completed => "completed",
         }
@@ -78,6 +83,7 @@ impl LoginPage {
             LoginHomeserverPage::TAG => Self::Homeserver,
             LoginMethodPage::TAG => Self::Method,
             LoginInBrowserPage::TAG => Self::InBrowser,
+            LoginQrCodePage::TAG => Self::QrCode,
             SessionSetupView::TAG => Self::SessionSetup,
             "completed" => Self::Completed,
             _ => panic!("Unknown LoginPage: {tag}"),
@@ -106,6 +112,8 @@ mod imp {
         method_page: TemplateChild<LoginMethodPage>,
         #[template_child]
         in_browser_page: TemplateChild<LoginInBrowserPage>,
+        #[template_child]
+        qr_code_page: TemplateChild<LoginQrCodePage>,
         #[template_child]
         done_button: TemplateChild<gtk::Button>,
         /// Whether auto-discovery is enabled.
@@ -184,6 +192,7 @@ mod imp {
                 LoginPage::Homeserver => self.homeserver_page.grab_focus(),
                 LoginPage::Method => self.method_page.grab_focus(),
                 LoginPage::InBrowser => self.in_browser_page.grab_focus(),
+                LoginPage::QrCode => self.qr_code_page.grab_focus(),
                 LoginPage::SessionSetup => {
                     if let Some(session_setup) = self.session_setup() {
                         session_setup.grab_focus()
@@ -244,6 +253,12 @@ mod imp {
                     self.method_page.clean();
                 }
                 LoginPage::Method => {
+                    // Drop the session because it is bound to the account.
+                    self.drop_session();
+                }
+                LoginPage::QrCode => {
+                    // Drop the client because it is bound to the homeserver from the QR code.
+                    self.drop_client();
                     // Drop the session because it is bound to the account.
                     self.drop_session();
                 }
@@ -579,9 +594,13 @@ fn client_registration_data() -> ClientRegistrationData {
 
     let mut client_metadata = ClientMetadata::new(
         ApplicationType::Native,
-        vec![OAuthGrantType::AuthorizationCode {
-            redirect_uris: vec![ipv4_localhost_uri, ipv6_localhost_uri],
-        }],
+        vec![
+            OAuthGrantType::AuthorizationCode {
+                redirect_uris: vec![ipv4_localhost_uri, ipv6_localhost_uri],
+            },
+            // Necessary for signing in with a QR code.
+            OAuthGrantType::DeviceCode,
+        ],
         Localized::new(client_uri, None),
     );
     client_metadata.client_name = Some(Localized::new(APP_NAME.to_owned(), None));

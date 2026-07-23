@@ -20,7 +20,7 @@ mod user_page;
 pub(crate) use self::{
     action_button::{ActionButton, ActionState},
     avatar::*,
-    camera::{Camera, CameraExt, QrCodeScanner},
+    camera::{Camera, CameraExt, QrCodeScanner, ScannedQrCode},
     context_menu_bin::{ContextMenuBin, ContextMenuBinExt, ContextMenuBinImpl},
     custom_entry::CustomEntry,
     dialogs::*,

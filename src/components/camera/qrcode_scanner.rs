@@ -4,14 +4,22 @@ use gtk::{
     glib,
     glib::{clone, closure_local},
 };
-use matrix_sdk::encryption::verification::QrVerificationData;
+use matrix_sdk::{
+    authentication::oauth::qrcode::QrCodeData, encryption::verification::QrVerificationData,
+};
 
 use super::{Camera, CameraExt, CameraViewfinder, CameraViewfinderExt, CameraViewfinderState};
 use crate::utils::BoundConstructOnlyObject;
 
-#[derive(Clone, Debug, PartialEq, Eq, glib::Boxed)]
-#[boxed_type(name = "QrVerificationDataBoxed")]
-pub(super) struct QrVerificationDataBoxed(pub(super) QrVerificationData);
+/// A Matrix QR code that was scanned with the camera.
+#[derive(Clone, Debug, PartialEq, glib::Boxed)]
+#[boxed_type(name = "ScannedQrCode")]
+pub enum ScannedQrCode {
+    /// A QR code for an interactive identity verification.
+    Verification(Box<QrVerificationData>),
+    /// A QR code to log in a device, as defined in MSC4108.
+    Login(QrCodeData),
+}
 
 mod imp {
     use std::sync::LazyLock;
@@ -52,7 +60,7 @@ mod imp {
             static SIGNALS: LazyLock<Vec<Signal>> = LazyLock::new(|| {
                 vec![
                     Signal::builder("qrcode-detected")
-                        .param_types([QrVerificationDataBoxed::static_type()])
+                        .param_types([ScannedQrCode::static_type()])
                         .run_first()
                         .build(),
                 ]
@@ -80,7 +88,7 @@ mod imp {
                 #[weak]
                 obj,
                 move |_, data| {
-                    obj.emit_by_name::<()>("qrcode-detected", &[&QrVerificationDataBoxed(data)]);
+                    obj.emit_by_name::<()>("qrcode-detected", &[&data]);
                 }
             ));
 
@@ -131,15 +139,15 @@ impl QrCodeScanner {
     }
 
     /// Connect to the signal emitted when a QR code is detected.
-    pub fn connect_qrcode_detected<F: Fn(&Self, QrVerificationData) + 'static>(
+    pub fn connect_qrcode_detected<F: Fn(&Self, ScannedQrCode) + 'static>(
         &self,
         f: F,
     ) -> glib::SignalHandlerId {
         self.connect_closure(
             "qrcode-detected",
             true,
-            closure_local!(move |obj: Self, data: QrVerificationDataBoxed| {
-                f(&obj, data.0);
+            closure_local!(move |obj: Self, data: ScannedQrCode| {
+                f(&obj, data);
             }),
         )
     }

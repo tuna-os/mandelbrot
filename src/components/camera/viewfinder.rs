@@ -2,9 +2,8 @@
 
 use gettextrs::gettext;
 use gtk::{glib, glib::closure_local, prelude::*, subclass::prelude::*};
-use matrix_sdk::encryption::verification::QrVerificationData;
 
-use super::QrVerificationDataBoxed;
+use super::ScannedQrCode;
 
 /// The possible states of a [`CameraViewfinder`].
 #[derive(Default, Debug, Copy, Clone, glib::Enum, PartialEq)]
@@ -59,7 +58,7 @@ mod imp {
             static SIGNALS: LazyLock<Vec<Signal>> = LazyLock::new(|| {
                 vec![
                     Signal::builder("qrcode-detected")
-                        .param_types([QrVerificationDataBoxed::static_type()])
+                        .param_types([ScannedQrCode::static_type()])
                         .run_first()
                         .build(),
                 ]
@@ -111,13 +110,13 @@ pub(super) trait CameraViewfinderExt: 'static {
     fn set_state(&self, state: CameraViewfinderState);
 
     /// Connect to the signal emitted when a QR code is detected.
-    fn connect_qrcode_detected<F: Fn(&Self, QrVerificationData) + 'static>(
+    fn connect_qrcode_detected<F: Fn(&Self, ScannedQrCode) + 'static>(
         &self,
         f: F,
     ) -> glib::SignalHandlerId;
 
     /// Emit the signal that a QR code was detected.
-    fn emit_qrcode_detected(&self, data: QrVerificationData);
+    fn emit_qrcode_detected(&self, data: ScannedQrCode);
 }
 
 impl<O: IsA<CameraViewfinder>> CameraViewfinderExt for O {
@@ -130,21 +129,21 @@ impl<O: IsA<CameraViewfinder>> CameraViewfinderExt for O {
         self.upcast_ref().set_state(state);
     }
 
-    fn connect_qrcode_detected<F: Fn(&Self, QrVerificationData) + 'static>(
+    fn connect_qrcode_detected<F: Fn(&Self, ScannedQrCode) + 'static>(
         &self,
         f: F,
     ) -> glib::SignalHandlerId {
         self.connect_closure(
             "qrcode-detected",
             true,
-            closure_local!(|obj: Self, data: QrVerificationDataBoxed| {
-                f(&obj, data.0);
+            closure_local!(|obj: Self, data: ScannedQrCode| {
+                f(&obj, data);
             }),
         )
     }
 
-    fn emit_qrcode_detected(&self, data: QrVerificationData) {
-        self.emit_by_name::<()>("qrcode-detected", &[&QrVerificationDataBoxed(data)]);
+    fn emit_qrcode_detected(&self, data: ScannedQrCode) {
+        self.emit_by_name::<()>("qrcode-detected", &[&data]);
     }
 }
 

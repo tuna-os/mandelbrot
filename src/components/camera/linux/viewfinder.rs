@@ -5,13 +5,16 @@ use gtk::{
     prelude::*,
     subclass::prelude::*,
 };
-use matrix_sdk::encryption::verification::QrVerificationData;
+use matrix_sdk::{
+    authentication::oauth::qrcode::QrCodeData, encryption::verification::QrVerificationData,
+};
 use tokio::task::AbortHandle;
 use tracing::{debug, error};
 
 use crate::{
     components::camera::{
         CameraViewfinder, CameraViewfinderExt, CameraViewfinderImpl, CameraViewfinderState,
+        ScannedQrCode,
     },
     spawn_tokio,
 };
@@ -86,8 +89,16 @@ mod imp {
                 obj,
                 move |_, code| {
                     match QrVerificationData::from_bytes(&code) {
-                        Ok(data) => obj.emit_qrcode_detected(data),
+                        Ok(data) => {
+                            obj.emit_qrcode_detected(ScannedQrCode::Verification(Box::new(data)));
+                        }
                         Err(error) => {
+                            // It might be a QR code login QR code instead.
+                            if let Ok(data) = QrCodeData::from_bytes(&code) {
+                                obj.emit_qrcode_detected(ScannedQrCode::Login(data));
+                                return;
+                            }
+
                             let code = String::from_utf8_lossy(&code);
 
                             if matches!(error, DecodingError::Header) {
