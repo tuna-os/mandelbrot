@@ -137,6 +137,7 @@ pub(crate) trait EventActionsGroup: ObjectSubclass {
     ///
     /// See [`Event::is_message_like()`] for the definition of a message
     /// event.
+    #[allow(clippy::too_many_lines)]
     fn add_message_like_actions(
         &self,
         action_group: &gio::SimpleActionGroup,
