@@ -28,6 +28,9 @@ use tokio::{task::AbortHandle, time::sleep};
 use tokio_stream::wrappers::BroadcastStream;
 use tracing::{debug, error, info};
 
+// TODO: Remove the allow when the call UI is mounted in the room view and
+// uses the join/leave API.
+#[allow(dead_code)]
 mod call;
 mod global_account_data;
 mod ignored_users;
