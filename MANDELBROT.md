@@ -28,9 +28,14 @@
 
 * **Done also**: spaces hierarchy browsing.
 
+* **Done (2026-07-24, later)**: metainfo 14.1.1 release notes for the first
+  Mandelbrot tag; MatrixRTC e2e scenario harness committed — 20 engine-level
+  Element-Call-scenario tests (`matrixrtc/tests/element_call_scenarios.rs`,
+  on the PR gate) plus live-stack harness scripts (federation/huddle/
+  resilience/restricted-sfu/incoming-call) and a nightly `matrixrtc-e2e.yml`.
+
 * **Next**: live testing against matrix.org (calls, QR, threads receipts),
-  camera capture, threaded read receipts (MSC3771), location pin-drop,
-  metainfo release notes at first tag.
+  camera capture, threaded read receipts (MSC3771), location pin-drop.
 
 Goal: take Fractal (the most GNOME-native Matrix client, matrix-sdk 0.18 +
 matrix-sdk-ui) and adopt the modern Matrix Rust SDK features it doesn't use.
