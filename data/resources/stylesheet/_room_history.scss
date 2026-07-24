@@ -505,6 +505,32 @@ button.send-text-message-button image {
   transform: translateX(2px);
 }
 
+.voice-recording-toolbar {
+  .recording-indicator {
+    color: var(--error-color);
+    animation: recording-indicator-pulse 2s ease-in-out infinite;
+  }
+
+  levelbar {
+    margin-left: 6px;
+    margin-right: 6px;
+  }
+}
+
+@keyframes recording-indicator-pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
 .composer-replacement {
   margin: 12px;
 }

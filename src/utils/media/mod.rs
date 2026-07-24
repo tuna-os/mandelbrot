@@ -10,6 +10,7 @@ use ruma::UInt;
 use crate::utils::OneshotNotifier;
 
 pub(crate) mod audio;
+pub(crate) mod audio_recorder;
 pub(crate) mod image;
 pub(crate) mod video;
 

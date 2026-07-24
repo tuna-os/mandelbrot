@@ -146,6 +146,13 @@ template $MessageToolbar: Adw.Bin {
             }
           }
 
+          Gtk.Button record_voice_button {
+            valign: end;
+            icon-name: "microphone-symbolic";
+            tooltip-text: _("Record Voice Message");
+            clicked => $start_voice_recording() swapped;
+          }
+
           Gtk.Button send_button {
             valign: end;
             icon-name: "send-symbolic";
@@ -159,6 +166,81 @@ template $MessageToolbar: Adw.Bin {
               "send-text-message-button",
             ]
           }
+        }
+      };
+    }
+
+    Gtk.StackPage {
+      name: "recording";
+
+      child: Gtk.Box {
+        spacing: 6;
+
+        styles [
+          "toolbar",
+          "voice-recording-toolbar",
+        ]
+
+        Gtk.Button {
+          valign: center;
+          icon-name: "close-symbolic";
+          tooltip-text: _("Cancel Recording");
+          clicked => $cancel_voice_recording() swapped;
+
+          styles [
+            "circular",
+          ]
+        }
+
+        Gtk.Label {
+          valign: center;
+          label: "●";
+
+          accessibility {
+            // Translators: This describes the red dot displayed while recording
+            // a voice message, for accessibility tools.
+            label: _("Recording");
+          }
+
+          styles [
+            "recording-indicator",
+          ]
+        }
+
+        Gtk.Label recording_time_label {
+          valign: center;
+          label: "0:00";
+
+          styles [
+            "numeric",
+          ]
+        }
+
+        Gtk.LevelBar recording_level_bar {
+          hexpand: true;
+          valign: center;
+          min-value: 0;
+          max-value: 1.0;
+
+          accessibility {
+            // Translators: This describes the sound level of the microphone while
+            // recording a voice message, for accessibility tools.
+            label: _("Sound Level");
+          }
+        }
+
+        Gtk.Button send_voice_button {
+          valign: center;
+          icon-name: "send-symbolic";
+          focus-on-click: false;
+          tooltip-text: _("Send Voice Message");
+          clicked => $send_voice_recording() swapped;
+
+          styles [
+            "suggested-action",
+            "circular",
+            "send-text-message-button",
+          ]
         }
       };
     }

@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 
 use adw::{prelude::*, subclass::prelude::*};
 use futures_util::{StreamExt, future, lock::Mutex, pin_mut};
 use gettextrs::{gettext, pgettext};
 use gtk::{gdk, gio, glib, glib::clone};
 use matrix_sdk::{
-    attachment::{AttachmentInfo, BaseFileInfo, Thumbnail},
+    attachment::{AttachmentInfo, BaseAudioInfo, BaseFileInfo, Thumbnail},
     room::edit::EditedContent,
 };
 use matrix_sdk_ui::timeline::{
@@ -42,7 +42,11 @@ use crate::{
     utils::{
         Location, LocationError, TemplateCallbacks, TokioDrop,
         media::{
-            FileInfo, audio::load_audio_info, filename_for_mime, image::ImageInfoLoader,
+            FileInfo,
+            audio::load_audio_info,
+            audio_recorder::{AudioRecorder, AudioRecorderError, MAX_RECORDING_DURATION},
+            filename_for_mime,
+            image::ImageInfoLoader,
             video::load_video_info,
         },
     },
@@ -59,6 +63,8 @@ type ComposerStatesMap = HashMap<Option<String>, HashMap<Option<String>, Compose
 enum MessageToolbarPage {
     /// The composer and other buttons to send messages.
     Composer,
+    /// A voice message is being recorded.
+    Recording,
     /// The user is not allowed to send messages in the room.
     NoPermission,
     /// The room was tombstoned.
@@ -70,6 +76,7 @@ impl MessageToolbarPage {
     const fn name(self) -> &'static str {
         match self {
             Self::Composer => "composer",
+            Self::Recording => "recording",
             Self::NoPermission => "no-permission",
             Self::Tombstoned => "tombstoned",
         }
@@ -81,6 +88,7 @@ impl MessageToolbarPage {
     fn from_name(name: &str) -> Self {
         match name {
             "composer" => Self::Composer,
+            "recording" => Self::Recording,
             "no-permission" => Self::NoPermission,
             "tombstoned" => Self::Tombstoned,
             _ => panic!("Unknown MessageToolbarPage: {name}"),
@@ -113,6 +121,14 @@ mod imp {
         #[template_child]
         send_button: TemplateChild<gtk::Button>,
         #[template_child]
+        record_voice_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        send_voice_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        recording_time_label: TemplateChild<gtk::Label>,
+        #[template_child]
+        recording_level_bar: TemplateChild<gtk::LevelBar>,
+        #[template_child]
         related_event_header: TemplateChild<LabelWithWidgets>,
         #[template_child]
         related_event_content: TemplateChild<MessageContent>,
@@ -141,6 +157,8 @@ mod imp {
         composer_states: RefCell<ComposerStatesMap>,
         /// A guard to avoid sending several messages at once.
         send_guard: Mutex<()>,
+        /// The recorder of the ongoing voice message recording, if any.
+        recorder: RefCell<Option<AudioRecorder>>,
     }
 
     #[glib::object_subclass]
@@ -222,6 +240,10 @@ mod imp {
         fn dispose(&self) {
             self.completion.unparent();
             self.disconnect_signals();
+
+            if let Some(recorder) = self.recorder.take() {
+                recorder.cancel();
+            }
         }
     }
 
@@ -237,6 +259,7 @@ mod imp {
 
             match visible_page {
                 MessageToolbarPage::Composer => self.message_entry.grab_focus(),
+                MessageToolbarPage::Recording => self.send_voice_button.grab_focus(),
                 MessageToolbarPage::NoPermission => false,
                 MessageToolbarPage::Tombstoned => {
                     if self.tombstoned_button.is_visible() {
@@ -262,6 +285,10 @@ mod imp {
             let obj = self.obj();
 
             self.disconnect_signals();
+
+            // Discard any ongoing voice message recording, it belongs to the
+            // previous timeline.
+            self.discard_voice_recording();
 
             if let Some(timeline) = timeline {
                 let room = timeline.room();
@@ -333,7 +360,11 @@ mod imp {
             if room.is_tombstoned() {
                 MessageToolbarPage::Tombstoned
             } else if room.permissions().can_send_message() {
-                MessageToolbarPage::Composer
+                if self.recorder.borrow().is_some() {
+                    MessageToolbarPage::Recording
+                } else {
+                    MessageToolbarPage::Composer
+                }
             } else {
                 MessageToolbarPage::NoPermission
             }
@@ -349,8 +380,18 @@ mod imp {
 
         /// Update the visible stack page.
         fn update_visible_page(&self) {
-            self.main_stack
-                .set_visible_child_name(self.visible_page().name());
+            let page = self.visible_page();
+
+            // If we cannot present the recording page anymore, e.g. because
+            // the permission to send messages was revoked, discard the ongoing
+            // recording.
+            if page != MessageToolbarPage::Recording
+                && let Some(recorder) = self.recorder.take()
+            {
+                recorder.cancel();
+            }
+
+            self.main_stack.set_visible_child_name(page.name());
         }
 
         /// Update the identifier to watch for the successor of the current
@@ -490,12 +531,14 @@ mod imp {
                 move |_| {
                     let is_empty = imp.is_buffer_empty();
                     imp.send_button.set_sensitive(!is_empty);
+                    imp.record_voice_button.set_visible(is_empty);
                     imp.send_typing_notification(!is_empty);
                 }
             ));
 
             let is_empty = self.is_buffer_empty();
             self.send_button.set_sensitive(!is_empty);
+            self.record_voice_button.set_visible(is_empty);
 
             // Markdown highlighting.
             let markdown_binding = obj
@@ -586,6 +629,7 @@ mod imp {
         /// Toggle UI for sending non-text messages.
         fn enable_sending_non_text_messages(&self, enable: bool) {
             self.attach_button.set_sensitive(enable);
+            self.record_voice_button.set_sensitive(enable);
             self.obj().action_set_enabled(
                 "message-toolbar.send-location",
                 enable && Location::new().is_available(),
@@ -991,6 +1035,141 @@ mod imp {
                 error!("Could not send file: {error}");
                 toast!(self.obj(), gettext("Could not send file"));
             }
+        }
+
+        /// Start recording a voice message.
+        #[template_callback]
+        fn start_voice_recording(&self) {
+            if !self.can_compose_message() || self.recorder.borrow().is_some() {
+                return;
+            }
+
+            match AudioRecorder::start() {
+                Ok(recorder) => {
+                    self.recorder.replace(Some(recorder));
+                    self.recording_time_label.set_label("0:00");
+                    self.recording_level_bar.set_value(0.0);
+                    self.update_visible_page();
+
+                    glib::timeout_add_local(
+                        Duration::from_millis(100),
+                        clone!(
+                            #[weak(rename_to = imp)]
+                            self,
+                            #[upgrade_or]
+                            glib::ControlFlow::Break,
+                            move || imp.voice_recording_tick()
+                        ),
+                    );
+                }
+                Err(_) => {
+                    toast!(
+                        self.obj(),
+                        gettext(
+                            "Could not start recording. Check that the microphone is accessible."
+                        )
+                    );
+                }
+            }
+        }
+
+        /// Update the recording UI periodically while a voice message is being
+        /// recorded.
+        fn voice_recording_tick(&self) -> glib::ControlFlow {
+            let borrow = self.recorder.borrow();
+            let Some(recorder) = &*borrow else {
+                // The recording was sent or cancelled.
+                return glib::ControlFlow::Break;
+            };
+
+            if recorder.has_error() {
+                drop(borrow);
+                self.discard_voice_recording();
+                toast!(self.obj(), gettext("Could not record voice message"));
+
+                return glib::ControlFlow::Break;
+            }
+
+            let elapsed = recorder.elapsed();
+            let elapsed_secs = elapsed.as_secs();
+            self.recording_time_label.set_label(&format!(
+                "{}:{:02}",
+                elapsed_secs / 60,
+                elapsed_secs % 60
+            ));
+            self.recording_level_bar.set_value(recorder.last_peak());
+
+            if elapsed >= MAX_RECORDING_DURATION {
+                drop(borrow);
+
+                // Stop the recording and send it when the maximum duration is
+                // reached.
+                spawn!(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    async move {
+                        imp.send_voice_recording().await;
+                    }
+                ));
+
+                return glib::ControlFlow::Break;
+            }
+
+            glib::ControlFlow::Continue
+        }
+
+        /// Cancel the ongoing voice message recording, if any, and discard the
+        /// recorded audio.
+        #[template_callback]
+        fn cancel_voice_recording(&self) {
+            self.discard_voice_recording();
+        }
+
+        /// Discard the ongoing voice message recording, if any.
+        fn discard_voice_recording(&self) {
+            if let Some(recorder) = self.recorder.take() {
+                recorder.cancel();
+                self.update_visible_page();
+            }
+        }
+
+        /// Stop the ongoing voice message recording and send it.
+        #[template_callback]
+        async fn send_voice_recording(&self) {
+            let Some(_send_guard) = self.send_guard.try_lock() else {
+                return;
+            };
+            let Some(recorder) = self.recorder.take() else {
+                return;
+            };
+            self.update_visible_page();
+
+            let audio = match recorder.stop().await {
+                Ok(audio) => audio,
+                Err(AudioRecorderError::NoData) => {
+                    toast!(self.obj(), gettext("The voice message is empty"));
+                    return;
+                }
+                Err(_) => {
+                    toast!(self.obj(), gettext("Could not record voice message"));
+                    return;
+                }
+            };
+
+            let info = AttachmentInfo::Voice(BaseAudioInfo {
+                duration: Some(audio.duration),
+                size: (audio.data.len() as u64).try_into().ok(),
+                waveform: Some(audio.waveform),
+            });
+            let source = AttachmentSource::Data {
+                bytes: audio.data,
+                filename: "voice-message.ogg".to_owned(),
+            };
+            let mime = "audio/ogg"
+                .parse()
+                .expect("audio/ogg should be a valid MIME type");
+
+            self.send_attachment(source, mime, info, None).await;
         }
 
         /// Send the given texture as an image.
