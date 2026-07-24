@@ -81,6 +81,36 @@ template $ContentMessageRow: Adw.Bin {
       }
     }
 
+    Gtk.Button thread_indicator {
+      visible: false;
+      halign: start;
+      clicked => $open_thread() swapped;
+
+      styles [
+        "flat",
+        "message-thread-indicator",
+      ]
+
+      layout {
+        column: 1;
+        row: 3;
+        column-span: 2;
+      }
+
+      child: Gtk.Box {
+        spacing: 6;
+
+        Gtk.Label thread_indicator_label {
+          ellipsize: end;
+        }
+
+        Gtk.Image {
+          icon-name: "go-next-symbolic";
+          accessible-role: presentation;
+        }
+      };
+    }
+
     $ContentReadReceiptsList read_receipts {
       visible: bind template.event as <$RoomEvent>.has-read-receipts;
       members: bind template.event as <$RoomEvent>.timeline as <$Timeline>.room as <$Room>.members;
@@ -88,7 +118,7 @@ template $ContentMessageRow: Adw.Bin {
 
       layout {
         column: 1;
-        row: 3;
+        row: 4;
         column-span: 2;
       }
     }

@@ -246,6 +246,42 @@ pub(crate) trait EventActionsGroup: ObjectSubclass {
                 .build()]);
         }
 
+        // Reply in a thread.
+        //
+        // Only offered in the main timeline, the thread panel always replies
+        // in its thread.
+        if event.can_be_replied_to() && !event.timeline().is_thread() {
+            action_group.add_action_entries([gio::ActionEntry::builder("reply-in-thread")
+                .activate(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |_, _, _| {
+                        let Some(event) = imp.event() else {
+                            error!(
+                                "Could not reply in thread to timeline item that is not an event"
+                            );
+                            return;
+                        };
+                        let Some(event_id) = event.event_id() else {
+                            error!("Event to reply to in thread does not have an event ID");
+                            return;
+                        };
+
+                        if imp
+                            .obj()
+                            .activate_action(
+                                "room-history.reply-in-thread",
+                                Some(&event_id.as_str().to_variant()),
+                            )
+                            .is_err()
+                        {
+                            error!("Could not activate `room-history.reply-in-thread` action");
+                        }
+                    }
+                ))
+                .build()]);
+        }
+
         // End the poll.
         if has_event_id
             && event

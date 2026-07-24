@@ -22,6 +22,7 @@ mod message_row;
 mod message_toolbar;
 mod read_receipts_list;
 mod state;
+mod thread_panel;
 mod title;
 mod typing_row;
 mod verification_info_bar;
@@ -36,20 +37,26 @@ use self::{
     message_toolbar::MessageToolbar,
     read_receipts_list::ReadReceiptsList,
     state::{StateGroupRow, StateRow},
+    thread_panel::ThreadPanel,
     title::RoomHistoryTitle,
     typing_row::TypingRow,
     verification_info_bar::VerificationInfoBar,
 };
-use super::{RoomDetails, room_details};
+use super::{
+    RoomDetails,
+    call::{CallBar, present_call_dialog},
+    room_details,
+};
 use crate::{
     Window,
     components::{DragOverlay, confirm_leave_room_dialog},
     ngettext_f,
     prelude::*,
     session::{
-        Event, MemberList, Membership, MembershipListKind, ReceiptPosition, Room,
+        CallManager, Event, MemberList, Membership, MembershipListKind, ReceiptPosition, Room,
         TargetRoomCategory, Timeline, VirtualItem, VirtualItemKind,
     },
+    session_view::CallState,
     spawn, toast,
     utils::{BoundObject, GroupingListGroup, GroupingListModel, LoadingState, TemplateCallbacks},
 };
@@ -76,6 +83,10 @@ mod imp {
         #[template_child]
         pub(super) header_bar: TemplateChild<adw::HeaderBar>,
         #[template_child]
+        call_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        call_bar: TemplateChild<CallBar>,
+        #[template_child]
         room_title: TemplateChild<RoomHistoryTitle>,
         #[template_child]
         room_menu: TemplateChild<gtk::MenuButton>,
@@ -101,11 +112,18 @@ mod imp {
         stack: TemplateChild<gtk::Stack>,
         #[template_child]
         drag_overlay: TemplateChild<DragOverlay>,
+        #[template_child]
+        thread_split_view: TemplateChild<adw::OverlaySplitView>,
+        #[template_child]
+        thread_panel: TemplateChild<ThreadPanel>,
         /// The context menu for rows presenting an [`Event`].
         event_context_menu: OnceCell<EventActionsContextMenu>,
         /// The timeline currently displayed.
         #[property(get, set = Self::set_timeline, explicit_notify, nullable)]
         timeline: BoundObject<Timeline>,
+        /// The call manager we are subscribed to, with the handler of the
+        /// call activity signal.
+        call_activity_handler: RefCell<Option<(CallManager, glib::SignalHandlerId)>>,
         /// Whether this is the only view visible, i.e. there is no sidebar.
         #[property(get, set)]
         is_only_view: Cell<bool>,
@@ -156,6 +174,10 @@ mod imp {
             });
             klass.install_action_async("room-history.forget", None, |obj, _, _| async move {
                 obj.imp().forget().await;
+            });
+
+            klass.install_action("room-history.call", None, |obj, _, _| {
+                obj.imp().open_call();
             });
 
             klass.install_action("room-history.details", None, |obj, _, _| {
@@ -259,6 +281,42 @@ mod imp {
 
                 obj.imp().message_toolbar.set_edit(&event);
             });
+
+            klass.install_action(
+                "room-history.show-thread",
+                Some(&String::static_variant_type()),
+                |obj, _, v| {
+                    let Some(event_id) = v
+                        .and_then(String::from_variant)
+                        .and_then(|s| EventId::parse(s).ok())
+                    else {
+                        error!("Could not parse event ID of thread to show");
+                        return;
+                    };
+
+                    obj.imp().show_thread(&event_id, false);
+                },
+            );
+
+            klass.install_action(
+                "room-history.reply-in-thread",
+                Some(&String::static_variant_type()),
+                |obj, _, v| {
+                    let Some(event_id) = v
+                        .and_then(String::from_variant)
+                        .and_then(|s| EventId::parse(s).ok())
+                    else {
+                        error!("Could not parse event ID to reply to in thread");
+                        return;
+                    };
+
+                    obj.imp().reply_in_thread(event_id);
+                },
+            );
+
+            klass.install_action("room-history.close-thread", None, |obj, _, _| {
+                obj.imp().close_thread();
+            });
         }
 
         fn instance_init(obj: &InitializingObject<Self>) {
@@ -273,6 +331,16 @@ mod imp {
 
             self.init_listview();
             self.init_drop_target();
+
+            self.thread_panel.set_room_history(Some(&*self.obj()));
+
+            self.call_bar.connect_return_requested(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                move |_| {
+                    imp.open_call();
+                }
+            ));
 
             self.scroll_btn_revealer
                 .connect_child_revealed_notify(|revealer| {
@@ -432,6 +500,10 @@ mod imp {
 
         /// Disconnect all the signals.
         fn disconnect_all(&self) {
+            if let Some((call_manager, handler)) = self.call_activity_handler.take() {
+                call_manager.disconnect(handler);
+            }
+
             if let Some(room) = self.room() {
                 if let Some(handler) = self.room_handler.take() {
                     room.disconnect(handler);
@@ -467,6 +539,9 @@ mod imp {
             if self.timeline.obj() == timeline {
                 return;
             }
+
+            // The thread panel content is only valid for the current room.
+            self.close_thread();
 
             self.disconnect_all();
             if let Some(source_id) = self.scroll_timeout.take() {
@@ -542,6 +617,21 @@ mod imp {
 
                 self.room_handler.replace(Some(is_direct_handler));
 
+                if let Some(session) = room.session() {
+                    let call_manager = session.call_manager();
+                    let handler = call_manager.connect_room_call_active_changed(clone!(
+                        #[weak(rename_to = imp)]
+                        self,
+                        move |_, room_id, _| {
+                            if imp.room().is_some_and(|room| room.room_id() == room_id) {
+                                imp.update_call_ui();
+                            }
+                        }
+                    ));
+                    self.call_activity_handler
+                        .replace(Some((call_manager, handler)));
+                }
+
                 let empty_handler = timeline.connect_is_empty_notify(clone!(
                     #[weak(rename_to = imp)]
                     self,
@@ -582,8 +672,39 @@ mod imp {
             self.update_room_menu();
             self.update_invite_action();
             self.update_pending_knocks();
+            self.update_call_ui();
 
             self.obj().notify_timeline();
+        }
+
+        /// Open the call view of the current room.
+        fn open_call(&self) {
+            let Some(room) = self.room() else {
+                return;
+            };
+            let Some(session) = room.session() else {
+                return;
+            };
+
+            present_call_dialog(&*self.obj(), &session, &room);
+        }
+
+        /// Update the call button and the call bar for the current room.
+        pub(super) fn update_call_ui(&self) {
+            let room_and_session = self
+                .room()
+                .and_then(|room| room.session().map(|session| (room, session)));
+            let Some((room, session)) = room_and_session else {
+                self.call_button.set_visible(false);
+                self.call_bar.set_state(None::<CallState>);
+                return;
+            };
+
+            let call_manager = session.call_manager();
+            let has_call = room.is_call() || call_manager.is_call_active(room.room_id());
+            self.call_button.set_visible(has_call);
+            self.call_bar
+                .set_state(call_manager.get_or_create_call_state(room.room_id()));
         }
 
         /// The room of the current timeline, if any.
@@ -1121,6 +1242,55 @@ mod imp {
         /// The context menu for rows presenting an [`Event`].
         pub(super) fn event_context_menu(&self) -> &EventActionsContextMenu {
             self.event_context_menu.get_or_init(Default::default)
+        }
+
+        /// Show the thread panel for the thread with the given root event ID.
+        ///
+        /// If `focus_composer` is `true`, the composer of the thread panel
+        /// grabs the focus.
+        fn show_thread(&self, root_event_id: &EventId, focus_composer: bool) {
+            let Some(room) = self.room() else {
+                return;
+            };
+
+            let needs_new_timeline = self.thread_panel.timeline().is_none_or(|timeline| {
+                timeline.room() != room
+                    || timeline.thread_root_id().as_deref() != Some(root_event_id)
+            });
+
+            if needs_new_timeline {
+                let timeline = Timeline::with_thread_root(&room, root_event_id);
+                self.thread_panel.set_timeline(Some(timeline));
+            }
+
+            self.thread_split_view.set_show_sidebar(true);
+
+            if focus_composer {
+                self.thread_panel.grab_focus();
+            }
+        }
+
+        /// Reply to the given event in a thread.
+        ///
+        /// If the event is already in a thread, this opens that thread,
+        /// otherwise this starts a new thread with the event as its root.
+        fn reply_in_thread(&self, event_id: OwnedEventId) {
+            let root_event_id = self
+                .timeline
+                .obj()
+                .and_then(|timeline| {
+                    timeline.event_by_identifier(&TimelineEventItemId::EventId(event_id.clone()))
+                })
+                .and_then(|event| event.thread_root_id())
+                .unwrap_or(event_id);
+
+            self.show_thread(&root_event_id, true);
+        }
+
+        /// Close the thread panel.
+        fn close_thread(&self) {
+            self.thread_split_view.set_show_sidebar(false);
+            self.thread_panel.set_timeline(None::<Timeline>);
         }
 
         /// Opens the room details with the given initial view.

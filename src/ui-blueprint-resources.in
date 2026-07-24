@@ -146,6 +146,7 @@ session_view/room_history/read_receipts_list/read_receipts_popover.blp
 session_view/room_history/state/creation.blp
 session_view/room_history/state/group_row.blp
 session_view/room_history/state/row.blp
+session_view/room_history/thread_panel.blp
 session_view/room_history/title.blp
 session_view/room_history/typing_row.blp
 session_view/room_history/verification_info_bar.blp

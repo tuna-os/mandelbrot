@@ -1841,7 +1841,9 @@ impl Room {
 
     /// Toggle the `key` reaction on the given related event in this room.
     pub(crate) async fn toggle_reaction(&self, key: String, event: &Event) -> Result<(), ()> {
-        let matrix_timeline = self.live_timeline().matrix_timeline();
+        // Use the timeline of the event, so that reactions also work on
+        // events that are only in a thread timeline.
+        let matrix_timeline = event.timeline().matrix_timeline();
         let identifier = event.identifier();
 
         let handle =

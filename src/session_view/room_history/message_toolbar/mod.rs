@@ -11,14 +11,11 @@ use matrix_sdk::{
 use matrix_sdk_ui::timeline::{
     AttachmentConfig, AttachmentSource, TimelineEventItemId, TimelineItemContent,
 };
-use ruma::{
-    OwnedRoomId,
-    events::{
-        AnyMessageLikeEventContent, Mentions,
-        room::{
-            message::{LocationMessageEventContent, MessageType, RoomMessageEventContent},
-            tombstone::RoomTombstoneEventContent,
-        },
+use ruma::events::{
+    AnyMessageLikeEventContent, Mentions,
+    room::{
+        message::{LocationMessageEventContent, MessageType, RoomMessageEventContent},
+        tombstone::RoomTombstoneEventContent,
     },
 };
 use tracing::{debug, error, warn};
@@ -51,8 +48,11 @@ use crate::{
     },
 };
 
-/// A map of composer state per-session and per-room.
-type ComposerStatesMap = HashMap<Option<String>, HashMap<Option<OwnedRoomId>, ComposerState>>;
+/// A map of composer state per-session and per-timeline.
+///
+/// The timeline key is built from the room ID and the optional thread root
+/// event ID.
+type ComposerStatesMap = HashMap<Option<String>, HashMap<Option<String>, ComposerState>>;
 
 /// The available stack pages of the [`MessageToolbar`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -438,6 +438,17 @@ mod imp {
         fn composer_state(&self, timeline: Option<Timeline>) -> ComposerState {
             let room = timeline.as_ref().map(Timeline::room);
 
+            let timeline_key = timeline.as_ref().map(|timeline| {
+                let mut key = timeline.room().room_id().to_string();
+
+                if let Some(thread_root_id) = timeline.thread_root_id() {
+                    key.push('#');
+                    key.push_str(thread_root_id.as_str());
+                }
+
+                key
+            });
+
             self.composer_states
                 .borrow_mut()
                 .entry(
@@ -446,7 +457,7 @@ mod imp {
                         .map(|s| s.session_id().to_owned()),
                 )
                 .or_default()
-                .entry(room.map(|room| room.room_id().to_owned()))
+                .entry(timeline_key)
                 .or_insert_with(|| ComposerState::new(timeline))
                 .clone()
         }

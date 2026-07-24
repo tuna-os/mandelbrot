@@ -10,12 +10,12 @@ use gtk::{
 use matrix_sdk_ui::{
     eyeball_im::VectorDiff,
     timeline::{
-        RoomExt, Timeline as SdkTimeline, TimelineEventItemId, TimelineItem as SdkTimelineItem,
-        default_event_filter,
+        RoomExt, Timeline as SdkTimeline, TimelineEventItemId, TimelineFocus,
+        TimelineItem as SdkTimelineItem, default_event_filter,
     },
 };
 use ruma::{
-    OwnedEventId, UserId,
+    EventId, OwnedEventId, UserId,
     events::{
         AnySyncMessageLikeEvent, AnySyncStateEvent, AnySyncTimelineEvent, SyncMessageLikeEvent,
         SyncStateEvent, room::message::MessageType,
@@ -69,6 +69,10 @@ mod imp {
         /// The room containing this timeline.
         #[property(get, set = Self::set_room, construct_only)]
         room: OnceCell<Room>,
+        /// The ID of the thread root event, if this timeline is focused on a
+        /// thread, as a string.
+        #[property(get = Self::thread_root_id_string, set = Self::set_thread_root_id_string, construct_only, nullable, type = Option<String>)]
+        thread_root_id_string: OnceCell<Option<OwnedEventId>>,
         /// The underlying SDK timeline.
         matrix_timeline: OnceCell<Arc<SdkTimeline>>,
         /// Items added at the start of the timeline.
@@ -131,6 +135,18 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
 
+            if self.thread_root_id().is_none() {
+                self.room().typing_list().connect_is_empty_notify(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |list| {
+                        if !list.is_empty() {
+                            imp.add_typing_row();
+                        }
+                    }
+                ));
+            }
+
             self.filter.set_filter_func(clone!(
                 #[weak(rename_to = imp)]
                 self,
@@ -163,17 +179,28 @@ mod imp {
     impl Timeline {
         /// Set the room containing this timeline.
         fn set_room(&self, room: Room) {
-            let room = self.room.get_or_init(|| room);
+            self.room.get_or_init(|| room);
+        }
 
-            room.typing_list().connect_is_empty_notify(clone!(
-                #[weak(rename_to = imp)]
-                self,
-                move |list| {
-                    if !list.is_empty() {
-                        imp.add_typing_row();
-                    }
-                }
-            ));
+        /// Set the ID of the thread root event of this timeline, as a string.
+        fn set_thread_root_id_string(&self, thread_root_id: Option<String>) {
+            let thread_root_id = thread_root_id
+                .map(|id| EventId::parse(id).expect("thread root ID should be a valid event ID"));
+            self.thread_root_id_string
+                .set(thread_root_id)
+                .expect("thread root ID is uninitialized");
+        }
+
+        /// The ID of the thread root event, if this timeline is focused on a
+        /// thread, as a string.
+        fn thread_root_id_string(&self) -> Option<String> {
+            self.thread_root_id().map(ToString::to_string)
+        }
+
+        /// The ID of the thread root event, if this timeline is focused on a
+        /// thread.
+        pub(super) fn thread_root_id(&self) -> Option<&EventId> {
+            self.thread_root_id_string.get().and_then(Option::as_deref)
         }
 
         /// The room containing this timeline.
@@ -193,9 +220,20 @@ mod imp {
                 }
             };
             let matrix_room = room.matrix_room().clone();
+            let focus = match self.thread_root_id() {
+                Some(root_event_id) => TimelineFocus::Thread {
+                    root_event_id: root_event_id.to_owned(),
+                },
+                None => TimelineFocus::Live {
+                    // We support opening thread timelines from the thread
+                    // roots, so we can hide in-thread replies.
+                    hide_threaded_events: true,
+                },
+            };
             let handle = spawn_tokio!(async move {
                 matrix_room
                     .timeline_builder()
+                    .with_focus(focus)
                     .event_filter(filter)
                     .add_failed_to_parse(false)
                     .build()
@@ -964,6 +1002,37 @@ impl Timeline {
         ));
 
         obj
+    }
+
+    /// Construct a new `Timeline` for the given room, focused on the thread
+    /// with the given root event ID.
+    pub(crate) fn with_thread_root(room: &Room, thread_root_id: &EventId) -> Self {
+        let obj = glib::Object::builder::<Self>()
+            .property("room", room)
+            .property("thread-root-id-string", thread_root_id.as_str())
+            .build();
+
+        let imp = obj.imp();
+        spawn!(clone!(
+            #[weak]
+            imp,
+            async move {
+                imp.init_matrix_timeline().await;
+            }
+        ));
+
+        obj
+    }
+
+    /// The ID of the thread root event, if this timeline is focused on a
+    /// thread.
+    pub(crate) fn thread_root_id(&self) -> Option<OwnedEventId> {
+        self.imp().thread_root_id().map(ToOwned::to_owned)
+    }
+
+    /// Whether this timeline is focused on a thread.
+    pub(crate) fn is_thread(&self) -> bool {
+        self.imp().thread_root_id().is_some()
     }
 
     /// The underlying SDK timeline.

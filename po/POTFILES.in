@@ -185,6 +185,7 @@ src/session_view/room_history/message_row/location.blp
 src/session_view/room_history/message_row/location.rs
 src/session_view/room_history/message_row/message_state_stack.blp
 src/session_view/room_history/message_row/mod.blp
+src/session_view/room_history/message_row/mod.rs
 src/session_view/room_history/message_row/poll.blp
 src/session_view/room_history/message_row/poll.rs
 src/session_view/room_history/message_row/reaction/mod.rs
@@ -207,6 +208,7 @@ src/session_view/room_history/state/content.rs
 src/session_view/room_history/state/creation.blp
 src/session_view/room_history/state/creation.rs
 src/session_view/room_history/state/group_row.rs
+src/session_view/room_history/thread_panel.blp
 src/session_view/room_history/title.blp
 src/session_view/room_history/typing_row.rs
 src/session_view/room_history/verification_info_bar.rs

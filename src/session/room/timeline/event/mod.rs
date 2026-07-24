@@ -736,6 +736,22 @@ impl Event {
         self.item().content().can_show_header()
     }
 
+    /// Get the ID of the root event of the thread this event is a reply in,
+    /// if any.
+    pub(crate) fn thread_root_id(&self) -> Option<OwnedEventId> {
+        self.item().content().thread_root()
+    }
+
+    /// The number of replies in the thread with this event as its root.
+    ///
+    /// Returns `None` if this event is not the root of a thread.
+    pub(crate) fn thread_replies_count(&self) -> Option<u32> {
+        self.item()
+            .content()
+            .thread_summary()
+            .map(|summary| summary.num_replies)
+    }
+
     /// Get the ID of the event this event replies to, if any.
     pub(crate) fn reply_to_id(&self) -> Option<OwnedEventId> {
         match self.item().content() {

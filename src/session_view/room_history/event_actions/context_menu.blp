@@ -10,6 +10,13 @@ menu event-actions-menu {
     }
 
     item {
+      // Translators: In this string, 'Reply' is a verb.
+      label: _("Reply in T_hread");
+      action: "event.reply-in-thread";
+      hidden-when: "action-missing";
+    }
+
+    item {
       // Translators: In this string, 'Edit' is a verb.
       label: _("_Edit");
       action: "event.edit";

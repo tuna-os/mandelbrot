@@ -420,6 +420,13 @@ message-reactions {
   }
 }
 
+.message-thread-indicator {
+  margin-top: 3px;
+  padding: 2px 8px;
+  font-size: 0.9em;
+  color: var(--accent-color);
+}
+
 .reaction-chooser {
   margin: 6px;
 

@@ -45,6 +45,9 @@ mod imp {
         /// The room associated with this state.
         #[property(get, construct_only, nullable)]
         room: glib::WeakRef<Room>,
+        /// The ID of the thread root, if this state is associated with a
+        /// timeline focused on a thread.
+        pub(super) thread_root_id: RefCell<Option<OwnedEventId>>,
         /// The buffer of this state.
         #[property(get)]
         buffer: sourceview::Buffer,
@@ -214,12 +217,17 @@ mod imp {
             }
 
             let matrix_room = room.matrix_room().clone();
+            let thread_root_id = self.thread_root_id.borrow().clone();
             let draft_clone = draft.clone();
             let handle = spawn_tokio!(async move {
                 if let Some(draft) = draft_clone {
-                    matrix_room.save_composer_draft(draft, None).await
+                    matrix_room
+                        .save_composer_draft(draft, thread_root_id.as_deref())
+                        .await
                 } else {
-                    matrix_room.clear_composer_draft(None).await
+                    matrix_room
+                        .clear_composer_draft(thread_root_id.as_deref())
+                        .await
                 }
             });
 
@@ -266,7 +274,12 @@ mod imp {
         /// Restore the state from the persisted draft.
         pub(super) async fn restore_draft(&self, timeline: &Timeline) {
             let matrix_room = timeline.room().matrix_room().clone();
-            let handle = spawn_tokio!(async move { matrix_room.load_composer_draft(None).await });
+            let thread_root_id = self.thread_root_id.borrow().clone();
+            let handle = spawn_tokio!(async move {
+                matrix_room
+                    .load_composer_draft(thread_root_id.as_deref())
+                    .await
+            });
 
             match handle.await.expect("task was not aborted") {
                 Ok(Some(draft)) => self.restore_from_draft(timeline, draft).await,
@@ -453,6 +466,10 @@ impl ComposerState {
         let obj = glib::Object::builder::<Self>()
             .property("room", timeline.as_ref().map(Timeline::room))
             .build();
+
+        obj.imp()
+            .thread_root_id
+            .replace(timeline.as_ref().and_then(Timeline::thread_root_id));
 
         if let Some(timeline) = timeline {
             let imp = obj.imp();

@@ -63,18 +63,52 @@ template $ContentRoomHistory: Adw.Bin {
         primary: bind template.is-only-view;
         tooltip-text: _("Room Menu");
       }
+
+      [end]
+      Gtk.Button call_button {
+        valign: center;
+        visible: false;
+        icon-name: "camera-web-symbolic";
+        action-name: "room-history.call";
+        tooltip-text: _("Join Call");
+      }
     }
 
-    content: Gtk.Box {
-      orientation: vertical;
+    content: Adw.BreakpointBin {
+      width-request: 300;
+      height-request: 300;
 
-      Adw.Banner {
+      Adw.Breakpoint {
+        condition ("max-width: 720sp")
+
+        setters {
+          thread_split_view.collapsed: true;
+        }
+      }
+
+      child: Adw.OverlaySplitView thread_split_view {
+        sidebar-position: end;
+        show-sidebar: false;
+        min-sidebar-width: 300;
+        max-sidebar-width: 440;
+        sidebar-width-fraction: 0.35;
+
+        sidebar: $RoomHistoryThreadPanel thread_panel {};
+
+        content: Gtk.Box {
+          orientation: vertical;
+
+          Adw.Banner {
         title: _("Call room - other clients may not show messages you send in this room.");
         revealed: bind template.timeline as <$Timeline>.room as <$Room>.is-call;
       }
 
       $ContentVerificationInfoBar verification_info_bar {
         verification: bind template.timeline as <$Timeline>.room as <$Room>.verification;
+      }
+
+      $CallBar call_bar {
+        visible: false;
       }
 
       Adw.Banner pending_knocks_banner {
@@ -189,6 +223,8 @@ template $ContentRoomHistory: Adw.Bin {
           timeline: bind template.timeline;
         }
       }
+        };
+      };
     };
   }
 }

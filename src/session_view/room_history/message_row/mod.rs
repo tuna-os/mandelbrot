@@ -25,6 +25,7 @@ use self::{
 use super::{EventTimestamp, ReadReceiptsList};
 use crate::{
     components::UserProfileDialog,
+    ngettext_f,
     prelude::*,
     session::{Event, EventHeaderState, Member},
     utils::BoundObject,
@@ -53,6 +54,10 @@ mod imp {
         message_state: TemplateChild<MessageStateStack>,
         #[template_child]
         reactions: TemplateChild<MessageReactionList>,
+        #[template_child]
+        thread_indicator: TemplateChild<gtk::Button>,
+        #[template_child]
+        thread_indicator_label: TemplateChild<gtk::Label>,
         binding: RefCell<Option<glib::Binding>>,
         /// The event that is presented.
         #[property(get, set = Self::set_event, explicit_notify)]
@@ -158,6 +163,7 @@ mod imp {
                 self,
                 move |_| {
                     imp.update_content();
+                    imp.update_thread_indicator();
                 }
             ));
 
@@ -171,6 +177,7 @@ mod imp {
 
             self.update_content();
             self.update_header();
+            self.update_thread_indicator();
         }
 
         /// The sender of the event that is presented.
@@ -213,6 +220,55 @@ mod imp {
         /// Get the texture displayed by this widget, if any.
         pub(super) fn texture(&self) -> Option<gdk::Texture> {
             self.content.texture()
+        }
+
+        /// Update the thread indicator for the current event.
+        fn update_thread_indicator(&self) {
+            let count = self
+                .event
+                .obj()
+                .filter(|event| {
+                    // Thread timelines do not need an indicator on the thread
+                    // root.
+                    !event.timeline().is_thread()
+                })
+                .and_then(|event| event.thread_replies_count())
+                .filter(|count| *count > 0);
+
+            let Some(count) = count else {
+                self.thread_indicator.set_visible(false);
+                return;
+            };
+
+            self.thread_indicator_label.set_label(&ngettext_f(
+                // Translators: Do NOT translate the content between '{' and '}',
+                // this is a variable name.
+                "1 reply in thread",
+                "{n} replies in thread",
+                count,
+                &[("n", &count.to_string())],
+            ));
+            self.thread_indicator.set_visible(true);
+        }
+
+        /// Open the thread panel for the current event.
+        #[template_callback]
+        fn open_thread(&self) {
+            let Some(event_id) = self.event.obj().and_then(|event| event.event_id()) else {
+                error!("Could not open thread for event without an event ID");
+                return;
+            };
+
+            if self
+                .obj()
+                .activate_action(
+                    "room-history.show-thread",
+                    Some(&event_id.as_str().to_variant()),
+                )
+                .is_err()
+            {
+                error!("Could not activate `room-history.show-thread` action");
+            }
         }
 
         /// View the profile of the sender.
