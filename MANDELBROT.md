@@ -27,6 +27,7 @@
   does), and MSC4354 sticky events (EC's matrix_2_0 mode).
 
 * **Done also**: spaces hierarchy browsing.
+
 * **Next**: live testing against matrix.org (calls, QR, threads receipts),
   camera capture, threaded read receipts (MSC3771), location pin-drop,
   metainfo release notes at first tag.
@@ -313,6 +314,7 @@ passthrough + `m.call.member` room-state detection).
   release (Fractal already lives with this for Timeline).
 
 * QR login flaky with some MAS versions (MAS #5601, rendezvous 404s); watch MSC4388.
+
 * Self-hosted servers often lack LiveKit foci / MSC4140 → calls must degrade
   gracefully (feature-detect via `.well-known`).
 

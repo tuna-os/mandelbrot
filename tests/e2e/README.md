@@ -74,6 +74,7 @@ Client and state logs land in `logs/<timestamp>/`.
    at least one `foci_preferred` entry with a `livekit_service_url`.
 
 2. Each client sees the other's membership (via room state).
+
 3. Each client receives the other's media encryption key (to-device
    `io.element.call.encryption_keys`; **unencrypted** in this harness —
    the example does not carry an Olm stack).
@@ -97,7 +98,6 @@ and nightly**, never on the PR merge gate:
 * it pulls ~1.5 GB of container images and builds libwebrtc (~10 min cold),
 * it needs UDP 50100-50200 (and 50300-50400 for the federated stack) plus
   host networking for LiveKit,
-
 * media timing makes it inherently flakier than the unit suite
   (`matrixrtc/tests/`), which stays the merge gate as the
   `matrixrtc-conformance` job in `ci.yml`.

@@ -73,11 +73,9 @@ matrix-authentication-service):
 
 * Messages that start a thread show a "N replies in thread" button; it opens
   the thread in a side panel (an overlay on narrow windows).
-
 * The thread panel has its own composer — replies automatically carry the
   `m.thread` relation — plus thread-scoped reply, edit, reactions, and
   per-thread drafts.
-
 * "Reply in Thread" in any message's context menu starts a new thread.
 * Thread replies are hidden from the main timeline (Element-style).
 * Not yet: threaded read receipts (MSC3771); thread activity does not mark a

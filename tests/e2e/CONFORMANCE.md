@@ -111,6 +111,5 @@ variant can be added alongside.
 * In the `matrix_2_0` run our membership manager flapped `ProbablyLeft`
   true/false repeatedly. Most likely the 2 s local restart timeout under a
   loaded synapse, but worth confirming it is not a state-machine bug.
-
 * Prove app-level media E2EE against Element Call by driving the real app.
 * Consider matching `focus_selection` to the peer mode.
