@@ -26,6 +26,11 @@ overflow-checks = false
 incremental = false
 codegen-units = 16
 
+[features]
+# Media layer for native calls, using the LiveKit Rust SDK. Off by default
+# to keep local builds light; enabled in the Flatpak manifests.
+calls-media = ["mandelbrot-matrixrtc/livekit"]
+
 # Please keep dependencies sorted.
 [dependencies]
 as_variant = "1.3.0"
@@ -76,11 +81,6 @@ sourceview = { version = "0.11", package = "sourceview5" }
 
 [dependencies.mandelbrot-matrixrtc]
 path = "matrixrtc"
-
-[features]
-# Media layer for native calls, using the LiveKit Rust SDK. Off by default
-# to keep local builds light; enabled in the Flatpak manifests.
-calls-media = ["mandelbrot-matrixrtc/livekit"]
 
 [dependencies.matrix-sdk]
 version = "0.18"
