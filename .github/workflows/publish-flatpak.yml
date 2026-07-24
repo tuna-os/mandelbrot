@@ -1,9 +1,8 @@
+# Publishing is deliberately NOT triggered by every push to main: a publish
+# run is a heavy flatpak build competing with CI for runners. Releases go out
+# on tags, or on demand.
 name: Build and Publish Flatpak OCI
 
-# Publishing is deliberately NOT triggered by every push to main: a publish
-# run is a third heavy flatpak build competing with CI's two for the same
-# runners, which left CI queued for the better part of an hour. Releases go
-# out on tags, or on demand.
 on:
   push:
     tags:
@@ -20,8 +19,16 @@ concurrency:
 
 jobs:
   build-oci:
-    name: "Build Flatpak OCI"
-    runs-on: ubuntu-latest
+    name: "Build Flatpak OCI (${{ matrix.arch }})"
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
       options: --privileged
@@ -34,19 +41,21 @@ jobs:
       uses: flatpak/flatpak-github-actions/flatpak-builder@v6
       with:
         manifest-path: org.tunaos.mandelbrot.json
-        cache-key: flatpak-builder-${{ github.sha }}
+        cache-key: flatpak-builder-${{ matrix.arch }}-${{ github.sha }}
+        arch: ${{ matrix.arch }}
         build-bundle: false
         upload-artifact: false
 
     - name: Export OCI Directory
       run: |
-        flatpak build-bundle --oci --arch=x86_64 repo mandelbrot.oci org.tunaos.mandelbrot
+        flatpak build-bundle --oci --arch=${{ matrix.arch }} \
+          repo mandelbrot-${{ matrix.arch }}.oci org.tunaos.mandelbrot
 
     - name: Upload OCI Artifact
       uses: actions/upload-artifact@v7
       with:
-        name: mandelbrot-oci
-        path: mandelbrot.oci/
+        name: mandelbrot-oci-${{ matrix.arch }}
+        path: mandelbrot-${{ matrix.arch }}.oci/
         retention-days: 1
 
   publish-oci:
@@ -58,38 +67,53 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v7
 
-    - name: Download OCI Artifact
+    - name: Download OCI Artifacts
       uses: actions/download-artifact@v8
       with:
-        name: mandelbrot-oci
-        path: mandelbrot.oci
+        path: oci
 
     - name: Log in to GHCR
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-    - name: Push OCI to GHCR
+    - name: Push both arches to GHCR
       run: |
-        echo "Pushing latest tag..."
-        skopeo copy oci:mandelbrot.oci docker://ghcr.io/tuna-os/mandelbrot:latest
-
+        # Each arch is pushed under an arch-qualified tag so both manifests are
+        # retained (untagged manifests can be garbage-collected). The static
+        # index records each arch's digest independently, so flatpak's oci+
+        # remote resolves the right arch by digest regardless of tag.
+        set -euo pipefail
+        VERSION_TAG=""
         if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
           VERSION_TAG="${{ github.ref_name }}"
-          echo "Pushing version tag ${VERSION_TAG}..."
-          skopeo copy oci:mandelbrot.oci docker://ghcr.io/tuna-os/mandelbrot:${VERSION_TAG}
         fi
+        for arch in x86_64 aarch64; do
+          dir="oci/mandelbrot-oci-${arch}"
+          [ -d "$dir" ] || { echo "missing $dir"; exit 1; }
+          skopeo copy "oci:${dir}" "docker://ghcr.io/tuna-os/mandelbrot:latest-${arch}"
+          if [ -n "$VERSION_TAG" ]; then
+            skopeo copy "oci:${dir}" "docker://ghcr.io/tuna-os/mandelbrot:${VERSION_TAG}-${arch}"
+          fi
+        done
+        # Keep :latest pointing at x86_64 for anything that pulls it by tag.
+        skopeo copy oci:oci/mandelbrot-oci-x86_64 docker://ghcr.io/tuna-os/mandelbrot:latest
 
     - name: Update central index (tuna-os/docs)
       run: |
+        set -euo pipefail
         git clone --depth 1 \
           https://x-access-token:${{ secrets.FLATPAK_INDEX_TOKEN }}@github.com/tuna-os/docs.git \
           index-repo
         pip install requests
-        python3 .github/scripts/update-index.py \
-          --oci-dir mandelbrot.oci \
-          --index-file index-repo/static/flatpak/index/static \
-          --repo-name tuna-os/mandelbrot \
-          --tags latest
+        # One entry per architecture; update-index.py replaces only the matching
+        # arch, leaving the other in place.
+        for arch in x86_64 aarch64; do
+          python3 .github/scripts/update-index.py \
+            --oci-dir "oci/mandelbrot-oci-${arch}" \
+            --index-file index-repo/static/flatpak/index/static \
+            --repo-name tuna-os/mandelbrot \
+            --tags latest
+        done
         cd index-repo
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -97,6 +121,6 @@ jobs:
         if git diff --cached --quiet; then
           echo "No index changes"
         else
-          git commit -m "chore(flatpak): update Mandelbrot OCI index"
+          git commit -m "chore(flatpak): update Mandelbrot OCI index (x86_64 + aarch64)"
           git push origin main
         fi

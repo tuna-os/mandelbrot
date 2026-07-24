@@ -70,8 +70,14 @@ template $RoomHistoryThreadPanel: Adw.Bin {
         }
       }
 
-      $MessageToolbar message_toolbar {
-        timeline: bind template.timeline;
+      Adw.Clamp {
+        vexpand: false;
+        maximum-size: 750;
+        tightening-threshold: 550;
+
+        $MessageToolbar message_toolbar {
+          timeline: bind template.timeline;
+        }
       }
     };
   }

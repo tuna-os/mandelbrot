@@ -602,6 +602,7 @@ mod imp {
                     self,
                     move |_| {
                         imp.update_pending_knocks();
+                        imp.update_call_ui();
                     }
                 ));
                 self.permissions_handlers
@@ -701,8 +702,12 @@ mod imp {
             };
 
             let call_manager = session.call_manager();
-            let has_call = room.is_call() || call_manager.is_call_active(room.room_id());
-            self.call_button.set_visible(has_call);
+            // Show the call button whenever there is a call to join, or the user
+            // is allowed to start one — otherwise there is no way to begin a call.
+            let can_call = room.is_call()
+                || call_manager.is_call_active(room.room_id())
+                || (room.is_joined() && room.permissions().can_start_call());
+            self.call_button.set_visible(can_call);
             self.call_bar
                 .set_state(call_manager.get_or_create_call_state(room.room_id()));
         }

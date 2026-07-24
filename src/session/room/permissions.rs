@@ -109,6 +109,9 @@ mod imp {
         /// Whether our own member can change the room's name.
         #[property(get)]
         can_change_name: Cell<bool>,
+        /// Whether our own member can start or join a call.
+        #[property(get)]
+        can_start_call: Cell<bool>,
         /// Whether our own member can change the room's topic.
         #[property(get)]
         can_change_topic: Cell<bool>,
@@ -148,6 +151,7 @@ mod imp {
                 mute_power_level: Default::default(),
                 can_change_avatar: Default::default(),
                 can_change_name: Default::default(),
+                can_start_call: Default::default(),
                 can_change_topic: Default::default(),
                 can_invite: Default::default(),
                 can_send_message: Default::default(),
@@ -286,6 +290,7 @@ mod imp {
             self.update_mute_power_level();
             self.update_can_change_avatar();
             self.update_can_change_name();
+            self.update_can_start_call();
             self.update_can_change_topic();
             self.update_can_invite();
             self.update_can_send_message();
@@ -385,6 +390,19 @@ mod imp {
 
             self.can_change_name.set(can_change_name);
             self.obj().notify_can_change_name();
+        }
+
+        /// Update whether our own member can start or join a call.
+        fn update_can_start_call(&self) {
+            let can_start_call =
+                self.is_allowed_to(PowerLevelAction::SendState(StateEventType::CallMember));
+
+            if self.can_start_call.get() == can_start_call {
+                return;
+            }
+
+            self.can_start_call.set(can_start_call);
+            self.obj().notify_can_start_call();
         }
 
         /// Update whether our own member can change the room's topic.
