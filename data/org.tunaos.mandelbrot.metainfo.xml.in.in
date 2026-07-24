@@ -75,6 +75,28 @@
   </content_rating>
 
   <releases>@development-release@
+    <release version="14.1.1" type="stable" date="2026-07-24">
+      <description>
+        <p>
+          The first release of Mandelbrot, a fork of Fractal that adopts modern Matrix Rust SDK
+          features. Everything Fractal 14.1 does, plus:
+        </p>
+        <ul>
+          <li>
+            Native, end-to-end encrypted voice and video calls (MatrixRTC), with incoming-call
+            notifications — no need to open another client to answer. This is experimental and
+            interoperates with Element Call.
+          </li>
+          <li>Sign in by scanning a QR code, and link new devices from account settings.</li>
+          <li>Faster startup with simplified sliding sync on homeservers that support it, falling back to classic sync elsewhere.</li>
+          <li>Read and reply in threads, with a dedicated thread panel.</li>
+          <li>Create and vote in polls.</li>
+          <li>Record and send voice messages.</li>
+          <li>Browse the room hierarchy of spaces.</li>
+          <li>Also available for 64-bit ARM.</li>
+        </ul>
+      </description>
+    </release>
     <release version="14.1" type="stable" date="2026-07-19">
       <description>
         <p>
