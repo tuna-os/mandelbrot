@@ -22,3 +22,7 @@ hooks/checks-bin
 
 # stray access token written by the e2e harness
 .token
+
+# transient homeserver state from the e2e harness
+tests/e2e/synapse_tmp/
+synapse_tmp/

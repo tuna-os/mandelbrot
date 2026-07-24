@@ -1,0 +1,175 @@
+name: MatrixRTC e2e
+
+# The MatrixRTC *conformance* tests (matrixrtc/tests/, including the
+# Element-Call-derived scenarios in element_call_scenarios.rs) run on every PR
+# from the `matrixrtc-conformance` job in ci.yml. They are pure logic and take
+# seconds.
+#
+# This workflow runs the *harness* suite in tests/e2e/, which needs a live
+# synapse + LiveKit + lk-jwt-service stack and a join_call binary built
+# against libwebrtc. It is deliberately NOT a merge gate:
+#
+#   - the cold build of the `livekit` feature pulls libwebrtc and takes ~10
+#     minutes even with a warm cargo cache,
+#   - it pulls ~1.5 GB of container images,
+#   - the media assertions depend on real SFU timing and are inherently
+#     flakier than the unit suite,
+#   - the federated variant runs two homeservers, two SFUs and two auth
+#     services at once.
+#
+# UNVERIFIED PATH — read before trusting a red run. The harness was authored
+# and exercised under **rootless podman + podman-compose** on a developer
+# host. This workflow runs it under **docker compose on ubuntu-latest**,
+# which nobody has executed yet. The first scheduled run is a shakeout, and
+# the two known divergences to look for are:
+#
+#   - `nginx/nginx.conf` and `nginx/nginx-federated.conf` reach the host
+#     gateway as `host.containers.internal`, which is podman's name for it;
+#     Docker calls it `host.docker.internal`. Only the MatrixRTC proxy
+#     `server` blocks use it, which the native clients do not go through, so
+#     this may not bite — but it is the first thing to check.
+#   - `harness-lib.sh`'s `detect_compose` probes podman-compose and
+#     `podman compose` before `docker compose`. ubuntu-latest ships podman,
+#     so the probe may select a provider without a working backend. If so,
+#     force it (the helper honours a preset `COMPOSE`).
+#
+# Runner requirements, and why a GitHub-hosted `ubuntu-latest` runner should
+# be able to host this at all:
+#
+#   - LiveKit runs with `network_mode: host` and binds UDP 50100-50200 (plus
+#     50300-50400 for the second SFU in the federated stack). GitHub-hosted
+#     runners give the job full control of the VM's network namespace, so
+#     host networking and arbitrary UDP ranges are available; there is no
+#     port restriction to work around. This is the one thing that would force
+#     a self-hosted runner on a locked-down executor, so it is called out
+#     here.
+#   - Docker is preinstalled on ubuntu-latest, so no container engine has to
+#     be installed.
+#   - All traffic is loopback: clients reach synapse on 127.0.0.1:8008, the
+#     SFU on 127.0.0.1:7880 and the auth service on 127.0.0.1:6080.
+#   - `run-huddle.sh` starts N `join_call` processes, each a ~250 MB binary
+#     carrying libwebrtc. It is invoked with 5 below to match Element Call's
+#     huddle spec; drop it to 3 if the standard runner cannot take it.
+#
+# The one scenario that cannot run here is Element Call interop
+# (run-interop-ec.sh): it drives a headless Chromium against a published
+# element-call image, which is a second ~1 GB pull plus Playwright browsers.
+# It stays manual — see tests/e2e/CONFORMANCE.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Which harness scripts to run"
+        required: false
+        default: all
+        type: choice
+        options: [all, interop, resilience, restricted-sfu, huddle, federation]
+  schedule:
+    # 04:17 UTC daily, offset off the hour to avoid the scheduling stampede.
+    - cron: "17 4 * * *"
+
+concurrency:
+  group: matrixrtc-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    name: "MatrixRTC e2e harness"
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SUITE: ${{ github.event.inputs.suite || 'all' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: matrixrtc
+          # The livekit feature dominates the build; keep it in its own cache
+          # slot so the fast PR job's cache is not evicted by it.
+          key: livekit
+
+      - name: Install build dependencies for libwebrtc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang libclang-dev pkg-config libssl-dev jq
+
+      - name: Build the join_call example
+        run: |
+          cargo build --manifest-path matrixrtc/Cargo.toml \
+            --features livekit --example join_call
+          ls -l matrixrtc/target/debug/examples/join_call
+
+      - name: Pull the container images
+        working-directory: tests/e2e
+        run: docker compose -f compose.yml -f compose-federated.yml pull -q
+
+      - name: TEST 1 — native <-> native interop
+        if: ${{ env.SUITE == 'all' || env.SUITE == 'interop' }}
+        working-directory: tests/e2e
+        env:
+          JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
+        run: ./run-interop.sh
+
+      - name: TEST 3 — reconnect / resilience
+        if: ${{ env.SUITE == 'all' || env.SUITE == 'resilience' }}
+        working-directory: tests/e2e
+        env:
+          JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
+        run: ./run-resilience.sh
+
+      - name: TEST 4 — restricted SFU / JWT behaviour
+        if: ${{ env.SUITE == 'all' || env.SUITE == 'restricted-sfu' }}
+        working-directory: tests/e2e
+        env:
+          JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
+        run: ./run-restricted-sfu.sh
+
+      - name: TEST 5 — group call (huddle)
+        if: ${{ env.SUITE == 'all' || env.SUITE == 'huddle' }}
+        working-directory: tests/e2e
+        env:
+          JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
+        run: ./run-huddle.sh 5
+
+      - name: TEST 6 — federated call (two homeservers)
+        if: ${{ env.SUITE == 'all' || env.SUITE == 'federation' }}
+        working-directory: tests/e2e
+        env:
+          JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
+        run: |
+          ./run-federation.sh remote-first
+          ./run-federation.sh local-first
+
+      - name: Collect container logs on failure
+        if: ${{ failure() }}
+        working-directory: tests/e2e
+        run: |
+          mkdir -p logs/containers
+          for c in $(docker ps -aq); do
+            name=$(docker inspect --format '{{.Name}}' "$c" | tr -d /)
+            docker logs "$c" >"logs/containers/$name.log" 2>&1 || true
+          done
+
+      - name: Upload the evidence bundles
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: matrixrtc-e2e-logs
+          path: tests/e2e/logs
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Tear the stack down
+        if: ${{ always() }}
+        working-directory: tests/e2e
+        run: |
+          docker compose -f compose.yml -f compose-federated.yml down -v || true
+          docker system prune -af --volumes || true
