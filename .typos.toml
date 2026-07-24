@@ -3,6 +3,8 @@ gir = "gir"
 inout = "inout"
 numer = "numer" # Short for numerator in GStreamer
 ue = "ue" # End of word after mnemonic
+reate = "reate" # End of word after mnemonic
+hread = "hread" # End of word after mnemonic
 Commet = "Commet" # Matrix client name
 
 [type.po]
