@@ -14,12 +14,14 @@
     </p>
     <p>Highlights:</p>
     <ul>
+      <li>Native, end-to-end encrypted voice and video calls (MatrixRTC, experimental)</li>
       <li>Find rooms to discuss your favorite topics, or talk privately to people, securely thanks to end-to-end encryption</li>
-      <li>Send rich formatted messages, files, or your current location</li>
-      <li>Reply to specific messages, react with emoji, mention users or rooms, edit or remove messages</li>
+      <li>Send rich formatted messages, files, voice messages, polls, or your current location</li>
+      <li>Reply to specific messages or in threads, react with emoji, mention users or rooms, edit or remove messages</li>
       <li>View images, and play audio and video directly in the conversation</li>
       <li>See who has read messages, and who is typing</li>
-      <li>Log into multiple accounts at once (with Single-Sign On support)</li>
+      <li>Log into multiple accounts at once, with Single-Sign On and QR code login</li>
+      <li>Fast startup with simplified sliding sync on supported homeservers</li>
     </ul>
   </description>
   <branding>

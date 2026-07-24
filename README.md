@@ -16,11 +16,21 @@ Highlights:
 
 * Find rooms to discuss your favorite topics, or talk privately to people, securely thanks to
   end-to-end encryption
-* Send rich formatted messages, files, or your current location
-* Reply to specific messages, react with emoji, edit or remove messages
+* Send rich formatted messages, files, voice messages, polls, or your current location
+* Reply to specific messages — in the room or in threads — react with emoji, edit or remove messages
 * View images, and play audio and video directly in the conversation
 * See who has read messages, and who is typing
-* Log into multiple accounts at once (with Single-Sign On support)
+* Log into multiple accounts at once, with Single-Sign On, OAuth 2.0, and QR code login
+
+New in Mandelbrot (see [docs/FEATURES.md](docs/FEATURES.md) for details):
+
+* **Native voice & video calls** (experimental) — MatrixRTC/LiveKit built in, end-to-end
+  encrypted, with GNOME-native call UI and call notifications; no embedded browser
+* **Simplified sliding sync** (MSC4186) with automatic classic-sync fallback
+* **QR code login** (MSC4108) — sign in by scanning, or link a new device
+* **Threads** (MSC3440) with an adaptive thread panel
+* **Polls** (MSC3381) — create, vote, end
+* **Voice messages** (MSC3245) — record and send
 
 ## Installation
 

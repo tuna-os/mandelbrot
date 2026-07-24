@@ -10,12 +10,17 @@
   (membership + MSC4140, E2EE key distribution, RtcCallSession, livekit
   connection behind feature flag — 114 ported conformance tests); native call
   UI shell (CallView/prescreen/tiles/call bar, demo-driven).
-- **In progress**: sliding-sync migration (SyncService/RoomListService with
-  classic fallback); QR login (both directions).
-- **Next**: engine↔app integration (RtcClientApi over matrix-sdk, olm-encrypted
-  to-device, sync plumbing, gtk4paintablesink video, portal-v2 call
-  notifications); interop e2e harness (element-call compose stack); threads;
-  polls; spaces; voice-message recording.
+- **Done (2026-07-24)**: sliding sync (with classic fallback) · QR login (both
+  directions) · full native calls (engine + app integration + media via
+  livekit, mounted UI, portal-v2 call notifications) · threads · polls ·
+  voice-message recording · interop e2e harness (phase 1 PASSED: live
+  two-client encrypted call with delayed-leave cleanup on a local
+  synapse+livekit stack). Feature docs: docs/FEATURES.md.
+- **In progress**: spaces hierarchy browsing; e2e phase 2 (headless Element
+  Call interop — the state-key slot-format compatibility question).
+- **Next**: live testing against matrix.org (calls, QR, threads receipts),
+  camera capture, threaded read receipts (MSC3771), location pin-drop,
+  metainfo release notes at first tag.
 
 Goal: take Fractal (the most GNOME-native Matrix client, matrix-sdk 0.18 +
 matrix-sdk-ui) and adopt the modern Matrix Rust SDK features it doesn't use.
