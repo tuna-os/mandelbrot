@@ -20,13 +20,13 @@ deferred item, not a regression.
 
 Element Call v0.22.0 writes the **same device-keyed slot format we emit**:
 
-```
+```text
 type      org.matrix.msc3401.call.member
 state_key _{user_id}_{device_id}_m.call
 ```
 
 The historical user-keyed format (`@user:server` with a `memberships[]` array)
-could not be produced at all: even with `matrix_rtc_mode: "legacy"` *and*
+could not be produced at all: even with `matrix_rtc_mode: "legacy"` _and_
 `feature_use_device_session_member_events: false` (config verified as served),
 EC still wrote the device-keyed key. It is not reachable by configuration in
 this release.
@@ -87,7 +87,7 @@ camera).
 
 In this mode EC sends a sticky **timeline** event instead of room state:
 
-```
+```text
 PUT /rooms/{room}/send/org.matrix.msc4143.rtc.member/{txn}
     ?org.matrix.msc4140.delay=8000&org.matrix.msc4354.sticky_duration_ms=3600000
 {"application":{"type":"m.call"}, "slot_id":"m.call#ROOM",
@@ -108,8 +108,9 @@ variant can be added alongside.
 
 ## Open items
 
-- In the `matrix_2_0` run our membership manager flapped `ProbablyLeft`
+* In the `matrix_2_0` run our membership manager flapped `ProbablyLeft`
   true/false repeatedly. Most likely the 2 s local restart timeout under a
   loaded synapse, but worth confirming it is not a state-machine bug.
-- Prove app-level media E2EE against Element Call by driving the real app.
-- Consider matching `focus_selection` to the peer mode.
+
+* Prove app-level media E2EE against Element Call by driving the real app.
+* Consider matching `focus_selection` to the peer mode.
