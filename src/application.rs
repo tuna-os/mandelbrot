@@ -203,6 +203,39 @@ mod imp {
                         obj.imp().process_session_intent(session_id, intent);
                     })
                     .build(),
+                // Show the call view of a room. This is the action triggered by the accept
+                // button of a notification about an incoming call.
+                gio::ActionEntry::builder(SessionIntent::SHOW_ROOM_CALL_ACTION_NAME)
+                    .parameter_type(Some(&SessionIntent::static_variant_type()))
+                    .activate(|obj: &super::Application, _, variant| {
+                        debug!(
+                            "`{}` action activated",
+                            SessionIntent::SHOW_ROOM_CALL_APP_ACTION_NAME
+                        );
+
+                        let Some((session_id, intent)) =
+                            variant.and_then(SessionIntent::show_room_call_from_variant)
+                        else {
+                            error!(
+                                "Activated `{}` action without the proper payload",
+                                SessionIntent::SHOW_ROOM_CALL_APP_ACTION_NAME
+                            );
+                            return;
+                        };
+
+                        obj.imp().process_session_intent(session_id, intent);
+                    })
+                    .build(),
+                // Withdraw a notification. This is the action triggered by the decline button
+                // of a notification about an incoming call.
+                gio::ActionEntry::builder("withdraw-notification")
+                    .parameter_type(Some(glib::VariantTy::STRING))
+                    .activate(|obj: &super::Application, _, variant| {
+                        if let Some(id) = variant.and_then(glib::Variant::str) {
+                            obj.withdraw_notification(id);
+                        }
+                    })
+                    .build(),
                 // Show an identity verification. This is the action triggered when clicking a
                 // notification about a new verification.
                 gio::ActionEntry::builder(SessionIntent::SHOW_IDENTITY_VERIFICATION_ACTION_NAME)

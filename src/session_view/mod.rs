@@ -7,6 +7,7 @@ use tracing::{error, warn};
 // view.
 #[allow(dead_code)]
 mod call;
+use self::call::present_call_dialog;
 pub(crate) use self::call::{CallConnectionState, CallParticipant, CallState};
 mod content;
 mod create_direct_chat_dialog;
@@ -583,7 +584,30 @@ mod imp {
                 SessionIntent::ShowIdentityVerification(key) => {
                     self.select_identity_verification_by_id(&key);
                 }
+                SessionIntent::ShowRoomCall(room_uri) => {
+                    self.show_room_call(&room_uri);
+                }
             }
+        }
+
+        /// Show the call view of the room with the given URI.
+        pub(super) fn show_room_call(&self, uri: &MatrixIdUri) {
+            let (MatrixIdUri::Room(room_uri)
+            | MatrixIdUri::Event(MatrixEventIdUri { room_uri, .. })) = uri
+            else {
+                return;
+            };
+            let Some(session) = self.session.upgrade() else {
+                return;
+            };
+            if !self.select_room_if_exists(&room_uri.id) {
+                return;
+            }
+            let Some(room) = self.selected_room() else {
+                return;
+            };
+
+            present_call_dialog(&*self.obj(), &session, &room);
         }
 
         /// Show the given `MatrixIdUri`.

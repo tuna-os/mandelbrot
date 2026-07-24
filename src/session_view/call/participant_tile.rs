@@ -78,18 +78,40 @@ mod imp {
                         imp.update_video(participant.camera_on());
                     }
                 ));
-                self.participant_handlers
-                    .replace(vec![speaking_handler, camera_handler]);
+                let video_handler = participant.connect_video_paintable_notify(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |participant| {
+                        imp.update_paintable(participant);
+                    }
+                ));
+                self.participant_handlers.replace(vec![
+                    speaking_handler,
+                    camera_handler,
+                    video_handler,
+                ]);
 
                 self.update_speaking(participant.speaking());
                 self.update_video(participant.camera_on());
+                self.update_paintable(participant);
             } else {
                 self.update_speaking(false);
                 self.update_video(false);
+                self.video_picture.set_paintable(gtk::gdk::Paintable::NONE);
             }
 
             self.participant.replace(participant);
             self.obj().notify_participant();
+        }
+
+        /// Update the video paintable of this tile.
+        ///
+        /// The video is shown whenever a video stream is available, even if
+        /// the participant did not advertise their camera.
+        fn update_paintable(&self, participant: &CallParticipant) {
+            let paintable = participant.video_paintable();
+            self.video_picture.set_paintable(paintable.as_ref());
+            participant.set_camera_on(paintable.is_some());
         }
 
         /// Update the speaking highlight of this tile.

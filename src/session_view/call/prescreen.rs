@@ -193,3 +193,9 @@ impl CallPrescreen {
         self.imp().preview_picture.set_paintable(paintable);
     }
 }
+
+impl Default for CallPrescreen {
+    fn default() -> Self {
+        glib::Object::new()
+    }
+}

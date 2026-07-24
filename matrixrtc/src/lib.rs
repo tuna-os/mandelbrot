@@ -55,3 +55,7 @@ pub use membership_manager::{
 };
 pub use outdated_key_filter::{InboundEncryptionSession, OutdatedKeyFilter};
 pub use session::{MatrixRtcSession, SlotDescription};
+// Re-exports for consumers of the `livekit` feature, so that they don't
+// need their own compatible versions of these dependencies.
+#[cfg(feature = "livekit")]
+pub use {livekit, reqwest};

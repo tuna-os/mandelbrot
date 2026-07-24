@@ -118,10 +118,33 @@ impl Notifications {
         session_id: &str,
         intent: &SessionIntent,
         icon: Option<&gdk::Texture>,
+        accept_call_intent: Option<&SessionIntent>,
     ) {
         let notification = gio::Notification::new(title);
-        notification.set_category(Some("im.received"));
-        notification.set_priority(gio::NotificationPriority::High);
+
+        if let Some(accept_call_intent) = accept_call_intent {
+            // An incoming call. Not all notification servers know the
+            // category or the extra actions, this degrades gracefully to a
+            // regular notification.
+            notification.set_category(Some("call.incoming"));
+            notification.set_priority(gio::NotificationPriority::Urgent);
+
+            let accept_target =
+                accept_call_intent.to_variant_with_session_id(session_id.to_owned());
+            notification.add_button_with_target_value(
+                &gettext("Accept"),
+                accept_call_intent.app_action_name(),
+                Some(&accept_target),
+            );
+            notification.add_button_with_target_value(
+                &gettext("Decline"),
+                "app.withdraw-notification",
+                Some(&id.to_variant()),
+            );
+        } else {
+            notification.set_category(Some("im.received"));
+            notification.set_priority(gio::NotificationPriority::High);
+        }
 
         // Truncate the body if necessary.
         let body = if let Some((end, _)) = body.char_indices().nth(MAX_BODY_CHARS) {
@@ -243,21 +266,21 @@ impl Notifications {
             },
         );
 
-        let (body, is_invite) =
+        let (body, is_invite, is_call) =
             // These are ordered by the likelihood of an event being of the type to reduce checking
             // in the common case.
             if let Some(body) =
                 message_notification_body(&event, &sender_name, !is_direct)
             {
-                (body, false)
+                (body, false, false)
             } else if let Some(body) =
                 incoming_call_notification_body(&event, &sender_name, is_direct)
             {
-                (body, false)
+                (body, false, true)
             } else if let Some(body) =
                 own_invite_notification_body(&event, &sender_name, session.user_id())
             {
-                (body, true)
+                (body, true, false)
             } else {
                 debug!("Received notification for event of unexpected type {event:?}",);
                 return;
@@ -289,6 +312,13 @@ impl Notifications {
         let inhibit_image = is_invite && !session.global_account_data().invite_avatars_enabled();
         let icon = room.avatar_data().as_notification_icon(inhibit_image).await;
 
+        let accept_call_intent = is_call.then(|| {
+            SessionIntent::ShowRoomCall(MatrixIdUri::Room(MatrixRoomIdUri {
+                id: room_id.clone().into(),
+                via: vec![],
+            }))
+        });
+
         Self::send_notification(
             &id,
             &room.display_name(),
@@ -296,6 +326,7 @@ impl Notifications {
             session_id,
             &SessionIntent::ShowMatrixId(matrix_uri),
             icon.as_ref(),
+            accept_call_intent.as_ref(),
         );
 
         self.imp()
@@ -349,6 +380,7 @@ impl Notifications {
             session_id,
             &SessionIntent::ShowIdentityVerification(verification.key()),
             icon.as_ref(),
+            None,
         );
 
         self.imp()
@@ -409,6 +441,7 @@ impl Notifications {
             &body,
             session_id,
             &SessionIntent::ShowIdentityVerification(verification.key()),
+            None,
             None,
         );
 
@@ -603,24 +636,16 @@ pub(crate) fn incoming_call_notification_body(
     match message_event.original_content()? {
         AnyMessageLikeEventContent::RtcNotification(content) => {
             let body = match (content.call_intent, from_dm_room) {
-                (Some(CallIntent::Video), true) => {
-                    gettext("Incoming video call. Use another client to answer.")
-                }
+                (Some(CallIntent::Video), true) => gettext("Incoming video call"),
                 (Some(CallIntent::Video), false) => {
                     // Translators: Do NOT translate the content between '{' and '}', this
                     // is a variable name.
-                    gettext_f(
-                        "Incoming video call from {user}. Use another client to answer.",
-                        &[("user", sender_name)],
-                    )
+                    gettext_f("Incoming video call from {user}", &[("user", sender_name)])
                 }
-                (_, true) => gettext("Incoming call. Use another client to answer."),
+                (_, true) => gettext("Incoming call"),
                 // Translators: Do NOT translate the content between '{' and '}', this
                 // is a variable name.
-                (_, false) => gettext_f(
-                    "Incoming call from {user}. Use another client to answer.",
-                    &[("user", sender_name)],
-                ),
+                (_, false) => gettext_f("Incoming call from {user}", &[("user", sender_name)]),
             };
             Some(body)
         }

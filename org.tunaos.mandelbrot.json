@@ -90,7 +90,8 @@
             "buildsystem": "meson",
             "run-tests": true,
             "config-opts": [
-                "-Dprofile=default"
+                "-Dprofile=default",
+                "-Dcalls-media=true"
             ],
             "sources": [
                 {

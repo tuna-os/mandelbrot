@@ -77,6 +77,11 @@ sourceview = { version = "0.11", package = "sourceview5" }
 [dependencies.mandelbrot-matrixrtc]
 path = "matrixrtc"
 
+[features]
+# Media layer for native calls, using the LiveKit Rust SDK. Off by default
+# to keep local builds light; enabled in the Flatpak manifests.
+calls-media = ["mandelbrot-matrixrtc/livekit"]
+
 [dependencies.matrix-sdk]
 version = "0.18"
 # git = "https://github.com/matrix-org/matrix-rust-sdk.git"

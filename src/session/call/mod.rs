@@ -29,6 +29,8 @@ use tokio::sync::mpsc;
 use tracing::{debug, error, warn};
 
 mod client_api;
+#[cfg(feature = "calls-media")]
+mod media;
 
 pub(crate) use self::client_api::SdkRtcClientApi;
 use super::Session;
@@ -63,11 +65,25 @@ struct ActiveCall {
     engine: Arc<RtcCallSession>,
     state: CallState,
     pump: glib::JoinHandle<()>,
+    handlers: Vec<glib::SignalHandlerId>,
+    /// The media connection of this call.
+    #[cfg(feature = "calls-media")]
+    media: Option<media::MediaHandle>,
+    /// The task applying media events to the call state.
+    #[cfg(feature = "calls-media")]
+    media_pump: Option<glib::JoinHandle<()>>,
 }
 
 impl Drop for ActiveCall {
     fn drop(&mut self) {
         self.pump.abort();
+        for handler in self.handlers.drain(..) {
+            self.state.disconnect(handler);
+        }
+        #[cfg(feature = "calls-media")]
+        if let Some(media_pump) = self.media_pump.take() {
+            media_pump.abort();
+        }
     }
 }
 
@@ -95,6 +111,8 @@ mod imp {
         pub(super) active_calls: RefCell<HashMap<OwnedRoomId, usize>>,
         /// The ongoing calls we joined or are joining.
         pub(super) calls: RefCell<HashMap<OwnedRoomId, super::ActiveCall>>,
+        /// The call states driving the call UI, per room.
+        pub(super) states: RefCell<HashMap<OwnedRoomId, CallState>>,
         /// The preferred foci from the `.well-known` of our homeserver.
         pub(super) preferred_foci: RefCell<Vec<Transport>>,
         /// Guards keeping the SDK event handlers alive.
@@ -366,6 +384,31 @@ impl CallManager {
         ));
     }
 
+    /// The call state driving the call UI for the given room, creating it if
+    /// needed.
+    ///
+    /// Returns `None` if the session is gone.
+    pub(crate) fn get_or_create_call_state(&self, room_id: &RoomId) -> Option<CallState> {
+        if let Some(state) = self.imp().states.borrow().get(room_id) {
+            return Some(state.clone());
+        }
+
+        let session = self.session()?;
+        let state = CallState::new();
+        let room_name = session
+            .room_list()
+            .get(room_id)
+            .map_or_else(|| room_id.to_string(), |room| room.display_name());
+        state.set_room_name(room_name);
+        state.set_encrypted(true);
+
+        self.imp()
+            .states
+            .borrow_mut()
+            .insert(room_id.to_owned(), state.clone());
+        Some(state)
+    }
+
     /// Join the call in the given room.
     ///
     /// Returns the state driving the call UI, or `None` if the session is
@@ -406,10 +449,18 @@ impl CallManager {
             }
         };
 
-        let state = CallState::new();
-        state.set_room_name(room_id.to_string());
-        state.set_encrypted(true);
+        let state = self.get_or_create_call_state(room_id)?;
         state.set_connection_state(CallConnectionState::Connecting);
+
+        // Leave the call when the user hangs up.
+        let ended_room_id = room_id.to_owned();
+        let ended_handler = state.connect_ended(clone!(
+            #[weak(rename_to = obj)]
+            self,
+            move |_| {
+                obj.leave_call(&ended_room_id);
+            }
+        ));
 
         // Forward the engine events into the call state.
         let mut events = engine.subscribe();
@@ -425,12 +476,26 @@ impl CallManager {
             }
         ));
 
+        #[cfg(feature = "calls-media")]
+        let (media, media_pump, media_ended_handler) =
+            self.start_media(&client, room_id, device_id.to_string(), &engine, &state);
+
+        #[cfg(feature = "calls-media")]
+        let handlers = vec![ended_handler, media_ended_handler];
+        #[cfg(not(feature = "calls-media"))]
+        let handlers = vec![ended_handler];
+
         self.imp().calls.borrow_mut().insert(
             room_id.to_owned(),
             ActiveCall {
                 engine: Arc::clone(&engine),
                 state: state.clone(),
                 pump,
+                handlers,
+                #[cfg(feature = "calls-media")]
+                media: Some(media),
+                #[cfg(feature = "calls-media")]
+                media_pump: Some(media_pump),
             },
         );
 
@@ -447,6 +512,50 @@ impl CallManager {
         });
 
         Some(state)
+    }
+
+    /// Start the media connection for the given call.
+    #[cfg(feature = "calls-media")]
+    fn start_media(
+        &self,
+        client: &Client,
+        room_id: &RoomId,
+        device_id: String,
+        engine: &Arc<RtcCallSession>,
+        state: &CallState,
+    ) -> (
+        media::MediaHandle,
+        glib::JoinHandle<()>,
+        glib::SignalHandlerId,
+    ) {
+        let foci = self.imp().preferred_foci.borrow().clone();
+        let (handle, mut media_events) = media::start(
+            client.clone(),
+            room_id.to_owned(),
+            device_id,
+            Arc::clone(engine),
+            foci,
+        );
+        handle.set_muted(state.muted());
+
+        // Apply the media events to the call state.
+        let media_pump = spawn!(clone!(
+            #[weak(rename_to = state)]
+            state,
+            async move {
+                while let Some(event) = media_events.recv().await {
+                    apply_media_event(&state, event);
+                }
+            }
+        ));
+
+        // Mute and unmute the microphone with the state.
+        let muted = handle.muted_flag();
+        let muted_handler = state.connect_muted_notify(move |state| {
+            muted.store(state.muted(), std::sync::atomic::Ordering::SeqCst);
+        });
+
+        (handle, media_pump, muted_handler)
     }
 
     /// Leave the call in the given room.
@@ -508,14 +617,91 @@ fn apply_engine_event(state: &CallState, own_user_id: &str, event: &RtcCallSessi
     }
 }
 
+/// Apply a media event to the call state.
+#[cfg(feature = "calls-media")]
+fn apply_media_event(state: &CallState, event: media::MediaEvent) {
+    match event {
+        media::MediaEvent::Connected => {}
+        media::MediaEvent::VideoFrame {
+            identity,
+            rgba,
+            width,
+            height,
+        } => {
+            let Some(participant) = find_participant(state, &identity) else {
+                return;
+            };
+            let bytes = glib::Bytes::from_owned(rgba);
+            let texture = gtk::gdk::MemoryTexture::new(
+                i32::try_from(width).unwrap_or(i32::MAX),
+                i32::try_from(height).unwrap_or(i32::MAX),
+                gtk::gdk::MemoryFormat::R8g8b8a8,
+                &bytes,
+                (width * 4) as usize,
+            );
+            participant.set_video_paintable(Some(texture.upcast::<gtk::gdk::Paintable>()));
+        }
+        media::MediaEvent::VideoEnded { identity } => {
+            if let Some(participant) = find_participant(state, &identity) {
+                participant.set_video_paintable(None::<gtk::gdk::Paintable>);
+            }
+        }
+        media::MediaEvent::Ended { error } => {
+            if error.is_some() && state.connection_state() != CallConnectionState::Disconnected {
+                state.set_connection_state(CallConnectionState::Failed);
+            }
+        }
+    }
+}
+
+/// Find the participant with the given RTC backend identity in the call
+/// state.
+#[cfg(feature = "calls-media")]
+fn find_participant(state: &CallState, identity: &str) -> Option<CallParticipant> {
+    let participants = state.participants();
+    (0..participants.n_items()).find_map(|i| {
+        participants
+            .item(i)
+            .and_downcast::<CallParticipant>()
+            .filter(|participant| participant.identity() == identity)
+    })
+}
+
 /// Update the participants list of the call state from the given
 /// memberships.
 fn update_participants(state: &CallState, own_user_id: &str, memberships: &[CallMembership]) {
     let participants = state.participants();
-    participants.remove_all();
 
+    let identities = memberships
+        .iter()
+        .filter(|membership| membership.user_id() != own_user_id)
+        .map(CallMembership::rtc_backend_identity)
+        .collect::<Vec<_>>();
+
+    // Remove the leavers, keeping the tiles of everyone else.
+    let mut i = 0;
+    while i < participants.n_items() {
+        let participant = participants.item(i).and_downcast::<CallParticipant>();
+        if participant.is_some_and(|participant| identities.contains(&participant.identity())) {
+            i += 1;
+        } else {
+            participants.remove(i);
+        }
+    }
+
+    // Add the joiners.
     for membership in memberships {
         if membership.user_id() == own_user_id {
+            continue;
+        }
+        let identity = membership.rtc_backend_identity();
+        let exists = (0..participants.n_items()).any(|i| {
+            participants
+                .item(i)
+                .and_downcast::<CallParticipant>()
+                .is_some_and(|participant| participant.identity() == identity)
+        });
+        if exists {
             continue;
         }
 
@@ -524,7 +710,11 @@ fn update_participants(state: &CallState, own_user_id: &str, memberships: &[Call
             |_| user_id.to_owned(),
             |user_id| user_id.localpart().to_owned(),
         );
-        participants.append(&CallParticipant::new(&display_name, false));
+        participants.append(&CallParticipant::with_identity(
+            &identity,
+            &display_name,
+            false,
+        ));
     }
 }
 

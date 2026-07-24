@@ -37,9 +37,15 @@ mod imp_participant {
     #[derive(Debug, Default, glib::Properties)]
     #[properties(wrapper_type = super::CallParticipant)]
     pub struct CallParticipant {
+        /// The identity of this participant on the RTC backend.
+        #[property(get, set, construct_only)]
+        identity: RefCell<String>,
         /// The display name of this participant.
         #[property(get, set = Self::set_display_name, explicit_notify)]
         display_name: RefCell<String>,
+        /// The paintable displaying the video stream of this participant.
+        #[property(get, set, nullable)]
+        video_paintable: RefCell<Option<gtk::gdk::Paintable>>,
         /// The avatar data of this participant.
         #[property(get, set, nullable)]
         avatar_data: RefCell<Option<AvatarData>>,
@@ -92,10 +98,17 @@ glib::wrapper! {
 impl CallParticipant {
     /// Create a new participant with the given display name.
     pub fn new(display_name: &str, is_local: bool) -> Self {
+        Self::with_identity("", display_name, is_local)
+    }
+
+    /// Create a new participant with the given RTC backend identity and
+    /// display name.
+    pub fn with_identity(identity: &str, display_name: &str, is_local: bool) -> Self {
         let avatar_data = AvatarData::new();
         avatar_data.set_display_name(display_name.to_owned());
 
         glib::Object::builder()
+            .property("identity", identity)
             .property("display-name", display_name)
             .property("avatar-data", avatar_data)
             .property("is-local", is_local)

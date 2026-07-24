@@ -12,6 +12,12 @@ option(
   description: 'The build profile for Fractal. One of "default", "beta", "development" or "hack".'
 )
 option(
+  'calls-media',
+  type : 'boolean',
+  value : false,
+  description: 'Whether to enable the media layer for native calls (LiveKit).'
+)
+option(
   'disable-glycin-sandbox',
   type : 'boolean',
   value : false,

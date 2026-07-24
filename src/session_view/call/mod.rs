@@ -9,6 +9,7 @@ use gettextrs::gettext;
 use gtk::{glib, glib::clone};
 
 mod call_bar;
+mod dialog;
 mod participant_tile;
 mod prescreen;
 mod state;
@@ -16,10 +17,34 @@ mod state;
 #[allow(unused_imports)]
 pub(crate) use self::{
     call_bar::CallBar,
+    dialog::CallDialog,
     participant_tile::CallParticipantTile,
     prescreen::CallPrescreen,
     state::{CallConnectionState, CallParticipant, CallState},
 };
+use crate::session::{Room, Session};
+
+/// Present the call dialog for the given room.
+///
+/// Joining from the prescreen starts the call via the session's
+/// [`CallManager`](crate::session::CallManager).
+pub(crate) fn present_call_dialog(parent: &impl IsA<gtk::Widget>, session: &Session, room: &Room) {
+    let call_manager = session.call_manager();
+    let Some(state) = call_manager.get_or_create_call_state(room.room_id()) else {
+        return;
+    };
+
+    let dialog = CallDialog::new(&state);
+    let room_id = room.room_id().to_owned();
+    dialog.connect_join(clone!(
+        #[weak]
+        call_manager,
+        move |_| {
+            call_manager.join_call(&room_id);
+        }
+    ));
+    dialog.present(Some(parent));
+}
 
 /// The delay after which the bars are hidden when there is no motion, in
 /// seconds.
@@ -353,5 +378,11 @@ impl CallView {
     /// `gtk4paintablesink` fed by the local camera.
     pub fn set_self_paintable(&self, paintable: Option<&gtk::gdk::Paintable>) {
         self.imp().self_picture.set_paintable(paintable);
+    }
+}
+
+impl Default for CallView {
+    fn default() -> Self {
+        glib::Object::new()
     }
 }

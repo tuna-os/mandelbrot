@@ -87,6 +87,12 @@ run_command(
 
 # Cargo settings
 cargo_options = ['--manifest-path', meson.project_source_root() / 'Cargo.toml']
+
+if get_option('calls-media')
+    cargo_options += ['--features', 'calls-media']
+    message('Native call media (LiveKit) enabled')
+endif
+
 cargo_build_options = cargo_options
 
 if profile == 'Devel'
