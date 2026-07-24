@@ -1,9 +1,11 @@
 name: Build and Publish Flatpak OCI
 
+# Publishing is deliberately NOT triggered by every push to main: a publish
+# run is a third heavy flatpak build competing with CI's two for the same
+# runners, which left CI queued for the better part of an hour. Releases go
+# out on tags, or on demand.
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
   workflow_dispatch:

@@ -19,3 +19,6 @@ target/
 # Dynamically-generated files
 src/config.rs
 hooks/checks-bin
+
+# stray access token written by the e2e harness
+.token
