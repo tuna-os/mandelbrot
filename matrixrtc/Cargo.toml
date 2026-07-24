@@ -48,6 +48,8 @@ name = "join_call"
 required-features = ["livekit"]
 
 [dev-dependencies]
+# For the `join_call` example (audio frame streams).
+futures = "0.3"
 tokio = { version = "1", features = [
     "macros",
     "rt-multi-thread",
