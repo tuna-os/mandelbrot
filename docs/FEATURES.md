@@ -11,6 +11,14 @@ implementation lives in the `mandelbrot-matrixrtc` crate and follows the same
 semantics as Element Call (its conformance suite is ported from matrix-js-sdk:
 114+ tests run in CI, plus a live interop harness under `tests/e2e/`).
 
+**Interop with Element Call is verified.** Against Element Call v0.22.0 on a
+live stack, both clients write the same membership format, read each other,
+and connect calls in either direction, with crash cleanup working across
+implementations — see [tests/e2e/CONFORMANCE.md](../tests/e2e/CONFORMANCE.md)
+for the full report, including the two known gaps (media encryption with
+Element Call is expected to work but is not yet proven end to end, and Element
+Call's experimental MSC4354 "matrix 2.0" mode is not supported yet).
+
 - **Join a call**: rooms with an active call (or MSC3417 video rooms) show a
   camera button in the room header. It opens a pre-join screen (mic/camera
   toggles) and then the call view.

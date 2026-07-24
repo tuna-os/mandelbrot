@@ -16,8 +16,12 @@
   voice-message recording · interop e2e harness (phase 1 PASSED: live
   two-client encrypted call with delayed-leave cleanup on a local
   synapse+livekit stack). Feature docs: docs/FEATURES.md.
-- **In progress**: spaces hierarchy browsing; e2e phase 2 (headless Element
-  Call interop — the state-key slot-format compatibility question).
+- **Interop verified (2026-07-24)**: phase 2 ran against Element Call v0.22.0 —
+  same membership format both ways, calls connect in both directions,
+  delayed-leave cleanup crosses implementations. See tests/e2e/CONFORMANCE.md.
+  Open: app-level media E2EE with EC (harness client has no Olm stack, the app
+  does), and MSC4354 sticky events (EC's matrix_2_0 mode).
+- **Done also**: spaces hierarchy browsing.
 - **Next**: live testing against matrix.org (calls, QR, threads receipts),
   camera capture, threaded read receipts (MSC3771), location pin-drop,
   metainfo release notes at first tag.
