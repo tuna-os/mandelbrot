@@ -54,6 +54,9 @@ function chromiumPath() {
 }
 
 const interesting = (url) =>
+  url.includes("/sendToDevice/") ||
+  url.includes("/keys/claim") ||
+  url.includes("/keys/query") ||
   url.includes("/state/org.matrix.msc3401.call.member") ||
   url.includes("/state/m.call.member") ||
   url.includes("/state/org.matrix.msc4143.rtc.member") ||

@@ -76,7 +76,23 @@ fi
 curl -sf http://127.0.0.1:7880/ >/dev/null || die "livekit not reachable"
 
 # --- Element Call --------------------------------------------------------
-sed "s/@MODE@/$MODE/" element-call/config-template.json >"$LOG_DIR/ec-config.json"
+# mode "default": leave matrix_rtc_mode unset, i.e. whatever the build
+# defaults to (what a real deployment would do).
+if [ "$MODE" = default ]; then
+    jq 'del(.matrix_rtc_mode)' element-call/config-template.json >"$LOG_DIR/ec-config.json.tmp"
+else
+    sed "s/@MODE@/$MODE/" element-call/config-template.json >"$LOG_DIR/ec-config.json.tmp"
+fi
+# DEVICE_EVENTS=0 turns off feature_use_device_session_member_events, i.e.
+# EC falls back to legacy user-keyed membership state events. This is the
+# format we must be able to READ from other clients.
+if [ "${DEVICE_EVENTS:-1}" = 0 ]; then
+    jq '.features.feature_use_device_session_member_events = false' \
+        "$LOG_DIR/ec-config.json.tmp" >"$LOG_DIR/ec-config.json"
+else
+    mv "$LOG_DIR/ec-config.json.tmp" "$LOG_DIR/ec-config.json"
+fi
+rm -f "$LOG_DIR/ec-config.json.tmp"
 podman rm -f mandelbrot-ec >/dev/null 2>&1
 podman run -d --name mandelbrot-ec --network host \
     -v "$LOG_DIR/ec-config.json:/app/config.json:Z" "$EC_IMAGE" >/dev/null ||
@@ -134,8 +150,10 @@ start_driver() { # scenario room_id
         "$PW_IMAGE" bash -lc \
         "mkdir -p /tmp/w && cd /tmp/w && cp /work/ec-driver.mjs . &&
          npm init -y >/dev/null 2>&1 &&
-         npm i --no-audit --no-fund playwright-core@$PW_VERSION >/dev/null 2>&1 &&
-         node ec-driver.mjs" >/dev/null || die "failed to start driver"
+         (node -e \"require.resolve('playwright-core')\" 2>/dev/null ||
+          npm i --no-audit --no-fund playwright-core@$PW_VERSION >/dev/null 2>&1) &&
+         NODE_PATH=\$(npm root -g) node ec-driver.mjs" >/dev/null ||
+        die "failed to start driver"
     (podman logs -f mandelbrot-ec-driver >"$LOG_DIR/driver.log" 2>&1 &)
 }
 wait_driver_event() { # regex timeout_s -> matching line
@@ -186,11 +204,18 @@ if [ "$SCENARIO" = ec-first ]; then
     fi
     start_our_client "$ROOM"
 else
-    log "creating the room ourselves"
+    log "creating the room ourselves (ENCRYPTED=${ENCRYPTED:-0})"
+    # ENCRYPTED=1 adds m.room.encryption, which flips Element Call from
+    # E2eeType.NONE to E2eeType.PER_PARTICIPANT (see EC
+    # src/e2ee/sharedKeyManagement.ts useRoomEncryptionSystem) and therefore
+    # to Olm-encrypted to-device key transport.
+    CREATE_BODY='{"preset":"public_chat","name":"matrixrtc interop","power_level_content_override":{"events":{"org.matrix.msc3401.call.member":0,"m.call.member":0,"org.matrix.msc4143.rtc.member":0,"org.matrix.msc4075.rtc.notification":0,"m.rtc.notification":0}}}'
+    if [ "${ENCRYPTED:-0}" = 1 ]; then
+        CREATE_BODY=$(jq -c '.initial_state = [{"type":"m.room.encryption","state_key":"","content":{"algorithm":"m.megolm.v1.aes-sha2"}}]' <<<"$CREATE_BODY")
+    fi
     ROOM=$(curl -sf -X POST "$HS/_matrix/client/v3/createRoom" \
         -H "Authorization: Bearer $OUR_TOKEN" -H 'Content-Type: application/json' \
-        -d '{"preset":"public_chat","name":"matrixrtc interop","power_level_content_override":{"events":{"org.matrix.msc3401.call.member":0,"m.call.member":0,"org.matrix.msc4143.rtc.member":0,"org.matrix.msc4075.rtc.notification":0,"m.rtc.notification":0}}}' |
-        jq -r .room_id)
+        -d "$CREATE_BODY" | jq -r .room_id)
     [ -n "$ROOM" ] && [ "$ROOM" != null ] || die "creating the room"
     log "room: $ROOM; joining the call with our client"
     start_our_client "$ROOM"
