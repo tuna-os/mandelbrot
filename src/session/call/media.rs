@@ -21,6 +21,8 @@ use ruma::{OwnedRoomId, api::client::account::request_openid_token};
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, error, warn};
 
+use crate::spawn_tokio;
+
 /// The sample rate of the published microphone track.
 const MIC_SAMPLE_RATE: u32 = 48_000;
 /// The number of channels of the published microphone track.
