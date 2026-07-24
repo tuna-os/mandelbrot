@@ -3,8 +3,8 @@ using Adw 1;
 
 template $Greeter: Adw.NavigationPage {
   tag: "greeter";
-  // Translators: Fractal is the application name.
-  title: _("Welcome to Fractal");
+  // Translators: Mandelbrot is the application name.
+  title: _("Welcome to Mandelbrot");
 
   child: Adw.ToolbarView {
     [top]
@@ -25,11 +25,11 @@ template $Greeter: Adw.NavigationPage {
       Gtk.Button {
         visible: bind back_button.visible inverted;
         action-name: "app.about";
-        tooltip-text: _("About Fractal");
+        tooltip-text: _("About Mandelbrot");
         icon-name: "about-symbolic";
 
         accessibility {
-          label: _("About Fractal");
+          label: _("About Mandelbrot");
         }
       }
 
@@ -37,11 +37,11 @@ template $Greeter: Adw.NavigationPage {
       Gtk.Button {
         visible: bind back_button.visible;
         action-name: "app.about";
-        tooltip-text: _("About Fractal");
+        tooltip-text: _("About Mandelbrot");
         icon-name: "about-symbolic";
 
         accessibility {
-          label: _("About Fractal");
+          label: _("About Mandelbrot");
         }
       }
     }
@@ -80,8 +80,8 @@ template $Greeter: Adw.NavigationPage {
                 wrap: true;
                 wrap-mode: word_char;
                 justify: center;
-                // Translators: Fractal is the application name.
-                label: _("Welcome to Fractal");
+                // Translators: Mandelbrot is the application name.
+                label: _("Welcome to Mandelbrot");
 
                 styles [
                   "title-1",

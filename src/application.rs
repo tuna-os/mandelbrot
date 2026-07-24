@@ -274,13 +274,13 @@ mod imp {
             let dialog = adw::AboutDialog::builder()
                 .application_name(APP_NAME)
                 .application_icon(config::APP_ID)
-                .developer_name(gettext("The Fractal Team"))
+                .developer_name(gettext("TunaOS"))
                 .license_type(gtk::License::Gpl30)
                 .website(APP_HOMEPAGE_URL)
                 .issue_url("https://gitlab.gnome.org/World/fractal/-/issues")
                 .support_url("https://matrix.to/#/#fractal:gnome.org")
                 .version(config::VERSION)
-                .copyright(gettext("© The Fractal Team"))
+                .copyright(gettext("© The Fractal Team and Mandelbrot contributors"))
                 .developers([
                     "Alejandro Domínguez",
                     "Alexandre Franke",
@@ -536,7 +536,7 @@ impl Application {
 
     /// Run Fractal.
     pub(crate) fn run(&self) {
-        info!("Fractal ({})", config::APP_ID);
+        info!("{} ({})", APP_NAME, config::APP_ID);
         info!("Version: {} ({})", config::VERSION, config::PROFILE);
         info!("Datadir: {}", config::PKGDATADIR);
 

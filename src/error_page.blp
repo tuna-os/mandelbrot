@@ -16,11 +16,11 @@ template $ErrorPage: Adw.Bin {
       Gtk.Button {
         visible: bind account_switcher.visible inverted;
         action-name: "app.about";
-        tooltip-text: _("About Fractal");
+        tooltip-text: _("About Mandelbrot");
         icon-name: "about-symbolic";
 
         accessibility {
-          label: _("About Fractal");
+          label: _("About Mandelbrot");
         }
       }
 
@@ -28,11 +28,11 @@ template $ErrorPage: Adw.Bin {
       Gtk.Button {
         visible: bind account_switcher.visible;
         action-name: "app.about";
-        tooltip-text: _("About Fractal");
+        tooltip-text: _("About Mandelbrot");
         icon-name: "about-symbolic";
 
         accessibility {
-          label: _("About Fractal");
+          label: _("About Mandelbrot");
         }
       }
     }
@@ -56,7 +56,7 @@ template $ErrorPage: Adw.Bin {
                 wrap-mode: word_char;
                 xalign: 0.0;
                 label: _(
-                  "Fractal relies on a Secret Portal to manage your sensitive session information and an error occurred while we were trying to restore your sessions."
+                  "Mandelbrot relies on a Secret Portal to manage your sensitive session information and an error occurred while we were trying to restore your sessions."
                 );
 
                 styles [
@@ -116,7 +116,7 @@ template $ErrorPage: Adw.Bin {
                       wrap-mode: word_char;
                       xalign: 0.0;
                       label: _(
-                        "If you prefer to use a Secret Service Provider instead, you need to allow Fractal to interact with it, like this:"
+                        "If you prefer to use a Secret Service Provider instead, you need to allow Mandelbrot to interact with it, like this:"
                       );
 
                       styles [

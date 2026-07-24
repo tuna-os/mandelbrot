@@ -37,7 +37,7 @@ fn local_server_landing_page() -> LocalServerResponse {
         &mut html,
         "message",
         &gettext(
-            "The authorization step is complete. You can close this page and go back to Fractal.",
+            "The authorization step is complete. You can close this page and go back to Mandelbrot.",
         ),
     );
     replace_html_variable(&mut html, "icon", &svg_icon());

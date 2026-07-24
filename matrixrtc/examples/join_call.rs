@@ -12,18 +12,18 @@
 //!
 //! Options:
 //! - `--focus URL`: the MSC4195 LiveKit JWT service URL to advertise as our
-//!   preferred focus. Required when we are the first participant (otherwise
-//!   the focus is taken from the oldest membership of the session).
-//! - `--assert-peer MEMBER_ID`: assertion mode for the e2e interop test
-//!   (see `tests/e2e/` in the repository root). `MEMBER_ID` is
+//!   preferred focus. Required when we are the first participant (otherwise the
+//!   focus is taken from the oldest membership of the session).
+//! - `--assert-peer MEMBER_ID`: assertion mode for the e2e interop test (see
+//!   `tests/e2e/` in the repository root). `MEMBER_ID` is
 //!   `{user_id}:{device_id}`. The example prints `ASSERTIONS PASSED` once it
-//!   has (a) seen the peer's call membership, (b) subscribed to a media
-//!   track of the peer, (c) received an encryption key from the peer,
-//!   (d) seen the frame cryptor of the peer reach the `Ok` state, and
-//!   (e) received audio frames from the peer. If this does not
-//!   happen within `--assert-timeout` seconds (default 90), it prints
-//!   `ASSERTIONS FAILED` and exits 1. After passing it keeps running (so the
-//!   test can exercise graceful/ungraceful leave) until SIGINT.
+//!   has (a) seen the peer's call membership, (b) subscribed to a media track
+//!   of the peer, (c) received an encryption key from the peer, (d) seen the
+//!   frame cryptor of the peer reach the `Ok` state, and (e) received audio
+//!   frames from the peer. If this does not happen within `--assert-timeout`
+//!   seconds (default 90), it prints `ASSERTIONS FAILED` and exits 1. After
+//!   passing it keeps running (so the test can exercise graceful/ungraceful
+//!   leave) until SIGINT.
 //!
 //! This is a development harness, not a complete client:
 //! - To-device messages are sent WITHOUT encryption (the real client must use

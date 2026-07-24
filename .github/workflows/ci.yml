@@ -37,8 +37,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: matrixrtc
-      - name: Format check
-        run: cargo fmt --manifest-path matrixrtc/Cargo.toml --check
+      # Formatting is enforced tree-wide by the checks job, which uses the
+      # nightly rustfmt this repo's rustfmt.toml requires.
       - name: Clippy
         run: cargo clippy --manifest-path matrixrtc/Cargo.toml --all-targets -- -D warnings
       - name: Run conformance tests

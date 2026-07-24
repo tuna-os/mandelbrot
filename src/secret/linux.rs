@@ -172,7 +172,7 @@ async fn store_session_inner(session: StoredSession) -> Result<(), oo7::Error> {
             &gettext_f(
                 // Translators: Do NOT translate the content between '{' and '}', this is a
                 // variable name.
-                "Fractal: Matrix credentials for {user_id}",
+                "Mandelbrot: Matrix credentials for {user_id}",
                 &[("user_id", session.user_id.as_str())],
             ),
             &attributes,
