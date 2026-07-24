@@ -94,7 +94,10 @@ pub(super) fn start(
     let muted = Arc::new(AtomicBool::new(false));
 
     let task_muted = Arc::clone(&muted);
-    let task = tokio::spawn(async move {
+    // Must go through the shared runtime: this is called from a GTK signal
+    // handler on the main thread, where `tokio::spawn` has no reactor and
+    // aborts the process.
+    let task = spawn_tokio!(async move {
         let error = match run(
             client,
             room_id,
