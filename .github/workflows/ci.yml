@@ -66,6 +66,54 @@ jobs:
             flatpak-builder --disable-rofiles-fuse --build-shell=fractal \
             flatpak_app org.tunaos.mandelbrot.json
 
+  walkthrough:
+    name: "Screenshot walkthrough (headless smoke)"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install SDK extensions
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08
+      - name: Install screenshot tooling
+        # netpbm rather than ImageMagick: the xwd delegate is disabled in most
+        # distro policy files.
+        run: dnf install -y -q xorg-x11-server-Xvfb xwd netpbm-progs xdpyinfo python3
+      - name: Initialize flatpak build sandbox
+        run: |
+          flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse \
+            --stop-at=fractal flatpak_app org.tunaos.mandelbrot.json
+      - name: Build and install the app into the sandbox
+        run: |
+          cat > /tmp/build.sh <<'SH'
+          set -e
+          export PATH=/usr/lib/sdk/rust-stable/bin:$PATH
+          meson setup _build -Dprofile=default --prefix=/app
+          ninja -C _build install
+          SH
+          flatpak build --share=network --filesystem=host flatpak_app sh /tmp/build.sh
+      - name: Walk every session-less UI state
+        # This is the crash-free-navigation gate: the driver only reaches the
+        # final `about` marker if every step below it constructed and rendered.
+        # The logged-in pass needs a seeded homeserver and runs out of band
+        # (see docs/guide/README.md).
+        run: |
+          scripts/walkthrough.sh \
+            scripts/walkthrough-flatpak-run.sh flatpak_app | tee /tmp/walkthrough.log
+          grep -q "captured about" /tmp/walkthrough.log || {
+            echo "the app did not reach the final walkthrough step"
+            exit 1
+          }
+      - name: Upload the screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: walkthrough-screenshots
+          path: docs/guide/*.png
+
   flatpak:
     name: "Flatpak build + tests"
     runs-on: ubuntu-latest

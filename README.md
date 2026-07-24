@@ -4,6 +4,8 @@
 
 # Mandelbrot
 
+<img src="screenshots/main.png" alt="A Matrix room in Mandelbrot, with a poll and a voice message" width="800" />
+
 </div>
 
 Mandelbrot is a Matrix messaging app for GNOME written in Rust, forked from

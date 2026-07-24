@@ -24,6 +24,8 @@ mod session_view;
 mod system_settings;
 mod user_facing_error;
 mod utils;
+// Screenshot walkthrough mode, gated on MANDELBROT_WALKTHROUGH=1.
+mod walkthrough;
 mod window;
 
 use std::sync::LazyLock;

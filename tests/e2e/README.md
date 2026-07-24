@@ -12,11 +12,20 @@ sessions (MSC4143 memberships, MSC4140 delayed leave, MSC4195 SFU auth,
 | Path                    | Purpose                                                              |
 | ----------------------- | -------------------------------------------------------------------- |
 | `compose.yml`           | Minimal single-homeserver stack (synapse, nginx, livekit, lk-jwt)    |
+| `compose-federated.yml` | Overlay adding a **second** homeserver, SFU and auth service, federated with the first — the topology element-call uses for its federation specs |
 | `synapse/homeserver.yaml` | Synapse config: MSC4140 (`max_event_delay_duration`), MSC4222, MSC4354, open registration |
-| `livekit/livekit.yaml`  | LiveKit SFU config (host networking, dev key `devkey:secret`)        |
+| `synapse/homeserver-federated.yaml`, `synapse/homeserver-othersite.yaml` | The two sites of the federated stack (mutual `trusted_key_servers`, `federation_verify_certificates: false`) |
+| `livekit/livekit.yaml`, `livekit/livekit-othersite.yaml` | LiveKit SFU configs (host networking, dev key `devkey:secret`); site 2 uses ports 17880/17881 and UDP 50300-50400 |
 | `nginx/nginx.conf`      | TLS at `synapse.m.localhost` (needed by lk-jwt federation OpenID check) + plain-http client access on host port 8008 |
+| `nginx/nginx-federated.conf` | Same, for both sites; site 2 is reachable on host port 18008 (http) and shares host port 8448 (https) routed by SNI |
 | `tls/`                  | Self-signed `*.m.localhost` dev certificates, copied verbatim from element-call's `backend/` (TESTING ONLY) |
+| `harness-lib.sh`        | Shared helpers (stack lifecycle, registration, PASS/FAIL recording) for the scripts below |
 | `run-interop.sh`        | TEST 1: two native clients in the same call, full assertion suite    |
+| `run-interop-ec.sh`     | TEST 2: our client ↔ a real Element Call in a browser (manual)       |
+| `run-resilience.sh`     | TEST 3: EC's `sfu-reconnect-bug.spec.ts` + `reconnect.spec.ts` + SFU restart |
+| `run-restricted-sfu.sh` | TEST 4: EC's `restricted-sfu.spec.ts` — JWT-vs-membership ordering, SFU auth unavailable |
+| `run-huddle.sh`         | TEST 5: EC's `widget/huddle-call.test.ts` — a five-participant call  |
+| `run-federation.sh`     | TEST 6: EC's `widget/federation-oldest-membership-bug.spec.ts` and `widget/federated-call.test.ts`, across two homeservers |
 
 The configs are adapted from element-call's `docker-compose-dev.yml` +
 `backend/` dev fixtures, minimized to a single site.
@@ -74,17 +83,43 @@ Client and state logs land in `logs/<timestamp>/`.
 6. SIGINT on the other client: graceful leave clears the membership
    immediately.
 
-## CI design (future)
+## CI
 
-This is intended to become a **manual/nightly** CI job, not per-MR:
+`.github/workflows/matrixrtc-e2e.yml` runs this suite on **manual dispatch
+and nightly**, never on the PR merge gate:
 
 - it pulls ~1.5 GB of container images and builds libwebrtc (~10 min cold),
-- it needs a runner with rootless podman and UDP ports 50100-50200,
+- it needs UDP 50100-50200 (and 50300-50400 for the federated stack) plus
+  host networking for LiveKit,
 - media timing makes it inherently flakier than the unit suite
-  (`matrixrtc/tests/`), which remains the merge gate.
+  (`matrixrtc/tests/`), which stays the merge gate as the
+  `matrixrtc-conformance` job in `ci.yml`.
 
-Sketch: a scheduled GitLab/GitHub job that caches the cargo target dir,
-runs `./run-interop.sh` and uploads `logs/` as an artifact on failure.
+A GitHub-hosted `ubuntu-latest` runner is sufficient: the job owns the VM's
+network namespace, so host networking and arbitrary UDP ranges work, and
+Docker is preinstalled so `docker compose` satisfies the compose-provider
+probe. The evidence bundles in `logs/` are uploaded as an artifact.
+
+The one part that stays manual is `run-interop-ec.sh` (Element Call in a
+headless Chromium): a further ~1 GB image plus Playwright browsers, and its
+value is a conformance report rather than a gate.
+
+### Running one script
+
+```sh
+JOIN_CALL_BIN=../../matrixrtc/target/debug/examples/join_call ./run-resilience.sh
+JOIN_CALL_BIN=... ./run-restricted-sfu.sh
+JOIN_CALL_BIN=... ./run-huddle.sh 5
+JOIN_CALL_BIN=... ./run-federation.sh remote-first   # needs compose-federated.yml
+```
+
+Each records `RESULT PASS|FAIL|INFO <name> <details>` lines and exits 1 if
+any FAIL was recorded. `KEEP_STACK=1` keeps the containers up between runs,
+which is much faster when running several scripts in a row.
+
+Note the harness scripts poll; keep expensive commands out of poll loops
+(`docker logs` on a busy container reads the whole log every call and will
+overload a small host).
 
 ## Phase 2 (planned): Element Call interop
 

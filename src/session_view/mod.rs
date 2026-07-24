@@ -8,7 +8,7 @@ use tracing::{error, warn};
 #[allow(dead_code)]
 mod call;
 use self::call::present_call_dialog;
-pub(crate) use self::call::{CallConnectionState, CallParticipant, CallState};
+pub(crate) use self::call::{CallConnectionState, CallDialog, CallParticipant, CallState};
 mod content;
 mod create_direct_chat_dialog;
 mod create_room_dialog;
@@ -18,6 +18,7 @@ mod invite_request;
 mod media_viewer;
 mod room_details;
 mod room_history;
+pub(crate) use self::room_history::CreatePollDialog;
 mod sidebar;
 mod space_overview;
 

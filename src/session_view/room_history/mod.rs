@@ -27,6 +27,7 @@ mod title;
 mod typing_row;
 mod verification_info_bar;
 
+pub(crate) use self::message_toolbar::CreatePollDialog;
 use self::{
     call_row::CallRow,
     divider_row::DividerRow,

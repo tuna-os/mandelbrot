@@ -152,7 +152,14 @@ mod imp {
             let window = if let Some(window) = self.obj().active_window().and_downcast() {
                 window
             } else {
-                Window::new(&self.obj())
+                let window = Window::new(&self.obj());
+
+                // Screenshot walkthrough mode, off in every normal run.
+                if crate::walkthrough::is_enabled() {
+                    crate::walkthrough::start(&window);
+                }
+
+                window
             };
 
             window.present();

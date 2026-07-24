@@ -26,10 +26,15 @@ mod composer_parser;
 mod composer_state;
 mod create_poll_dialog;
 
-pub(crate) use self::composer_state::{ComposerState, MessageEventSource, RelationInfo};
+// `CreatePollDialog` is re-exported so the screenshot walkthrough can build it
+// standalone.
 use self::{
     attachment_dialog::AttachmentDialog, completion::CompletionPopover,
-    composer_parser::ComposerParser, create_poll_dialog::CreatePollDialog,
+    composer_parser::ComposerParser,
+};
+pub(crate) use self::{
+    composer_state::{ComposerState, MessageEventSource, RelationInfo},
+    create_poll_dialog::CreatePollDialog,
 };
 use super::message_row::MessageContent;
 use crate::{

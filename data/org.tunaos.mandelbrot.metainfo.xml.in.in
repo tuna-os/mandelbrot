@@ -38,16 +38,20 @@
 
   <screenshots>
     <screenshot type="default">
-      <image type="source">https://gitlab.gnome.org/World/fractal/raw/fractal-14/screenshots/main.png</image>
-      <caption>Fractal’s main window</caption>
+      <image type="source">https://raw.githubusercontent.com/tuna-os/mandelbrot/main/screenshots/main.png</image>
+      <caption>A Matrix room in Mandelbrot, with a poll and a voice message</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.gnome.org/World/fractal/raw/fractal-14/screenshots/media-history.png</image>
-      <caption>View the media history of a Matrix room</caption>
+      <image type="source">https://raw.githubusercontent.com/tuna-os/mandelbrot/main/screenshots/threads.png</image>
+      <caption>Follow a conversation in a thread, side by side with the room</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.gnome.org/World/fractal/raw/fractal-14/screenshots/adaptive.png</image>
-      <caption>Fractal’s interface adapts to small screens</caption>
+      <image type="source">https://raw.githubusercontent.com/tuna-os/mandelbrot/main/screenshots/calls.png</image>
+      <caption>Native MatrixRTC voice and video calls</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://raw.githubusercontent.com/tuna-os/mandelbrot/main/screenshots/spaces.png</image>
+      <caption>Browse the rooms of a space</caption>
     </screenshot>
   </screenshots>
 
