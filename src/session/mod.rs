@@ -41,13 +41,14 @@ mod room_list;
 mod security;
 mod session_settings;
 mod sidebar_data;
+mod space_hierarchy;
 mod user;
 mod user_sessions_list;
 mod verification;
 
 pub(crate) use self::{
     call::*, global_account_data::*, ignored_users::*, notifications::*, remote::*, room::*,
-    room_list::*, security::*, session_settings::*, sidebar_data::*, user::*,
+    room_list::*, security::*, session_settings::*, sidebar_data::*, space_hierarchy::*, user::*,
     user_sessions_list::*, verification::*,
 };
 use crate::{

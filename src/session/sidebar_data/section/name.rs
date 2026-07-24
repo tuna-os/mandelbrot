@@ -19,6 +19,8 @@ pub enum SidebarSectionName {
     InviteRequest,
     /// The section for room invites.
     Invited,
+    /// The section for joined spaces.
+    Space,
     /// The section for favorite rooms.
     Favorite,
     /// The section for joined rooms without a tag.
@@ -36,11 +38,12 @@ impl SidebarSectionName {
         let name = match category {
             RoomCategory::Knocked => Self::InviteRequest,
             RoomCategory::Invited => Self::Invited,
+            RoomCategory::Space => Self::Space,
             RoomCategory::Favorite => Self::Favorite,
             RoomCategory::Normal => Self::Normal,
             RoomCategory::LowPriority => Self::LowPriority,
             RoomCategory::Left => Self::Left,
-            RoomCategory::Outdated | RoomCategory::Space | RoomCategory::Ignored => return None,
+            RoomCategory::Outdated | RoomCategory::Ignored => return None,
         };
 
         Some(name)
@@ -52,6 +55,7 @@ impl SidebarSectionName {
             Self::VerificationRequest => return None,
             Self::InviteRequest => RoomCategory::Knocked,
             Self::Invited => RoomCategory::Invited,
+            Self::Space => RoomCategory::Space,
             Self::Favorite => RoomCategory::Favorite,
             Self::Normal => RoomCategory::Normal,
             Self::LowPriority => RoomCategory::LowPriority,
@@ -65,7 +69,9 @@ impl SidebarSectionName {
     /// possible.
     pub(crate) fn into_target_room_category(self) -> Option<TargetRoomCategory> {
         let category = match self {
-            Self::VerificationRequest | Self::InviteRequest | Self::Invited => return None,
+            Self::VerificationRequest | Self::InviteRequest | Self::Invited | Self::Space => {
+                return None;
+            }
             Self::Favorite => TargetRoomCategory::Favorite,
             Self::Normal => TargetRoomCategory::Normal,
             Self::LowPriority => TargetRoomCategory::LowPriority,
@@ -82,6 +88,7 @@ impl fmt::Display for SidebarSectionName {
             SidebarSectionName::VerificationRequest => gettext("Verifications"),
             SidebarSectionName::InviteRequest => gettext("Invite Requests"),
             SidebarSectionName::Invited => gettext("Invited"),
+            SidebarSectionName::Space => gettext("Spaces"),
             SidebarSectionName::Favorite => gettext("Favorites"),
             SidebarSectionName::Normal => gettext("Rooms"),
             SidebarSectionName::LowPriority => gettext("Low Priority"),

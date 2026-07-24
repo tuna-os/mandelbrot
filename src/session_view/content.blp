@@ -64,6 +64,13 @@ template $Content: Adw.NavigationPage {
     }
 
     Gtk.StackPage {
+      name: "space-overview";
+      title: _("Space Overview");
+
+      child: $ContentSpaceOverview space_overview {};
+    }
+
+    Gtk.StackPage {
       name: "verification";
       title: _("Identity Verification");
 

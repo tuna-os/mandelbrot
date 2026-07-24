@@ -217,6 +217,9 @@ src/session_view/sidebar/mod.rs
 src/session_view/sidebar/room_row.rs
 src/session_view/sidebar/row.rs
 src/session_view/sidebar/section_row.rs
+src/session_view/space_overview/child_row.blp
+src/session_view/space_overview/child_row.rs
+src/session_view/space_overview/subpage.blp
 src/shortcuts-dialog.blp
 src/user_facing_error.rs
 src/utils/matrix/media_message.rs

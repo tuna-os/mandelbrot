@@ -1,7 +1,7 @@
 use adw::{prelude::*, subclass::prelude::*};
 use gtk::{glib, glib::clone};
 
-use super::{Explore, Invite, InviteRequest, RoomHistory};
+use super::{Explore, Invite, InviteRequest, RoomHistory, SpaceOverview};
 use crate::{
     identity_verification_view::IdentityVerificationView,
     session::{
@@ -25,6 +25,8 @@ enum ContentPage {
     Explore,
     /// The selected identity verification.
     Verification,
+    /// The overview of the selected space.
+    SpaceOverview,
 }
 
 impl ContentPage {
@@ -37,6 +39,7 @@ impl ContentPage {
             Self::Invite => "invite",
             Self::Explore => "explore",
             Self::Verification => "verification",
+            Self::SpaceOverview => "space-overview",
         }
     }
 
@@ -51,6 +54,7 @@ impl ContentPage {
             "invite" => Self::Invite,
             "explore" => Self::Explore,
             "verification" => Self::Verification,
+            "space-overview" => Self::SpaceOverview,
             _ => panic!("Unknown ContentPage: {name}"),
         }
     }
@@ -77,6 +81,8 @@ mod imp {
         invite: TemplateChild<Invite>,
         #[template_child]
         explore: TemplateChild<Explore>,
+        #[template_child]
+        space_overview: TemplateChild<SpaceOverview>,
         #[template_child]
         empty_page: TemplateChild<adw::ToolbarView>,
         #[template_child]
@@ -128,6 +134,9 @@ mod imp {
                     if imp.visible_page() != ContentPage::Verification {
                         imp.identity_verification_widget
                             .set_verification(None::<IdentityVerification>);
+                    }
+                    if imp.visible_page() != ContentPage::SpaceOverview {
+                        imp.space_overview.set_room(None::<Room>);
                     }
                 }
             ));
@@ -256,6 +265,10 @@ mod imp {
                         self.invite.set_room(Some(room.clone()));
                         self.set_visible_page(ContentPage::Invite);
                     }
+                    RoomCategory::Space => {
+                        self.space_overview.set_room(Some(room.clone()));
+                        self.set_visible_page(ContentPage::SpaceOverview);
+                    }
                     _ => {
                         self.room_history.set_timeline(Some(room.live_timeline()));
                         self.set_visible_page(ContentPage::RoomHistory);
@@ -281,7 +294,7 @@ mod imp {
         }
 
         /// All the header bars of the children of the content.
-        pub(super) fn header_bars(&self) -> [&adw::HeaderBar; 6] {
+        pub(super) fn header_bars(&self) -> [&adw::HeaderBar; 7] {
             [
                 &self.empty_page_header_bar,
                 self.room_history.header_bar(),
@@ -289,6 +302,7 @@ mod imp {
                 self.invite.header_bar(),
                 self.explore.header_bar(),
                 &self.verification_page_header_bar,
+                self.space_overview.header_bar(),
             ]
         }
     }
@@ -312,7 +326,7 @@ impl Content {
     }
 
     /// All the header bars of the children of the content.
-    pub(crate) fn header_bars(&self) -> [&adw::HeaderBar; 6] {
+    pub(crate) fn header_bars(&self) -> [&adw::HeaderBar; 7] {
         self.imp().header_bars()
     }
 }

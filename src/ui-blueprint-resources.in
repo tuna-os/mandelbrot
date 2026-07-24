@@ -155,5 +155,8 @@ session_view/sidebar/mod.blp
 session_view/sidebar/room_row.blp
 session_view/sidebar/section_row.blp
 session_view/sidebar/verification_row.blp
+session_view/space_overview/child_row.blp
+session_view/space_overview/mod.blp
+session_view/space_overview/subpage.blp
 shortcuts-dialog.blp
 window.blp
