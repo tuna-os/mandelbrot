@@ -1,12 +1,11 @@
 //! State model for a native Matrix call.
 //!
-//! This is a narrow UI-facing model. It will be driven by
-//! `mandelbrot_matrixrtc::RtcCallSession` in a later integration slice: the
-//! engine's `MembershipsChanged`, `JoinStateChanged` and `StatusChanged`
-//! events map onto the `participants` list model and the `connection-state`
-//! property, while the `muted`/`camera-on` properties will call into
-//! `LivekitCallConnection::publish_microphone_track()`/
-//! `publish_camera_track()`.
+//! This is a narrow UI-facing model, driven by the
+//! [`CallManager`](crate::session::CallManager): the `MembershipsChanged` and
+//! `StatusChanged` events of the `mandelbrot_matrixrtc::RtcCallSession`
+//! engine map onto the `participants` list model and the `connection-state`
+//! property, while the `muted` and `camera-on` properties control the
+//! microphone and camera published to the SFU.
 
 use gtk::{gio, glib, prelude::*, subclass::prelude::*};
 
@@ -150,6 +149,14 @@ mod imp_state {
         /// Whether the media of this call is end-to-end encrypted.
         #[property(get, set)]
         encrypted: Cell<bool>,
+        /// The paintable displaying the local camera stream.
+        ///
+        /// This is set by the
+        /// [`CallManager`](crate::session::CallManager) while the local
+        /// camera is on, and displayed by the self-view of the call view and
+        /// the preview of the prescreen.
+        #[property(get, set, nullable)]
+        self_paintable: RefCell<Option<gtk::gdk::Paintable>>,
         pub(super) duration_source: RefCell<Option<glib::SourceId>>,
     }
 
@@ -163,6 +170,7 @@ mod imp_state {
                 participants: gio::ListStore::new::<CallParticipant>(),
                 room_name: RefCell::default(),
                 encrypted: Cell::default(),
+                self_paintable: RefCell::default(),
                 duration_source: RefCell::default(),
             }
         }
@@ -207,8 +215,8 @@ mod imp_state {
             }
 
             self.muted.set(muted);
-            // Integration point: unpublish or re-publish the microphone track
-            // via `LivekitCallConnection::publish_microphone_track()`.
+            // The media task of the `CallManager` stops sending microphone
+            // samples while this is set.
             self.obj().notify_muted();
         }
 
@@ -219,8 +227,8 @@ mod imp_state {
             }
 
             self.camera_on.set(camera_on);
-            // Integration point: unpublish or re-publish the camera track via
-            // `LivekitCallConnection::publish_camera_track()`.
+            // The `CallManager` starts or stops the camera capture, which
+            // publishes or unpublishes the camera track.
             self.obj().notify_camera_on();
         }
 

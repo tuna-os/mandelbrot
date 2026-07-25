@@ -34,8 +34,18 @@
   on the PR gate) plus live-stack harness scripts (federation/huddle/
   resilience/restricted-sfu/incoming-call) and a nightly `matrixrtc-e2e.yml`.
 
+* **Done (2026-07-24, later still)**: camera capture — the camera toggle
+  opens the camera through the XDG camera portal (aperture's PipeWire device
+  provider, as used by the QR scanner), captures it with `GStreamer` into
+  I420, and publishes it to the SFU as a LiveKit camera track. The pipeline
+  tees into a `gtk4paintablesink` whose paintable drives both the pre-join
+  preview and the in-call self-view (new `self-paintable` property on
+  `CallState`). Turning the camera off (or dismissing the pre-join screen,
+  or leaving the call) stops the pipeline, which closes the device, and
+  unpublishes the track.
+
 * **Next**: live testing against matrix.org (calls, QR, threads receipts),
-  camera capture, threaded read receipts (MSC3771), location pin-drop.
+  threaded read receipts (MSC3771), location pin-drop.
 
 Goal: take Fractal (the most GNOME-native Matrix client, matrix-sdk 0.18 +
 matrix-sdk-ui) and adopt the modern Matrix Rust SDK features it doesn't use.

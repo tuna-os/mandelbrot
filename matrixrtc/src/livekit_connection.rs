@@ -16,7 +16,7 @@ use livekit::{
         E2eeOptions, EncryptionType,
         key_provider::{KeyProvider, KeyProviderOptions},
     },
-    id::ParticipantIdentity,
+    id::{ParticipantIdentity, TrackSid},
     options::TrackPublishOptions,
     track::{LocalAudioTrack, LocalTrack, LocalVideoTrack, TrackSource},
     webrtc::{audio_source::RtcAudioSource, video_source::RtcVideoSource},
@@ -212,9 +212,16 @@ impl LivekitCallConnection {
     ///
     /// Capturing from an actual camera is the application's responsibility:
     /// feed video frames into the source.
-    pub async fn publish_camera_track(&self, source: RtcVideoSource) -> Result<(), LivekitError> {
+    ///
+    /// Returns the SID of the published track, to stop publishing it later
+    /// with [`Self::unpublish_track`].
+    pub async fn publish_camera_track(
+        &self,
+        source: RtcVideoSource,
+    ) -> Result<TrackSid, LivekitError> {
         let track = LocalVideoTrack::create_video_track("camera", source);
-        self.room
+        let publication = self
+            .room
             .local_participant()
             .publish_track(
                 LocalTrack::Video(track),
@@ -224,6 +231,15 @@ impl LivekitCallConnection {
                 },
             )
             .await?;
+        Ok(publication.sid())
+    }
+
+    /// Stop publishing the local track with the given SID.
+    ///
+    /// This removes the track from the SFU, so that other participants stop
+    /// receiving it, unlike muting it locally.
+    pub async fn unpublish_track(&self, sid: &TrackSid) -> Result<(), LivekitError> {
+        self.room.local_participant().unpublish_track(sid).await?;
         Ok(())
     }
 

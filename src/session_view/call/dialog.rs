@@ -94,7 +94,21 @@ mod imp {
     }
 
     impl WidgetImpl for CallDialog {}
-    impl AdwDialogImpl for CallDialog {}
+
+    impl AdwDialogImpl for CallDialog {
+        fn closed(&self) {
+            self.parent_closed();
+
+            // Dismissing the prescreen without joining must not leave the
+            // camera open. When the call is ongoing, the dialog is only a
+            // window onto it and closing it keeps the camera as it is.
+            if let Some(state) = self.state.borrow().as_ref()
+                && state.connection_state() == CallConnectionState::Disconnected
+            {
+                state.set_camera_on(false);
+            }
+        }
+    }
 
     impl CallDialog {
         /// Show the page matching the connection state.

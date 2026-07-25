@@ -17,7 +17,7 @@ mod imp {
         #[template_child]
         preview_stack: TemplateChild<gtk::Stack>,
         #[template_child]
-        pub(super) preview_picture: TemplateChild<gtk::Picture>,
+        preview_picture: TemplateChild<gtk::Picture>,
         #[template_child]
         microphone_button: TemplateChild<gtk::ToggleButton>,
         #[template_child]
@@ -94,13 +94,31 @@ mod imp {
                         imp.update_toggles();
                     }
                 ));
+                let paintable_handler = state.connect_self_paintable_notify(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |_| {
+                        imp.update_preview();
+                    }
+                ));
                 self.state_handlers
-                    .replace(vec![muted_handler, camera_handler]);
+                    .replace(vec![muted_handler, camera_handler, paintable_handler]);
             }
 
             self.state.replace(state);
             self.update_toggles();
+            self.update_preview();
             self.obj().notify_state();
+        }
+
+        /// Update the camera preview from the state.
+        fn update_preview(&self) {
+            let paintable = self
+                .state
+                .borrow()
+                .as_ref()
+                .and_then(CallState::self_paintable);
+            self.preview_picture.set_paintable(paintable.as_ref());
         }
 
         /// Update the toggle buttons and preview from the state.
@@ -183,14 +201,6 @@ impl CallPrescreen {
                 f(&obj);
             }),
         )
-    }
-
-    /// Set the paintable displaying the local camera preview.
-    ///
-    /// Integration point: this will receive the `gdk::Paintable` of a
-    /// `gtk4paintablesink` fed by the local camera.
-    pub fn set_preview_paintable(&self, paintable: Option<&gtk::gdk::Paintable>) {
-        self.imp().preview_picture.set_paintable(paintable);
     }
 }
 

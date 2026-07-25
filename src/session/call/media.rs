@@ -6,9 +6,12 @@
 //! the `LiveKit` room with end-to-end encryption, publishes the microphone
 //! (captured with `GStreamer`) and forwards remote video frames to the UI.
 
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
+use std::{
+    ops::ControlFlow,
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
 };
 
 use gst::prelude::*;
@@ -21,7 +24,11 @@ use ruma::{OwnedRoomId, api::client::account::request_openid_token};
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, error, warn};
 
+use super::camera::{CameraFrame, CameraMessage, CameraSink};
 use crate::spawn_tokio;
+
+/// The number of camera frames that can be queued for the media task.
+const CAMERA_QUEUE_LEN: usize = 3;
 
 /// The sample rate of the published microphone track.
 const MIC_SAMPLE_RATE: u32 = 48_000;
@@ -53,6 +60,14 @@ pub(super) enum MediaEvent {
         /// A human-readable reason, if the connection failed.
         error: Option<String>,
     },
+}
+
+/// The local media sources of a call, controlled by the UI.
+struct LocalSources {
+    /// Whether the microphone is muted.
+    muted: Arc<AtomicBool>,
+    /// The camera frames captured by the UI, if the camera is on.
+    camera: mpsc::Receiver<CameraMessage>,
 }
 
 /// A handle to the media connection of one call.
@@ -91,15 +106,25 @@ pub(super) fn start(
     device_id: String,
     engine: Arc<RtcCallSession>,
     preferred_foci: Vec<Transport>,
+    camera_sink: &CameraSink,
 ) -> (MediaHandle, mpsc::Receiver<MediaEvent>) {
     let (tx, rx) = mpsc::channel(8);
     let muted = Arc::new(AtomicBool::new(false));
+
+    // The camera capture outlives the media connection, so the sink keeps a
+    // sender that we replace here; the task keeps its own clone alive so that
+    // the channel never closes while it runs.
+    let (camera_tx, camera_rx) = mpsc::channel(CAMERA_QUEUE_LEN);
+    camera_sink.set_sender(Some(camera_tx.clone()));
 
     let task_muted = Arc::clone(&muted);
     // Must go through the shared runtime: this is called from a GTK signal
     // handler on the main thread, where `tokio::spawn` has no reactor and
     // aborts the process.
     let task = spawn_tokio!(async move {
+        // Keep the camera channel open for as long as the task runs.
+        let _camera_tx = camera_tx;
+
         let error = match run(
             client,
             room_id,
@@ -107,7 +132,10 @@ pub(super) fn start(
             engine,
             preferred_foci,
             &tx,
-            task_muted,
+            LocalSources {
+                muted: task_muted,
+                camera: camera_rx,
+            },
         )
         .await
         {
@@ -166,8 +194,13 @@ async fn run(
     engine: Arc<RtcCallSession>,
     preferred_foci: Vec<Transport>,
     tx: &mpsc::Sender<MediaEvent>,
-    muted: Arc<AtomicBool>,
+    local: LocalSources,
 ) -> Result<(), String> {
+    let LocalSources {
+        muted,
+        camera: mut camera_rx,
+    } = local;
+
     // Subscribe before connecting so that no key event is lost.
     let mut engine_events = engine.subscribe();
 
@@ -212,8 +245,18 @@ async fn run(
     };
 
     let mut video_tasks: Vec<JoinHandle<()>> = Vec::new();
+    // The published camera track, if the camera is on. It is only published
+    // once frames actually arrive, so that the resolution is known and the
+    // other participants never see an empty track.
+    let mut camera: Option<CameraTrack> = None;
     let result = loop {
         tokio::select! {
+            message = camera_rx.recv() => {
+                let Some(message) = message else {
+                    break Ok(());
+                };
+                handle_camera_message(&connection, &mut camera, message).await;
+            }
             event = engine_events.recv() => {
                 let Some(event) = event else {
                     break Ok(());
@@ -232,34 +275,8 @@ async fn run(
                 let Some(event) = event else {
                     break Ok(());
                 };
-                match event {
-                    livekit::RoomEvent::TrackSubscribed {
-                        track: livekit::track::RemoteTrack::Video(video),
-                        participant,
-                        ..
-                    } => {
-                        video_tasks.push(spawn_video_task(
-                            &video,
-                            participant.identity().to_string(),
-                            tx.clone(),
-                        ));
-                    }
-                    livekit::RoomEvent::TrackUnsubscribed {
-                        track: livekit::track::RemoteTrack::Video(_),
-                        participant,
-                        ..
-                    } => {
-                        let _ = tx
-                            .send(MediaEvent::VideoEnded {
-                                identity: participant.identity().to_string(),
-                            })
-                            .await;
-                    }
-                    livekit::RoomEvent::Disconnected { reason } => {
-                        debug!("Disconnected from LiveKit: {reason:?}");
-                        break Ok(());
-                    }
-                    _ => {}
+                if handle_room_event(event, tx, &mut video_tasks).await.is_break() {
+                    break Ok(());
                 }
             }
         }
@@ -270,6 +287,168 @@ async fn run(
     }
     let _ = connection.disconnect().await;
     result
+}
+
+/// The published camera track and the source feeding it.
+struct CameraTrack {
+    /// The source frames are captured into.
+    source: livekit::webrtc::video_source::native::NativeVideoSource,
+    /// The SID of the published track, to unpublish it.
+    sid: livekit::id::TrackSid,
+}
+
+impl CameraTrack {
+    /// Capture the given frame into the track.
+    fn capture(&self, frame: &CameraFrame) {
+        use livekit::webrtc::video_frame::{I420Buffer, VideoFrame, VideoRotation};
+
+        let mut buffer = I420Buffer::new(frame.width, frame.height);
+        let (stride_y, stride_u, stride_v) = buffer.strides();
+        let (data_y, data_u, data_v) = buffer.data_mut();
+
+        let chroma_width = frame.width.div_ceil(2) as usize;
+        let chroma_height = frame.height.div_ceil(2) as usize;
+        let luma_len = frame.width as usize * frame.height as usize;
+        let chroma_len = chroma_width * chroma_height;
+
+        let planes = [
+            (data_y, stride_y as usize, frame.width as usize, 0, luma_len),
+            (
+                data_u,
+                stride_u as usize,
+                chroma_width,
+                luma_len,
+                luma_len + chroma_len,
+            ),
+            (
+                data_v,
+                stride_v as usize,
+                chroma_width,
+                luma_len + chroma_len,
+                luma_len + chroma_len * 2,
+            ),
+        ];
+
+        for (destination, stride, row_len, start, end) in planes {
+            let Some(source) = frame.data.get(start..end) else {
+                warn!("Discarding a truncated camera frame");
+                return;
+            };
+
+            for (row, chunk) in source.chunks_exact(row_len).enumerate() {
+                let offset = row * stride;
+                let Some(destination) = destination.get_mut(offset..offset + row_len) else {
+                    break;
+                };
+                destination.copy_from_slice(chunk);
+            }
+        }
+
+        self.source.capture_frame(&VideoFrame {
+            rotation: VideoRotation::VideoRotation0,
+            timestamp_us: 0,
+            frame_metadata: None,
+            buffer,
+        });
+    }
+}
+
+/// Apply an event of the `LiveKit` room, and tell whether the connection is
+/// over.
+async fn handle_room_event(
+    event: livekit::RoomEvent,
+    tx: &mpsc::Sender<MediaEvent>,
+    video_tasks: &mut Vec<JoinHandle<()>>,
+) -> ControlFlow<()> {
+    match event {
+        livekit::RoomEvent::TrackSubscribed {
+            track: livekit::track::RemoteTrack::Video(video),
+            participant,
+            ..
+        } => {
+            video_tasks.push(spawn_video_task(
+                &video,
+                participant.identity().to_string(),
+                tx.clone(),
+            ));
+        }
+        livekit::RoomEvent::TrackUnsubscribed {
+            track: livekit::track::RemoteTrack::Video(_),
+            participant,
+            ..
+        } => {
+            let _ = tx
+                .send(MediaEvent::VideoEnded {
+                    identity: participant.identity().to_string(),
+                })
+                .await;
+        }
+        livekit::RoomEvent::Disconnected { reason } => {
+            debug!("Disconnected from LiveKit: {reason:?}");
+            return ControlFlow::Break(());
+        }
+        _ => {}
+    }
+
+    ControlFlow::Continue(())
+}
+
+/// Apply a message from the local camera capture to the connection.
+///
+/// The track is only published once frames actually arrive, so that its
+/// resolution is known and the other participants never see an empty track.
+async fn handle_camera_message(
+    connection: &LivekitCallConnection,
+    camera: &mut Option<CameraTrack>,
+    message: CameraMessage,
+) {
+    match message {
+        CameraMessage::Frame(frame) => {
+            if camera.is_none() {
+                match publish_camera(connection, &frame).await {
+                    Ok(track) => *camera = Some(track),
+                    Err(error) => warn!("Failed to publish the camera: {error}"),
+                }
+            }
+
+            if let Some(camera) = camera.as_ref() {
+                camera.capture(&frame);
+            }
+        }
+        CameraMessage::Stopped => {
+            if let Some(camera) = camera.take()
+                && let Err(error) = connection.unpublish_track(&camera.sid).await
+            {
+                warn!("Failed to unpublish the camera: {error}");
+            }
+        }
+    }
+}
+
+/// Publish a camera track with the resolution of the given first frame.
+async fn publish_camera(
+    connection: &LivekitCallConnection,
+    frame: &CameraFrame,
+) -> Result<CameraTrack, String> {
+    use livekit::webrtc::video_source::{
+        RtcVideoSource, VideoResolution, native::NativeVideoSource,
+    };
+
+    let source = NativeVideoSource::new(
+        VideoResolution {
+            width: frame.width,
+            height: frame.height,
+        },
+        false,
+    );
+
+    let sid = connection
+        .publish_camera_track(RtcVideoSource::Native(source.clone()))
+        .await
+        .map_err(|error| format!("failed to publish the camera track: {error}"))?;
+    debug!("Published the camera track {sid}");
+
+    Ok(CameraTrack { source, sid })
 }
 
 /// A guard stopping the microphone pipeline on drop.

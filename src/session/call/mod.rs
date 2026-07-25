@@ -28,6 +28,8 @@ use serde_json::Value as JsonValue;
 use tokio::sync::mpsc;
 use tracing::{debug, error, warn};
 
+#[cfg(feature = "calls-media")]
+mod camera;
 mod client_api;
 #[cfg(feature = "calls-media")]
 mod media;
@@ -93,6 +95,21 @@ impl std::fmt::Debug for ActiveCall {
     }
 }
 
+/// The local camera of a room.
+///
+/// The camera can be turned on before the call is joined, in the prescreen,
+/// so this is kept per room, independently of the [`ActiveCall`].
+#[cfg(feature = "calls-media")]
+#[derive(Debug, Default)]
+struct CameraSlot {
+    /// Where the captured frames are sent, shared with the media task.
+    sink: Arc<camera::CameraSink>,
+    /// The ongoing capture, if the camera is on.
+    capture: Option<camera::CameraCapture>,
+    /// Whether the camera is being started.
+    starting: bool,
+}
+
 mod imp {
     use std::cell::RefCell;
 
@@ -113,6 +130,9 @@ mod imp {
         pub(super) calls: RefCell<HashMap<OwnedRoomId, super::ActiveCall>>,
         /// The call states driving the call UI, per room.
         pub(super) states: RefCell<HashMap<OwnedRoomId, CallState>>,
+        /// The local camera, per room.
+        #[cfg(feature = "calls-media")]
+        pub(super) cameras: RefCell<HashMap<OwnedRoomId, super::CameraSlot>>,
         /// The preferred foci from the `.well-known` of our homeserver.
         pub(super) preferred_foci: RefCell<Vec<Transport>>,
         /// Guards keeping the SDK event handlers alive.
@@ -402,11 +422,121 @@ impl CallManager {
         state.set_room_name(room_name);
         state.set_encrypted(true);
 
+        // Turn the local camera on and off with the state, whether the call
+        // was joined already or not: the prescreen shows a preview too.
+        #[cfg(feature = "calls-media")]
+        {
+            let camera_room_id = room_id.to_owned();
+            state.connect_camera_on_notify(clone!(
+                #[weak(rename_to = obj)]
+                self,
+                move |state| {
+                    obj.set_camera_enabled(&camera_room_id, state.camera_on());
+                }
+            ));
+        }
+
         self.imp()
             .states
             .borrow_mut()
             .insert(room_id.to_owned(), state.clone());
         Some(state)
+    }
+
+    /// Turn the local camera of the given room on or off.
+    ///
+    /// Starting the camera is asynchronous: it might ask the user for access
+    /// via the portal. If it fails, the camera is turned back off in the call
+    /// state.
+    #[cfg(feature = "calls-media")]
+    fn set_camera_enabled(&self, room_id: &RoomId, enabled: bool) {
+        if !enabled {
+            let capture = self
+                .imp()
+                .cameras
+                .borrow_mut()
+                .get_mut(room_id)
+                .and_then(|slot| slot.capture.take());
+
+            if capture.is_some() {
+                // Dropping the capture closes the camera device.
+                drop(capture);
+                self.camera_sink(room_id).notify_stopped();
+                debug!("Stopped the camera in {room_id}");
+            }
+
+            if let Some(state) = self.imp().states.borrow().get(room_id) {
+                state.set_self_paintable(None::<gtk::gdk::Paintable>);
+            }
+            return;
+        }
+
+        {
+            let mut cameras = self.imp().cameras.borrow_mut();
+            let slot = cameras.entry(room_id.to_owned()).or_default();
+            if slot.capture.is_some() || slot.starting {
+                return;
+            }
+            slot.starting = true;
+        }
+
+        let sink = self.camera_sink(room_id);
+        let room_id = room_id.to_owned();
+        spawn!(clone!(
+            #[weak(rename_to = obj)]
+            self,
+            async move {
+                let result = camera::CameraCapture::new(sink).await;
+
+                let paintable = {
+                    let mut cameras = obj.imp().cameras.borrow_mut();
+                    let Some(slot) = cameras.get_mut(&room_id) else {
+                        return;
+                    };
+                    slot.starting = false;
+
+                    match result {
+                        Ok(capture) => {
+                            let paintable = capture.paintable().clone();
+                            slot.capture = Some(capture);
+                            Some(paintable)
+                        }
+                        Err(error) => {
+                            error!("Could not start the camera: {error}");
+                            None
+                        }
+                    }
+                };
+
+                let states = obj.imp().states.borrow();
+                let Some(state) = states.get(&room_id).cloned() else {
+                    return;
+                };
+                drop(states);
+
+                if let Some(paintable) = paintable {
+                    state.set_self_paintable(Some(paintable));
+                } else {
+                    // This turns the camera back off, which is a no-op for
+                    // the capture that never started.
+                    state.set_camera_on(false);
+                }
+            }
+        ));
+    }
+
+    /// The sink receiving the frames of the local camera of the given room.
+    #[cfg(feature = "calls-media")]
+    fn camera_sink(&self, room_id: &RoomId) -> Arc<camera::CameraSink> {
+        Arc::clone(
+            &self
+                .imp()
+                .cameras
+                .borrow_mut()
+                .entry(room_id.to_owned())
+                .or_default()
+                .sink,
+        )
     }
 
     /// Join the call in the given room.
@@ -529,12 +659,14 @@ impl CallManager {
         glib::SignalHandlerId,
     ) {
         let foci = self.imp().preferred_foci.borrow().clone();
+        let camera_sink = self.camera_sink(room_id);
         let (handle, mut media_events) = media::start(
             client.clone(),
             room_id.to_owned(),
             device_id,
             Arc::clone(engine),
             foci,
+            &camera_sink,
         );
         handle.set_muted(state.muted());
 
@@ -563,6 +695,13 @@ impl CallManager {
         let Some(call) = self.imp().calls.borrow_mut().remove(room_id) else {
             return;
         };
+
+        // Close the camera device: the call it was published to is over.
+        #[cfg(feature = "calls-media")]
+        {
+            call.state.set_camera_on(false);
+            self.imp().cameras.borrow_mut().remove(room_id);
+        }
 
         let engine = Arc::clone(&call.engine);
         let state = call.state.clone();

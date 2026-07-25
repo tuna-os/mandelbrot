@@ -41,10 +41,14 @@ Call's experimental MSC4354 "matrix 2.0" mode is not supported yet).
   MSC4140 delayed event automatically removes your call membership after a
   short window, so you never appear stuck in a call.
 
+* **Camera**: the camera toggle captures your camera through the XDG camera
+  portal (so it works in the Flatpak sandbox, and the camera is only opened
+  while the toggle is on), and publishes it to the call. The same stream feeds
+  the preview on the pre-join screen and the self-view during the call.
+
 * **Requirements**: the homeserver must advertise a LiveKit SFU
   (`org.matrix.msc4143.rtc_foci` in `.well-known`, e.g. matrix.org) and
   support MSC4140 delayed events (Synapse ≥ 1.114 with the feature enabled).
-  Camera capture is not wired up yet (voice + receiving video work).
 
 * Spec surface: MSC4143 (MatrixRTC), MSC3401 (`m.call.member`), MSC4195
   (LiveKit focus), MSC4140 (delayed events), MSC4075 (call notifications).

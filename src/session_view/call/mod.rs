@@ -1,8 +1,8 @@
 //! Native call UI.
 //!
-//! These widgets are driven entirely by a [`CallState`] model. Binding the
-//! model to the `mandelbrot-matrixrtc` engine lands in a later integration
-//! slice.
+//! These widgets are driven entirely by a [`CallState`] model, which the
+//! session's [`CallManager`](crate::session::CallManager) binds to the
+//! `mandelbrot-matrixrtc` engine and to the media connection.
 
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -68,7 +68,7 @@ mod imp {
         #[template_child]
         self_view_stack: TemplateChild<gtk::Stack>,
         #[template_child]
-        pub(super) self_picture: TemplateChild<gtk::Picture>,
+        self_picture: TemplateChild<gtk::Picture>,
         #[template_child]
         top_bar_revealer: TemplateChild<gtk::Revealer>,
         #[template_child]
@@ -191,6 +191,13 @@ mod imp {
                         imp.update_labels();
                     }
                 )));
+                handlers.push(state.connect_self_paintable_notify(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |_| {
+                        imp.update_self_view();
+                    }
+                )));
                 self.state_handlers.replace(handlers);
             } else {
                 self.participants_grid
@@ -200,7 +207,18 @@ mod imp {
             self.state.replace(state);
             self.update_controls();
             self.update_labels();
+            self.update_self_view();
             self.obj().notify_state();
+        }
+
+        /// Update the self-view from the state.
+        fn update_self_view(&self) {
+            let paintable = self
+                .state
+                .borrow()
+                .as_ref()
+                .and_then(CallState::self_paintable);
+            self.self_picture.set_paintable(paintable.as_ref());
         }
 
         /// Update the control buttons and the self-view from the state.
@@ -370,14 +388,6 @@ impl CallView {
                 f(&obj);
             }),
         )
-    }
-
-    /// Set the paintable displaying the local camera stream in the self-view.
-    ///
-    /// Integration point: this will receive the `gdk::Paintable` of a
-    /// `gtk4paintablesink` fed by the local camera.
-    pub fn set_self_paintable(&self, paintable: Option<&gtk::gdk::Paintable>) {
-        self.imp().self_picture.set_paintable(paintable);
     }
 }
 
