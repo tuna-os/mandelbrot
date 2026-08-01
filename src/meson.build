@@ -93,7 +93,11 @@ if get_option('calls-media')
     message('Native call media (LiveKit) enabled')
 endif
 
-cargo_build_options = cargo_options
+# `--locked` for the binary we ship: without it an incomplete Cargo.lock is
+# silently topped up from the registry at build time, so the Flatpak build
+# resolves whatever is newest instead of what was tested. That is how the
+# livekit-api 0.5.6 / livekit-protocol 0.7.12 mismatch got in.
+cargo_build_options = cargo_options + ['--locked']
 
 if profile == 'Devel'
     rust_target = 'debug'

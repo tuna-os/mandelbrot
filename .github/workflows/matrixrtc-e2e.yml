@@ -83,6 +83,10 @@ jobs:
     timeout-minutes: 90
     env:
       SUITE: ${{ github.event.inputs.suite || 'all' }}
+      # ubuntu-latest ships podman without a working rootless backend for this
+      # stack, and harness-lib.sh probes podman first. Force the provider that
+      # this runner actually has.
+      COMPOSE: "docker compose"
     steps:
       - uses: actions/checkout@v7
 
@@ -99,7 +103,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            clang libclang-dev pkg-config libssl-dev jq
+            clang libclang-dev pkg-config libssl-dev jq \
+            libglib2.0-dev
+          # webrtc-sys's build script pkg-configs glib-2.0/gio-2.0 (all from
+          # libglib2.0-dev) and panics when they are missing. The flatpak
+          # builds get them from the GNOME SDK; a bare ubuntu runner does not.
 
       - name: Build the join_call example
         run: |

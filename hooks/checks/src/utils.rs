@@ -374,7 +374,24 @@ impl CargoInstallMethod {
             Self::CargoBinstall => CommandData::new("cargo", &["binstall"]),
         };
 
-        cmd.print_output().run_with_args(&[dep])
+        let mut args = vec![dep];
+
+        if force_install {
+            // Both installers no-op when the crate is recorded as installed in
+            // `.crates.toml`, which happens in CI when a cache restores cargo's
+            // metadata without the binary itself. The version check that
+            // follows then fails on a supposedly successful install, so make
+            // the install authoritative instead.
+            args.push("--force");
+
+            if matches!(self, Self::CargoBinstall) {
+                // Non-interactive: never block on the confirmation or the
+                // telemetry prompt.
+                args.push("--no-confirm");
+            }
+        }
+
+        cmd.print_output().run_with_args(&args)
     }
 }
 

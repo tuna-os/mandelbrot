@@ -37,6 +37,11 @@ services:
 
   nginx:
     image: docker.io/library/nginx:latest
+    extra_hosts:
+      # The MatrixRTC proxy blocks reach the host gateway under podman's name
+      # for it. Docker only provides `host.docker.internal`, so map the name
+      # explicitly; podman accepts the same mapping.
+      - "host.containers.internal:host-gateway"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:Z
       - ./tls/dev_tls_m.localhost.key:/root/ssl/key.pem:Z

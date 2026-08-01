@@ -10,10 +10,14 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   checks:
     name: "Code checks (fmt, typos, deny, i18n)"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@nightly
@@ -33,11 +37,12 @@ jobs:
   matrixrtc-conformance:
     name: "MatrixRTC conformance tests"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt, clippy
+          components: clippy
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: matrixrtc
@@ -51,6 +56,7 @@ jobs:
   clippy:
     name: "Clippy (flatpak sandbox)"
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
       options: --privileged
@@ -73,6 +79,7 @@ jobs:
   flatpak:
     name: "Flatpak build + tests"
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
       options: --privileged
@@ -88,3 +95,5 @@ jobs:
         with:
           name: Mandelbrot-Linux-CI
           path: Mandelbrot-Linux-CI.flatpak
+          retention-days: 7
+          if-no-files-found: error
