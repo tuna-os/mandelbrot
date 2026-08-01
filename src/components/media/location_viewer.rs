@@ -56,7 +56,7 @@ mod imp {
             let renderer =
                 shumate::VectorRenderer::new("vector-tiles", &String::from_utf8_lossy(&style))
                     .expect("should be able to read map style");
-            renderer.set_license("© OpenMapTiles © OpenStreetMap contributors");
+            renderer.set_license("© OpenMapTiles © OpenStreetMap");
             renderer.set_license_uri("https://www.openstreetmap.org/copyright");
 
             let sprite_sheet = renderer
