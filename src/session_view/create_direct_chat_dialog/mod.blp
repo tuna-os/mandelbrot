@@ -19,8 +19,8 @@ template $CreateDirectChatDialog: Adw.Dialog {
       Gtk.Box {
         orientation: vertical;
         spacing: 18;
-        margin-start: 12;
-        margin-end: 12;
+        margin-start: 24;
+        margin-end: 24;
 
         Gtk.Label heading {
           wrap: true;
@@ -63,8 +63,8 @@ template $CreateDirectChatDialog: Adw.Dialog {
           child: Adw.Clamp {
             child: Gtk.ListBox list_box {
               activate-on-single-click: true;
-              margin-start: 6;
-              margin-end: 6;
+              margin-start: 16;
+              margin-end: 16;
               row-activated => $create_direct_chat() swapped;
 
               styles [
