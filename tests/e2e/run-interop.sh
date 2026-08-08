@@ -43,16 +43,43 @@ fail() {
 }
 
 # --- compose provider -------------------------------------------------------
-if command -v podman-compose >/dev/null; then
-    COMPOSE="podman-compose"
-elif podman compose version >/dev/null 2>&1; then
-    COMPOSE="podman compose"
-elif docker compose version >/dev/null 2>&1; then
-    COMPOSE="docker compose"
-else
-    fail "no compose provider found (podman-compose, podman compose or docker compose)"
-fi
-log "using compose provider: $COMPOSE"
+# Set COMPOSE in the environment to force a provider; CI does, because
+# ubuntu-latest ships a podman binary whose socket is never started while the
+# rest of the workflow (image pull, teardown) speaks to docker.
+#
+# Auto-detection asks each candidate to talk to its backend rather than just
+# checking that the binary is on PATH: `<provider> version` answers happily
+# with nothing running behind it, whereas `ps` has to reach the engine, which
+# separates "installed" from "usable".
+compose_reaches_backend() { # provider words… -> 0 when the engine answers
+    "$@" -f compose.yml ps -q >/dev/null 2>&1
+}
+
+detect_compose() {
+    if [ -n "${COMPOSE:-}" ]; then
+        log "using compose provider (forced): $COMPOSE"
+        return
+    fi
+    local installed=() candidate
+    command -v podman-compose >/dev/null && installed+=("podman-compose")
+    podman compose version >/dev/null 2>&1 && installed+=("podman compose")
+    docker compose version >/dev/null 2>&1 && installed+=("docker compose")
+    [ ${#installed[@]} -gt 0 ] ||
+        fail "no compose provider found (podman-compose, podman compose or docker compose)"
+    for candidate in "${installed[@]}"; do
+        # shellcheck disable=SC2086 # provider may be two words ("docker compose")
+        if compose_reaches_backend $candidate; then
+            COMPOSE=$candidate
+            log "using compose provider: $COMPOSE"
+            return
+        fi
+    done
+    # Every probe failed. Fall back to the old first-installed-wins pick so
+    # the caller still gets the engine's own error instead of ours.
+    COMPOSE=${installed[0]}
+    log "using compose provider: $COMPOSE (warning: no provider reached a running backend)"
+}
+detect_compose
 
 # --- client binary -----------------------------------------------------------
 if [ -z "${JOIN_CALL_BIN:-}" ]; then

@@ -28,10 +28,14 @@ name: MatrixRTC e2e
 #     Docker calls it `host.docker.internal`. Only the MatrixRTC proxy
 #     `server` blocks use it, which the native clients do not go through, so
 #     this may not bite — but it is the first thing to check.
-#   - `harness-lib.sh`'s `detect_compose` probes podman-compose and
-#     `podman compose` before `docker compose`. ubuntu-latest ships podman,
-#     so the probe may select a provider without a working backend. If so,
-#     force it (the helper honours a preset `COMPOSE`).
+#   - compose provider selection. This one did bite, on every scheduled run:
+#     detection ranked podman ahead of docker on binary presence alone, and
+#     ubuntu-latest ships a podman binary whose socket is never started, so
+#     the harness picked `podman compose` and died on `up -d`. The `COMPOSE`
+#     below was meant to override that, but `run-interop.sh` carried its own
+#     inlined copy of the detection that ignored the variable. Every script
+#     now honours a preset `COMPOSE`, and unpinned detection probes that a
+#     provider can actually reach an engine rather than that it is on PATH.
 #
 # Runner requirements, and why a GitHub-hosted `ubuntu-latest` runner should
 # be able to host this at all:
@@ -84,8 +88,10 @@ jobs:
     env:
       SUITE: ${{ github.event.inputs.suite || 'all' }}
       # ubuntu-latest ships podman without a working rootless backend for this
-      # stack, and harness-lib.sh probes podman first. Force the provider that
-      # this runner actually has.
+      # stack, and detection prefers podman. Force the provider that this
+      # runner actually has; the harness derives the container engine it uses
+      # for per-container operations from this, so it stays docker too, which
+      # is what the pull and teardown steps below speak.
       COMPOSE: "docker compose"
     steps:
       - uses: actions/checkout@v7
