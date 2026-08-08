@@ -152,8 +152,8 @@ mod imp {
     impl ObjectImpl for GeneralPage {
         fn constructed(&self) {
             self.parent_constructed();
-            let obj = self.obj();
 
+            let obj = self.obj();
             self.room_topic.connect_activate_link(clone!(
                 #[weak]
                 obj,
@@ -187,7 +187,27 @@ mod imp {
         }
     }
 
-    impl WidgetImpl for GeneralPage {}
+    impl WidgetImpl for GeneralPage {
+        /// Avoid the room topic rendering with all text selected by instead
+        /// focusing on the next available widget.
+        fn map(&self) {
+            self.parent_map();
+
+            if !self.room_topic.get_visible() {
+                return;
+            }
+
+            if self.edit_details_btn.get_visible() {
+                debug_assert!(self.edit_details_btn.grab_focus());
+            } else if self.direct_members_group.get_visible() {
+                debug_assert!(self.direct_members_list.grab_focus());
+            } else if self.members_row_group.get_visible() {
+                debug_assert!(self.members_row.grab_focus());
+            } else {
+                error!("No widget to focus on besides the topic!");
+            }
+        }
+    }
     impl PreferencesPageImpl for GeneralPage {}
 
     #[gtk::template_callbacks]
@@ -1116,18 +1136,6 @@ mod imp {
                 }
             }
         }
-
-        /// Unselect the topic of the room.
-        ///
-        /// This is to circumvent the default GTK behavior to select all the
-        /// text when opening the details.
-        pub(super) fn unselect_topic(&self) {
-            // Put the cursor at the beginning of the title instead of having the title
-            // selected, if it is visible.
-            if self.room_topic.is_visible() {
-                self.room_topic.select_region(0, 0);
-            }
-        }
     }
 }
 
@@ -1144,21 +1152,5 @@ impl GeneralPage {
             .property("room", room)
             .property("members", members)
             .build()
-    }
-
-    /// Unselect the topic of the room.
-    ///
-    /// This is to circumvent the default GTK behavior to select all the text
-    /// when opening the details.
-    pub(crate) fn unselect_topic(&self) {
-        let imp = self.imp();
-
-        glib::idle_add_local_once(clone!(
-            #[weak]
-            imp,
-            move || {
-                imp.unselect_topic();
-            }
-        ));
     }
 }
