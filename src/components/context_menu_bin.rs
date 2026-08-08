@@ -19,6 +19,20 @@ mod imp {
         type Type = ContextMenuBin;
     }
 
+    // Hand-written class structs do not get the `Deref` that
+    // `glib::subclass::basic::ClassStruct` provides, and since gtk4-rs 0.11.4
+    // `add_binding_action()` lives on `WidgetClassManualExt`, which is
+    // implemented for `glib::Class<W>` — reached through exactly that `Deref`.
+    // Without this, `key_bindings::add_context_menu_bindings()` cannot be
+    // called with this class.
+    impl std::ops::Deref for ContextMenuBinClass {
+        type Target = glib::object::Class<gtk::Widget>;
+
+        fn deref(&self) -> &Self::Target {
+            &self.parent_class
+        }
+    }
+
     pub(super) fn context_menu_bin_menu_opened(this: &super::ContextMenuBin) {
         let klass = this.class();
         (klass.as_ref().menu_opened)(this);
