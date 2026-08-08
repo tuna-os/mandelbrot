@@ -8,7 +8,10 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Supersede in-flight runs on a PR — only the newest push there matters.
+  # Never on `main`: every push shares the ref, so back-to-back merges cancel
+  # each other and the branch goes long stretches with no completed build.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
