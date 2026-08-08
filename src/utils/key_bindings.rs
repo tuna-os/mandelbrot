@@ -1,5 +1,7 @@
 //! Helpers to add key bindings to widgets.
 
+use std::ops::Deref;
+
 use gtk::{gdk, subclass::prelude::*};
 
 /// List of keys that activate a widget.
@@ -14,7 +16,16 @@ const ACTIVATE_KEYS: &[gdk::Key] = &[
 
 /// Add key bindings to the given class to trigger the given action to activate
 /// a widget.
-pub(crate) fn add_activate_bindings<T: WidgetClassExt>(klass: &mut T, action: &str) {
+///
+/// Since gtk4-rs 0.11.4, `add_binding_action()` lives on
+/// [`WidgetClassManualExt`], which is implemented for `glib::Class<W>` rather
+/// than for the class struct itself, so it is reached through the class
+/// struct's [`Deref`]. Callers still pass their `&mut Self::Class` unchanged.
+pub(crate) fn add_activate_bindings<T>(klass: &mut T, action: &str)
+where
+    T: WidgetClassExt + Deref,
+    T::Target: WidgetClassManualExt,
+{
     for key in ACTIVATE_KEYS {
         klass.add_binding_action(*key, gdk::ModifierType::empty(), action);
     }
@@ -28,7 +39,13 @@ const CONTEXT_MENU_BINDINGS: &[(gdk::Key, gdk::ModifierType)] = &[
 
 /// Add key bindings to the given class to trigger the given action to show a
 /// context menu.
-pub(crate) fn add_context_menu_bindings<T: WidgetClassExt>(klass: &mut T, action: &str) {
+///
+/// See [`add_activate_bindings()`] for why the [`Deref`] bound is needed.
+pub(crate) fn add_context_menu_bindings<T>(klass: &mut T, action: &str)
+where
+    T: WidgetClassExt + Deref,
+    T::Target: WidgetClassManualExt,
+{
     for (key, modifier) in CONTEXT_MENU_BINDINGS {
         klass.add_binding_action(*key, *modifier, action);
     }
