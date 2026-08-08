@@ -56,7 +56,8 @@ fn main() {
         .init();
 
     // Prepare i18n
-    setlocale(LocaleCategory::LcAll, "");
+    // SAFETY: setlocale is called once during single-threaded startup; gettext-rs 0.8 marks it unsafe.
+    unsafe { setlocale(LocaleCategory::LcAll, ""); }
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR).expect("Invalid argument passed to bindtextdomain");
     textdomain(GETTEXT_PACKAGE).expect("Invalid string passed to textdomain");
 
