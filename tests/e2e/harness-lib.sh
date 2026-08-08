@@ -46,35 +46,63 @@ summary() {
 
 # Set COMPOSE in the environment to force a provider (e.g. COMPOSE="docker
 # compose" on a runner that has podman installed but no podman backend).
+#
+# Auto-detection asks each candidate to talk to its backend rather than just
+# checking that the binary is on PATH: `<provider> version` answers happily
+# with nothing running behind it, which is how a runner that ships a podman
+# binary but never starts the podman socket selects `podman compose` and then
+# dies on `up -d`. `ps` has to reach the engine to answer, so it separates
+# "installed" from "usable". Nothing here can tell which engine already holds
+# the images, so CI still pins COMPOSE explicitly; this only keeps an
+# unpinned host from picking a provider that cannot work.
+compose_reaches_backend() { # provider words… -> 0 when the engine answers
+    "$@" -f compose.yml ps -q >/dev/null 2>&1
+}
+
 detect_compose() {
     if [ -n "${COMPOSE:-}" ]; then
         log "compose provider (forced): $COMPOSE"
         return
     fi
-    if command -v podman-compose >/dev/null; then
-        COMPOSE="podman-compose"
-    elif podman compose version >/dev/null 2>&1; then
-        COMPOSE="podman compose"
-    elif docker compose version >/dev/null 2>&1; then
-        COMPOSE="docker compose"
-    else
-        die "no compose provider found"
-    fi
-    log "compose provider: $COMPOSE"
+    local installed=() candidate
+    command -v podman-compose >/dev/null && installed+=("podman-compose")
+    podman compose version >/dev/null 2>&1 && installed+=("podman compose")
+    docker compose version >/dev/null 2>&1 && installed+=("docker compose")
+    [ ${#installed[@]} -gt 0 ] || die "no compose provider found"
+    for candidate in "${installed[@]}"; do
+        # shellcheck disable=SC2086 # provider may be two words ("docker compose")
+        if compose_reaches_backend $candidate; then
+            COMPOSE=$candidate
+            log "compose provider: $COMPOSE"
+            return
+        fi
+    done
+    # Every probe failed. Rather than refuse to run, fall back to the old
+    # first-installed-wins pick so the caller still gets the engine's own
+    # error instead of ours.
+    COMPOSE=${installed[0]}
+    log "compose provider: $COMPOSE (warning: no provider reached a running backend)"
 }
 
 # The container engine, for the per-container operations (pause, restart,
 # logs) the scenarios below need. Compose has no portable equivalent.
+#
+# It must be the engine the compose provider put the containers in, so derive
+# it from that provider instead of probing for a binary. A runner can have
+# both installed, and `podman ps` cheerfully reports podman's own — empty —
+# container list while the stack is running under docker, which would leave
+# container_of() finding nothing.
 ENGINE=${ENGINE:-}
 detect_engine() {
     if [ -n "$ENGINE" ]; then return; fi
-    if command -v podman >/dev/null; then
-        ENGINE=podman
-    elif command -v docker >/dev/null; then
-        ENGINE=docker
-    else
-        die "neither podman nor docker found"
-    fi
+    [ -n "${COMPOSE:-}" ] || detect_compose
+    case $COMPOSE in
+    podman*) ENGINE=podman ;;
+    docker*) ENGINE=docker ;;
+    *) die "cannot derive a container engine from compose provider '$COMPOSE'; set ENGINE" ;;
+    esac
+    command -v "$ENGINE" >/dev/null ||
+        die "compose provider '$COMPOSE' implies '$ENGINE', which is not installed"
 }
 
 # Resolve the container name of a compose service. Works for both

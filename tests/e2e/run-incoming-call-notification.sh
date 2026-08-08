@@ -23,11 +23,15 @@ result() { printf 'RESULT: %s %s\n' "$1" "$2"; [ "$1" = FAIL ] && FAILED=1 || tr
 FAILED=0
 
 # --- compose provider (same detection as the other harness scripts) ---------
-if command -v podman-compose >/dev/null; then COMPOSE="podman-compose"
+# A preset COMPOSE (or the older COMPOSE_OVERRIDE) forces the provider and
+# must win over detection; see harness-lib.sh for why detection alone is not
+# trustworthy on a host that has podman installed but not running.
+if [ -n "${COMPOSE_OVERRIDE:-}" ]; then COMPOSE=$COMPOSE_OVERRIDE
+elif [ -n "${COMPOSE:-}" ]; then :
+elif command -v podman-compose >/dev/null; then COMPOSE="podman-compose"
 elif podman compose version >/dev/null 2>&1; then COMPOSE="podman compose"
 elif docker compose version >/dev/null 2>&1; then COMPOSE="docker compose"
 else fail "no compose provider found"; fi
-COMPOSE=${COMPOSE_OVERRIDE:-$COMPOSE}
 log "using compose provider: $COMPOSE"
 
 cleanup() { [ "${KEEP_STACK:-0}" = 1 ] || $COMPOSE -f compose.yml down -v >/dev/null 2>&1 || true; }
