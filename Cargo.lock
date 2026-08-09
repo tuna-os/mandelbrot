@@ -1399,7 +1399,7 @@ dependencies = [
  "pulldown-cmark",
  "qrcode",
  "quick_cache",
- "rand 0.9.4",
+ "rand 0.10.1",
  "regex",
  "rmp-serde",
  "ruma",
