@@ -47,7 +47,7 @@ mime = "0.3"
 mime_guess = "2"
 pulldown-cmark = "0.13"
 qrcode = { version = "0.14", default-features = false }
-quick_cache = "0.6"
+quick_cache = "0.7"
 rand = "0.9"
 regex = "1"
 rmp-serde = "1"
