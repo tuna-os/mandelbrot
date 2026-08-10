@@ -65,7 +65,7 @@ mod imp {
             self.stack.add_named(&self.call_view, Some("call"));
 
             let toolbar_view = adw::ToolbarView::new();
-            toolbar_view.add_top_bar(&*self.header_bar);
+            toolbar_view.add_top_bar(&self.header_bar);
             toolbar_view.set_content(Some(&self.stack));
             obj.set_child(Some(&toolbar_view));
 
