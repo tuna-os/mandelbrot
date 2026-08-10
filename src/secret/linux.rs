@@ -54,7 +54,7 @@ impl SecretExt for LinuxSecret {
     async fn restore_sessions() -> Result<Vec<StoredSession>, SecretError> {
         /// The timeout, in seconds, for the session restore via the Secret
         /// portal.
-        const RESTORE_TIMEOUT: u64 = 10;
+        const RESTORE_TIMEOUT: u32 = 10;
 
         let handle = spawn_tokio!(async move { restore_sessions_inner().await });
         let timeout = std::pin::pin!(glib::timeout_future_seconds(RESTORE_TIMEOUT));
