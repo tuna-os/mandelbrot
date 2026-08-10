@@ -33,7 +33,7 @@ default-features = false
 features = ["access-token", "signal-client-tokio", "rustls-tls-webpki-roots"]
 
 [dependencies.reqwest]
-version = "0.12"
+version = "0.13"
 optional = true
 default-features = false
 features = ["rustls-tls-webpki-roots", "json"]
