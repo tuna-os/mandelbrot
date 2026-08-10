@@ -74,8 +74,10 @@ jobs:
 
     - name: Log in to GHCR
       run: |
-        echo "${{ secrets.GITHUB_TOKEN }}" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
+        echo "${{ env.GITHUB_TOKEN }}" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
 
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Push both arches to GHCR
       run: |
         # Each arch is pushed under an arch-qualified tag so both manifests are
@@ -99,11 +101,17 @@ jobs:
         skopeo copy oci:oci/mandelbrot-oci-x86_64 docker://ghcr.io/tuna-os/mandelbrot:latest
 
     - name: Update central index (tuna-os/docs)
+      env:
+        FLATPAK_INDEX_TOKEN: ${{ secrets.FLATPAK_INDEX_TOKEN }}
       run: |
         set -euo pipefail
         git clone --depth 1 \
-          https://x-access-token:${{ secrets.FLATPAK_INDEX_TOKEN }}@github.com/tuna-os/docs.git \
+          https://github.com/tuna-os/docs.git \
           index-repo
+        # Use header-based auth so the token never lands in the remote URL
+        # (avoids leaks via .git/config, `git remote -v`, and process listings).
+        git -C index-repo config --local http.extraheader \
+          "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$FLATPAK_INDEX_TOKEN" | base64)"
         pip install requests
         # One entry per architecture; update-index.py replaces only the matching
         # arch, leaving the other in place.
