@@ -513,44 +513,24 @@ async fn main() {
         });
     }
 
-    // Join the MatrixRTC session (sends the delayed leave + membership
-    // events in the background).
-    let foci_preferred = options
-        .focus
-        .as_ref()
-        .map(|service_url| {
-            vec![Transport::from_livekit(
-                &ruma::events::call::member::LivekitFocus::new(
-                    room_id.clone(),
-                    service_url.clone(),
-                ),
-            )]
-        })
-        .unwrap_or_default();
-    session.join_rtc_session(foci_preferred);
-
-    // Resolve the focus: active focus of the session (which needs our own
-    // membership to be in the room state, so poll), falling back to the
-    // focus given on the command line.
-    let mut service_url = None;
-    for _ in 0..40 {
-        service_url = session
-            .get_active_focus()
-            .and_then(|focus| focus.as_livekit().map(|lk| lk.service_url));
-        if service_url.is_some() {
-            break;
-        }
-        tokio::time::sleep(Duration::from_millis(500)).await;
-    }
-    let service_url = service_url
-        .or_else(|| options.focus.clone())
-        .unwrap_or_else(|| {
-            eprintln!("no active focus in the session and no --focus given; nothing to connect to");
-            exit(1);
-        });
+    // Resolve the focus: use the --focus argument (pre-warmed preferred
+    // foci). We prove SFU access BEFORE writing membership so that a user
+    // who cannot reach the SFU never appears in the call (#9).
+    let service_url = options.focus.clone().unwrap_or_else(|| {
+        eprintln!("no --focus given; nothing to connect to");
+        exit(1);
+    });
     println!("using LiveKit JWT service: {service_url}");
+    let foci_preferred = vec![Transport::from_livekit(
+        &ruma::events::call::member::LivekitFocus::new(
+            room_id.clone(),
+            service_url.clone(),
+        ),
+    )];
 
-    // Fetch the SFU JWT with our OpenID token (MSC4195).
+    // Fetch the SFU JWT with our OpenID token (MSC4195) and connect
+    // to LiveKit BEFORE joining — proves SFU access before membership
+    // is advertised.
     let openid_token = client.get_openid_token().await.expect("openid token");
     let sfu_config = fetch_sfu_config(
         &client.http,
@@ -563,11 +543,13 @@ async fn main() {
     .expect("SFU config");
     println!("got SFU config: url={}", sfu_config.url);
 
-    // Connect to LiveKit with E2EE enabled.
-    let (connection, mut room_events) = LivekitCallConnection::connect(&sfu_config)
+    let (mut connection, mut room_events) = LivekitCallConnection::connect(&sfu_config)
         .await
         .expect("LiveKit connect");
     println!("connected as {}", connection.local_identity());
+
+    // Now that SFU access is proven, advertise our membership.
+    session.join_rtc_session(foci_preferred);
 
     // Publish a microphone track and feed it silence, so that remote
     // participants actually receive (E2EE) audio frames from us.
@@ -612,9 +594,13 @@ async fn main() {
     let deadline = tokio::time::Instant::now() + Duration::from_secs(options.assert_timeout);
     let mut ticker = tokio::time::interval(Duration::from_secs(1));
 
+    // Reconnect backoff: starts at 200 ms, capped at 30 s.
+    let mut reconnect_backoff = Duration::from_millis(200);
+
     // Wire the E2EE keys of the session into the frame cryptor, and print
-    // membership/track updates.
-    loop {
+    // membership/track updates. Reconnect to the SFU on disconnect while
+    // the Matrix-side membership is still live (#8).
+    'outer: loop {
         tokio::select! {
             Some(event) = events.recv() => match event {
                 RtcCallSessionEvent::EncryptionKeyChanged {
@@ -640,6 +626,10 @@ async fn main() {
                     {
                         peer_membership_seen = true;
                     }
+                }
+                RtcCallSessionEvent::JoinStateChanged(false) => {
+                    println!("we left the session");
+                    break 'outer;
                 }
                 other => println!("session event: {other:?}"),
             },
@@ -687,7 +677,80 @@ async fn main() {
                 }
                 livekit::RoomEvent::Disconnected { reason } => {
                     println!("disconnected: {reason:?}");
-                    break;
+                    if !session.is_joined() {
+                        break 'outer;
+                    }
+                    println!(
+                        "still joined; reconnecting in {} ms",
+                        reconnect_backoff.as_millis()
+                    );
+                    tokio::time::sleep(reconnect_backoff).await;
+                    reconnect_backoff =
+                        (reconnect_backoff * 2).min(Duration::from_secs(30));
+                    // Re-fetch SFU config (token may have changed) and
+                    // reconnect.
+                    match client.get_openid_token().await {
+                        Ok(openid_token) => {
+                            match fetch_sfu_config(
+                                &client.http,
+                                &service_url,
+                                room_id,
+                                device_id,
+                                &openid_token,
+                            )
+                            .await
+                            {
+                                Ok(new_sfu_config) => {
+                                    match LivekitCallConnection::connect(
+                                        &new_sfu_config,
+                                    )
+                                    .await
+                                    {
+                                        Ok((new_connection, new_events)) => {
+                                            println!(
+                                                "reconnected as {}",
+                                                new_connection.local_identity()
+                                            );
+                                            // Re-apply encryption keys to
+                                            // the new connection.
+                                            if let Some(key_rings) =
+                                                session.get_encryption_keys()
+                                            {
+                                                for ring in key_rings.values()
+                                                {
+                                                    new_connection
+                                                        .apply_key_ring(
+                                                            ring.iter(),
+                                                        );
+                                                }
+                                            }
+                                            let _old = std::mem::replace(
+                                                &mut connection,
+                                                new_connection,
+                                            );
+                                            drop(_old);
+                                            room_events = new_events;
+                                            reconnect_backoff =
+                                                Duration::from_millis(200);
+                                        }
+                                        Err(error) => {
+                                            eprintln!(
+                                                "reconnect failed: {error}"
+                                            );
+                                        }
+                                    }
+                                }
+                                Err(error) => {
+                                    eprintln!(
+                                        "SFU config refetch failed: {error}"
+                                    );
+                                }
+                            }
+                        }
+                        Err(error) => {
+                            eprintln!("openid token refresh failed: {error}");
+                        }
+                    }
                 }
                 _ => {}
             },
@@ -726,14 +789,16 @@ async fn main() {
                 }
             },
             _ = tokio::signal::ctrl_c() => {
-                break;
+                break 'outer;
             }
         }
     }
 
-    session
-        .leave_rtc_session(Some(Duration::from_secs(10)))
-        .await;
+    if session.is_joined() {
+        session
+            .leave_rtc_session(Some(Duration::from_secs(10)))
+            .await;
+    }
     let _ = connection.disconnect().await;
     println!("left the session gracefully");
 }

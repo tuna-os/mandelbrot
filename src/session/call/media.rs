@@ -16,7 +16,7 @@ use std::{
 
 use gst::prelude::*;
 use mandelbrot_matrixrtc::{
-    RtcCallSession, RtcCallSessionEvent, Transport, livekit,
+    RtcCallSession, RtcCallSessionEvent, Transport, livekit, reqwest,
     livekit_connection::{LivekitCallConnection, OpenIdToken, SfuConfig, fetch_sfu_config},
 };
 use matrix_sdk::Client;
@@ -185,8 +185,11 @@ fn service_url(engine: &RtcCallSession, preferred_foci: &[Transport]) -> Option<
         })
 }
 
-/// Run the media connection until the task is aborted or the room
-/// disconnects.
+/// Run the media connection until the task is aborted or the user leaves.
+///
+/// On SFU disconnect the connection is retried with exponential backoff
+/// while the Matrix-side membership is still live (#8). Membership is only
+/// advertised after the first successful SFU connection (#9).
 async fn run(
     client: Client,
     room_id: OwnedRoomId,
@@ -204,25 +207,32 @@ async fn run(
     // Subscribe before connecting so that no key event is lost.
     let mut engine_events = engine.subscribe();
 
-    let service_url = service_url(&engine, &preferred_foci)
+    // Resolve the focus: preferred foci first (pre-warming from
+    // .well-known), falling back to the active focus of the session
+    // once we are in it.
+    let service_url = preferred_foci
+        .iter()
+        .find_map(|focus| focus.as_livekit().map(|lk| lk.service_url))
+        .or_else(|| service_url(&engine, &preferred_foci))
         .ok_or_else(|| "no LiveKit focus available for this call".to_owned())?;
 
-    let openid_token = get_openid_token(&client).await?;
     let http = mandelbrot_matrixrtc::reqwest::Client::new();
-    let sfu_config: SfuConfig = fetch_sfu_config(
+
+    // Connect to the SFU BEFORE advertising membership, so that a user who
+    // cannot reach the SFU never appears in the call (#9).
+    let (mut connection, mut room_events) = connect_to_sfu(
+        &client,
         &http,
         &service_url,
-        room_id.as_str(),
+        &room_id,
         &device_id,
-        &openid_token,
     )
-    .await
-    .map_err(|error| format!("failed to fetch the SFU configuration: {error}"))?;
+    .await?;
 
-    let (connection, mut room_events) = Box::pin(LivekitCallConnection::connect(&sfu_config))
-        .await
-        .map_err(|error| format!("failed to connect to the SFU: {error}"))?;
-    debug!("Connected to LiveKit as {}", connection.local_identity());
+    // SFU access proven — now advertise our membership.
+    if !engine.is_joined() {
+        engine.join_rtc_session(preferred_foci.clone());
+    }
 
     // Keys that arrived before the connection was established.
     if let Some(key_rings) = engine.get_encryption_keys() {
@@ -249,35 +259,98 @@ async fn run(
     // once frames actually arrive, so that the resolution is known and the
     // other participants never see an empty track.
     let mut camera: Option<CameraTrack> = None;
-    let result = loop {
-        tokio::select! {
-            message = camera_rx.recv() => {
-                let Some(message) = message else {
-                    break Ok(());
-                };
-                handle_camera_message(&connection, &mut camera, message).await;
-            }
-            event = engine_events.recv() => {
-                let Some(event) = event else {
-                    break Ok(());
-                };
-                if let RtcCallSessionEvent::EncryptionKeyChanged {
-                    key,
-                    key_index,
-                    rtc_backend_identity,
-                    ..
-                } = event
-                {
-                    connection.set_participant_key(&rtc_backend_identity, key_index, key);
+
+    // Reconnect backoff: starts at 200 ms, capped at 30 s.
+    let mut reconnect_backoff = Duration::from_millis(200);
+
+    // Outer loop: reconnects on SFU disconnect while the user is still
+    // joined to the call (#8).
+    let result = 'outer: loop {
+        // Inner event loop: runs while the SFU connection is alive.
+        loop {
+            tokio::select! {
+                message = camera_rx.recv() => {
+                    let Some(message) = message else {
+                        break 'outer Ok(());
+                    };
+                    handle_camera_message(&connection, &mut camera, message).await;
+                }
+                event = engine_events.recv() => {
+                    let Some(event) = event else {
+                        break 'outer Ok(());
+                    };
+                    match event {
+                        RtcCallSessionEvent::EncryptionKeyChanged {
+                            key,
+                            key_index,
+                            rtc_backend_identity,
+                            ..
+                        } => {
+                            connection.set_participant_key(
+                                &rtc_backend_identity, key_index, key,
+                            );
+                        }
+                        RtcCallSessionEvent::JoinStateChanged(false) => {
+                            debug!("User left the call; stopping media");
+                            break 'outer Ok(());
+                        }
+                        _ => {}
+                    }
+                }
+                event = room_events.recv() => {
+                    let Some(event) = event else {
+                        // The LiveKit room event stream ended.
+                        break;
+                    };
+                    if handle_room_event(event, tx, &mut video_tasks).await.is_break() {
+                        // Disconnected from the SFU.
+                        break;
+                    }
                 }
             }
-            event = room_events.recv() => {
-                let Some(event) = event else {
-                    break Ok(());
-                };
-                if handle_room_event(event, tx, &mut video_tasks).await.is_break() {
-                    break Ok(());
+        };
+
+        // Inner loop ended — SFU disconnected. Check if we should
+        // reconnect.
+        if !engine.is_joined() {
+            debug!("No longer joined; not reconnecting");
+            break 'outer Ok(());
+        }
+
+        warn!(
+            "SFU disconnected; reconnecting in {} ms",
+            reconnect_backoff.as_millis()
+        );
+        tokio::time::sleep(reconnect_backoff).await;
+        reconnect_backoff = (reconnect_backoff * 2).min(Duration::from_secs(30));
+
+        // Re-fetch the SFU config (token may have changed) and reconnect.
+        match connect_to_sfu(
+            &client,
+            &http,
+            &service_url,
+            &room_id,
+            &device_id,
+        )
+        .await
+        {
+            Ok((new_connection, new_events)) => {
+                debug!("Reconnected to LiveKit as {}", new_connection.local_identity());
+                // Keys may have arrived while disconnected.
+                if let Some(key_rings) = engine.get_encryption_keys() {
+                    for ring in key_rings.values() {
+                        new_connection.apply_key_ring(ring.iter());
+                    }
                 }
+                // Drop the old connection and replace it.
+                let _old = std::mem::replace(&mut connection, new_connection);
+                drop(_old);
+                room_events = new_events;
+                reconnect_backoff = Duration::from_millis(200);
+            }
+            Err(error) => {
+                warn!("SFU reconnect failed: {error}");
+                // Loop around and retry with growing backoff.
             }
         }
     };
@@ -287,6 +360,30 @@ async fn run(
     }
     let _ = connection.disconnect().await;
     result
+}
+
+/// Fetch an OpenID token and SFU config, then connect to the LiveKit SFU.
+async fn connect_to_sfu(
+    client: &Client,
+    http: &reqwest::Client,
+    service_url: &str,
+    room_id: &OwnedRoomId,
+    device_id: &str,
+) -> Result<(LivekitCallConnection, mpsc::UnboundedReceiver<livekit::RoomEvent>), String> {
+    let openid_token = get_openid_token(client).await?;
+    let sfu_config: SfuConfig = fetch_sfu_config(
+        http,
+        service_url,
+        room_id.as_str(),
+        device_id,
+        &openid_token,
+    )
+    .await
+    .map_err(|error| format!("failed to fetch the SFU configuration: {error}"))?;
+
+    Box::pin(LivekitCallConnection::connect(&sfu_config))
+        .await
+        .map_err(|error| format!("failed to connect to the SFU: {error}"))
 }
 
 /// The published camera track and the source feeding it.
