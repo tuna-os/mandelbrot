@@ -40,7 +40,7 @@ cfg-if = "1"
 futures-channel = "0.3"
 futures-util = "0.3"
 geo-uri = "0.2"
-gettext-rs = { version = "0.7", features = ["gettext-system"] }
+gettext-rs = { version = "0.8", features = ["gettext-system"] }
 indexmap = "2"
 linkify = "0.11"
 mime = "0.3"
