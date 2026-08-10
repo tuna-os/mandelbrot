@@ -52,7 +52,8 @@ pub(crate) struct LinuxSecret;
 
 impl SecretExt for LinuxSecret {
     async fn restore_sessions() -> Result<Vec<StoredSession>, SecretError> {
-        /// The timeout, in seconds, for the session restore via the Secret portal.
+        /// The timeout, in seconds, for the session restore via the Secret
+        /// portal.
         const RESTORE_TIMEOUT: u64 = 10;
 
         let handle = spawn_tokio!(async move { restore_sessions_inner().await });
@@ -67,9 +68,7 @@ impl SecretExt for LinuxSecret {
                 }
             },
             Either::Right(_) => {
-                error!(
-                    "Timeout after {RESTORE_TIMEOUT}s while restoring previous sessions"
-                );
+                error!("Timeout after {RESTORE_TIMEOUT}s while restoring previous sessions");
                 Err(SecretError::Service(gettext(
                     "The secret storage service did not respond in time. Make sure a keyring is available.",
                 )))
