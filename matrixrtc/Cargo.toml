@@ -36,7 +36,7 @@ features = ["access-token", "signal-client-tokio", "rustls-tls-webpki-roots"]
 version = "0.13"
 optional = true
 default-features = false
-features = ["rustls-tls-webpki-roots", "json"]
+features = ["rustls", "json"]
 
 # livekit-api has no direct `use` in our code — we declare it to turn on the
 # signal-client-tokio feature that the livekit crate's own transitive copy
