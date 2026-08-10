@@ -116,6 +116,7 @@ src/session/user_sessions_list/user_session.rs
 src/session_list/mod.rs
 src/session_view/call/call_bar.blp
 src/session_view/call/call_bar.rs
+src/session_view/call/dialog.rs
 src/session_view/call/mod.blp
 src/session_view/call/mod.rs
 src/session_view/call/participant_tile.blp

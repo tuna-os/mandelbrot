@@ -1,6 +1,7 @@
 //! Dialog presenting the prescreen and the ongoing call of a room.
 
 use adw::{prelude::*, subclass::prelude::*};
+use gettextrs::gettext;
 use gtk::{glib, glib::clone};
 
 use super::{
@@ -17,6 +18,7 @@ mod imp {
     #[properties(wrapper_type = super::CallDialog)]
     pub struct CallDialog {
         pub(super) stack: gtk::Stack,
+        pub(super) header_bar: adw::HeaderBar,
         pub(super) prescreen: CallPrescreen,
         pub(super) call_view: CallView,
         /// The call state driving this dialog.
@@ -41,12 +43,31 @@ mod imp {
             obj.set_content_width(1000);
             obj.set_content_height(700);
             obj.set_follows_content_size(false);
+            obj.set_title(&gettext("Call"));
+
+            let close_button = gtk::Button::builder()
+                .icon_name("close-symbolic")
+                .tooltip_text(gettext("Close"))
+                .css_classes(["flat"])
+                .build();
+            close_button.connect_clicked(clone!(
+                #[weak]
+                obj,
+                move |_| {
+                    obj.close();
+                }
+            ));
+            self.header_bar.pack_end(&close_button);
 
             self.stack
                 .set_transition_type(gtk::StackTransitionType::Crossfade);
             self.stack.add_named(&self.prescreen, Some("prescreen"));
             self.stack.add_named(&self.call_view, Some("call"));
-            obj.set_child(Some(&self.stack));
+
+            let toolbar_view = adw::ToolbarView::new();
+            toolbar_view.add_top_bar(&self.header_bar);
+            toolbar_view.set_content(Some(&self.stack));
+            obj.set_child(Some(&toolbar_view));
 
             let state = self.state.borrow().clone();
             self.prescreen.set_state(state.clone());
