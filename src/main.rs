@@ -56,7 +56,8 @@ fn main() {
         .init();
 
     // Prepare i18n
-    setlocale(LocaleCategory::LcAll, "");
+    // Safety: `setlocale` is safe to call because the program is single-threaded.
+    unsafe { setlocale(LocaleCategory::LcAll, "") };
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR).expect("Invalid argument passed to bindtextdomain");
     textdomain(GETTEXT_PACKAGE).expect("Invalid string passed to textdomain");
 
