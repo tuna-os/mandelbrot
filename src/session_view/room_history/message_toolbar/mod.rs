@@ -100,9 +100,10 @@ mod imp {
     use std::{
         cell::{Cell, RefCell},
         marker::PhantomData,
+        sync::LazyLock,
     };
 
-    use glib::subclass::InitializingObject;
+    use glib::subclass::{InitializingObject, Signal};
 
     use super::*;
 
@@ -201,6 +202,12 @@ mod imp {
 
     #[glib::derived_properties]
     impl ObjectImpl for MessageToolbar {
+        fn signals() -> &'static [Signal] {
+            static SIGNALS: LazyLock<Vec<Signal>> =
+                LazyLock::new(|| vec![Signal::builder("message-sent").build()]);
+            SIGNALS.as_ref()
+        }
+
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
@@ -832,6 +839,8 @@ mod imp {
 
             // Clear the composer state.
             composer_state.clear();
+
+            self.obj().emit_by_name::<()>("message-sent", &[]);
         }
 
         /// Open the emoji chooser in the message entry.
@@ -955,6 +964,8 @@ mod imp {
                 error!("Could not send location: {error}");
                 toast!(self.obj(), gettext("Could not send location"));
             }
+
+            self.obj().emit_by_name::<()>("message-sent", &[]);
         }
 
         /// Create a poll and send it.
@@ -991,6 +1002,8 @@ mod imp {
                 error!("Could not send poll: {error}");
                 toast!(self.obj(), gettext("Could not send poll"));
             }
+
+            self.obj().emit_by_name::<()>("message-sent", &[]);
         }
 
         /// Show a toast for the given location error;
@@ -1035,6 +1048,8 @@ mod imp {
                 error!("Could not send file: {error}");
                 toast!(self.obj(), gettext("Could not send file"));
             }
+
+            self.obj().emit_by_name::<()>("message-sent", &[]);
         }
 
         /// Start recording a voice message.
@@ -1568,5 +1583,19 @@ impl MessageToolbar {
                 imp.read_clipboard_file().await;
             }
         ));
+    }
+
+    /// Connect to the signal emitted when a message was sent.
+    pub(crate) fn connect_message_sent<F: Fn(&Self) + 'static>(
+        &self,
+        f: F,
+    ) -> glib::SignalHandlerId {
+        self.connect_closure(
+            "message-sent",
+            false,
+            glib::closure_local!(move |obj: Self| {
+                f(&obj);
+            }),
+        )
     }
 }

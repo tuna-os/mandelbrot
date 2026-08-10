@@ -172,7 +172,7 @@ impl TimelineItemContentExt for TimelineItemContent {
                             | MessageType::Video(_)
                     )
                 }
-                MsgLikeKind::Sticker(_) | MsgLikeKind::UnableToDecrypt(_) => true,
+                MsgLikeKind::Sticker(_) | MsgLikeKind::Poll(_) | MsgLikeKind::UnableToDecrypt(_) => true,
                 _ => false,
             },
             _ => false,

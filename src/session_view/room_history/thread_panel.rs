@@ -112,6 +112,14 @@ mod imp {
             self.parent_constructed();
 
             self.init_listview();
+
+            self.message_toolbar.connect_message_sent(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                move |_| {
+                    imp.refresh_root_thread_indicator();
+                }
+            ));
         }
     }
 
@@ -445,6 +453,37 @@ mod imp {
                 .is_err()
             {
                 error!("Could not activate `room-history.close-thread` action");
+            }
+        }
+
+        /// Refresh the thread indicator on the root event in the main
+        /// timeline after a message was sent in this thread.
+        fn refresh_root_thread_indicator(&self) {
+            let Some(root_event_id) = self
+                .timeline
+                .obj()
+                .and_then(|timeline| timeline.thread_root_id())
+            else {
+                return;
+            };
+
+            let Some(room_history) = self.room_history.upgrade() else {
+                return;
+            };
+
+            let Some(main_timeline) = room_history.timeline() else {
+                return;
+            };
+
+            let root_event = main_timeline
+                .event_by_identifier(&TimelineEventItemId::EventId(root_event_id));
+
+            if let Some(root_event) = root_event {
+                spawn!(async move {
+                    if let Err(error) = root_event.fetch_missing_details().await {
+                        error!("Could not fetch details for root event: {error}");
+                    }
+                });
             }
         }
     }
