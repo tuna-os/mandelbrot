@@ -3302,7 +3302,7 @@ dependencies = [
  "getrandom 0.3.4",
  "livekit",
  "livekit-api",
- "reqwest 0.12.28",
+ "reqwest 0.13.3",
  "ruma",
  "serde",
  "serde_json",
