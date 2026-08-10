@@ -16,8 +16,9 @@ use std::{
 
 use gst::prelude::*;
 use mandelbrot_matrixrtc::{
-    RtcCallSession, RtcCallSessionEvent, Transport, livekit, reqwest,
+    RtcCallSession, RtcCallSessionEvent, Transport, livekit,
     livekit_connection::{LivekitCallConnection, OpenIdToken, SfuConfig, fetch_sfu_config},
+    reqwest,
 };
 use matrix_sdk::Client;
 use ruma::{OwnedRoomId, api::client::account::request_openid_token};
@@ -220,14 +221,8 @@ async fn run(
 
     // Connect to the SFU BEFORE advertising membership, so that a user who
     // cannot reach the SFU never appears in the call (#9).
-    let (mut connection, mut room_events) = connect_to_sfu(
-        &client,
-        &http,
-        &service_url,
-        &room_id,
-        &device_id,
-    )
-    .await?;
+    let (mut connection, mut room_events) =
+        connect_to_sfu(&client, &http, &service_url, &room_id, &device_id).await?;
 
     // SFU access proven — now advertise our membership.
     if !engine.is_joined() {
@@ -308,7 +303,7 @@ async fn run(
                     }
                 }
             }
-        };
+        }
 
         // Inner loop ended — SFU disconnected. Check if we should
         // reconnect.
@@ -325,17 +320,12 @@ async fn run(
         reconnect_backoff = (reconnect_backoff * 2).min(Duration::from_secs(30));
 
         // Re-fetch the SFU config (token may have changed) and reconnect.
-        match connect_to_sfu(
-            &client,
-            &http,
-            &service_url,
-            &room_id,
-            &device_id,
-        )
-        .await
-        {
+        match connect_to_sfu(&client, &http, &service_url, &room_id, &device_id).await {
             Ok((new_connection, new_events)) => {
-                debug!("Reconnected to LiveKit as {}", new_connection.local_identity());
+                debug!(
+                    "Reconnected to LiveKit as {}",
+                    new_connection.local_identity()
+                );
                 // Keys may have arrived while disconnected.
                 if let Some(key_rings) = engine.get_encryption_keys() {
                     for ring in key_rings.values() {
@@ -369,7 +359,13 @@ async fn connect_to_sfu(
     service_url: &str,
     room_id: &OwnedRoomId,
     device_id: &str,
-) -> Result<(LivekitCallConnection, mpsc::UnboundedReceiver<livekit::RoomEvent>), String> {
+) -> Result<
+    (
+        LivekitCallConnection,
+        mpsc::UnboundedReceiver<livekit::RoomEvent>,
+    ),
+    String,
+> {
     let openid_token = get_openid_token(client).await?;
     let sfu_config: SfuConfig = fetch_sfu_config(
         http,

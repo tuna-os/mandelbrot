@@ -522,10 +522,7 @@ async fn main() {
     });
     println!("using LiveKit JWT service: {service_url}");
     let foci_preferred = vec![Transport::from_livekit(
-        &ruma::events::call::member::LivekitFocus::new(
-            room_id.clone(),
-            service_url.clone(),
-        ),
+        &ruma::events::call::member::LivekitFocus::new(room_id.clone(), service_url.clone()),
     )];
 
     // Fetch the SFU JWT with our OpenID token (MSC4195) and connect
