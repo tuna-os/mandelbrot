@@ -3,7 +3,9 @@
 
 use std::{collections::HashMap, path::Path};
 
+use futures_util::future::{self, Either};
 use gettextrs::gettext;
+use gtk::glib;
 use matrix_sdk::authentication::oauth::ClientId;
 use oo7::{Item, Keyring};
 use ruma::UserId;
@@ -50,12 +52,26 @@ pub(crate) struct LinuxSecret;
 
 impl SecretExt for LinuxSecret {
     async fn restore_sessions() -> Result<Vec<StoredSession>, SecretError> {
+        /// The timeout, in seconds, for the session restore via the Secret
+        /// portal.
+        const RESTORE_TIMEOUT: u32 = 10;
+
         let handle = spawn_tokio!(async move { restore_sessions_inner().await });
-        match handle.await.expect("task was not aborted") {
-            Ok(sessions) => Ok(sessions),
-            Err(error) => {
-                error!("Could not restore previous sessions: secret error: {error}");
-                Err(error.into())
+        let timeout = std::pin::pin!(glib::timeout_future_seconds(RESTORE_TIMEOUT));
+
+        match future::select(handle, timeout).await {
+            Either::Left((result, _)) => match result.expect("task was not aborted") {
+                Ok(sessions) => Ok(sessions),
+                Err(error) => {
+                    error!("Could not restore previous sessions: secret error: {error}");
+                    Err(error.into())
+                }
+            },
+            Either::Right(_) => {
+                error!("Timeout after {RESTORE_TIMEOUT}s while restoring previous sessions");
+                Err(SecretError::Service(gettext(
+                    "The secret storage service did not respond in time. Make sure a keyring is available.",
+                )))
             }
         }
     }
