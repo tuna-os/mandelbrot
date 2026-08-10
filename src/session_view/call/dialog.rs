@@ -57,8 +57,7 @@ mod imp {
                     obj.close();
                 }
             ));
-            self.header_bar
-                .pack_end(&close_button);
+            self.header_bar.pack_end(&close_button);
 
             self.stack
                 .set_transition_type(gtk::StackTransitionType::Crossfade);

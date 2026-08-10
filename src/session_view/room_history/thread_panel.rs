@@ -475,8 +475,8 @@ mod imp {
                 return;
             };
 
-            let root_event = main_timeline
-                .event_by_identifier(&TimelineEventItemId::EventId(root_event_id));
+            let root_event =
+                main_timeline.event_by_identifier(&TimelineEventItemId::EventId(root_event_id));
 
             if let Some(root_event) = root_event {
                 spawn!(async move {
