@@ -1258,7 +1258,7 @@ dependencies = [
  "lazy_static",
  "libloading",
  "libwebrtc",
- "livekit-api",
+ "livekit-api 0.5.6",
  "livekit-common",
  "livekit-data-stream",
  "livekit-datatrack",
@@ -1282,10 +1282,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e827d3444235ddccf360fc1d4737034e86ee2ea2c0a696f148ecc08e7249bfd3"
 dependencies = [
  "base64 0.21.7",
- "bytes",
  "device-info",
- "flate2",
- "futures-util",
  "hmac",
  "http",
  "jsonwebtoken",
@@ -1307,6 +1304,40 @@ dependencies = [
  "thiserror 2.0.20",
  "tokio",
  "tokio-tungstenite",
+ "url",
+]
+
+[[package]]
+name = "livekit-api"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77d266ec6227044e74bde80ccbeaed2a2ee0487b65c20c89cb0a34f30fa3a1ff"
+dependencies = [
+ "base64 0.21.7",
+ "bytes",
+ "device-info",
+ "flate2",
+ "hmac",
+ "http",
+ "jsonwebtoken",
+ "livekit-common",
+ "livekit-net",
+ "livekit-protocol",
+ "livekit-runtime",
+ "log",
+ "os_info",
+ "parking_lot",
+ "pbjson-types",
+ "prost",
+ "rand 0.9.5",
+ "reqwest 0.12.28",
+ "scopeguard",
+ "serde",
+ "serde_json",
+ "sha2",
+ "signature",
+ "thiserror 2.0.20",
+ "tokio",
  "url",
 ]
 
@@ -1362,6 +1393,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "livekit-net"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46155c42ad7acccca96a0d8be2bd0f379565f93e85144fb3aa6fa406371fee22"
+dependencies = [
+ "async-trait",
+ "base64 0.21.7",
+ "bytes",
+ "futures-util",
+ "http",
+ "livekit-runtime",
+ "log",
+ "reqwest 0.12.28",
+ "tokio",
+ "tokio-tungstenite",
+ "url",
+]
+
+[[package]]
 name = "livekit-protocol"
 version = "0.7.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1413,7 +1463,7 @@ dependencies = [
  "futures",
  "getrandom 0.3.4",
  "livekit",
- "livekit-api",
+ "livekit-api 0.6.1",
  "reqwest 0.13.4",
  "ruma",
  "serde",
