@@ -20,6 +20,9 @@ use crate::{
     utils::{BoundObject, key_bindings},
 };
 
+/// Maximum characters to render before ellipsizing.
+const MAX_CHARS: usize = 20;
+
 mod imp {
     use std::{
         cell::{Cell, RefCell},
@@ -200,8 +203,7 @@ mod imp {
         /// Set the display name of this pill.
         fn set_display_name(&self, label: &str) {
             // We ellipsize the string manually because GtkTextView uses the minimum width.
-            // Show 30 characters max.
-            let mut maybe_ellipsized = label.chars().take(30).collect::<String>();
+            let mut maybe_ellipsized = label.chars().take(MAX_CHARS).collect::<String>();
 
             let is_ellipsized = maybe_ellipsized.len() < label.len();
             if is_ellipsized {
