@@ -9,6 +9,7 @@ yanked = "deny"
 ignore = [
     { id = "RUSTSEC-2026-0173", reason = "proc-macro-error2 is unmaintained but used by dependencies of matrix-sdk" },
     { id = "RUSTSEC-2026-0247", reason = "bitmaps is unmaintained with no safe upgrade; it is a transitive dependency of imbl via matrix-sdk/eyeball-im" },
+    { id = "RUSTSEC-2026-0253", reason = "lru 0.16.4 use-after-free in LruCache::pop() on a panicking Drop; fixed in 0.18.2, but rqrr 0.10.1 (latest, transitive via aperture for QR scanning) hard-pins lru = \"^0.16\" and cannot resolve past 0.16.x until rqrr releases a bump — see #61" },
 ]
 
 [bans]
