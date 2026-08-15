@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fractal master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/World/fractal/issues\n"
-"POT-Creation-Date: 2026-05-27 15:22+0000\n"
-"PO-Revision-Date: 2026-05-29 08:15+0800\n"
+"POT-Creation-Date: 2026-08-12 11:04+0000\n"
+"PO-Revision-Date: 2026-08-15 17:52+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -124,7 +124,11 @@ msgstr "看看谁阅读了消息以及谁正在输入"
 
 #: data/org.gnome.Fractal.metainfo.xml.in.in:21
 msgid "Log into multiple accounts at once (with Single-Sign On support)"
-msgstr "同时登录多个账号（支持单点登录）"
+msgstr "同时登录多个账户（支持单点登录）"
+
+#: data/org.gnome.Fractal.metainfo.xml.in.in:31 src/application.rs:244
+msgid "The Fractal Team"
+msgstr "Fractal 团队"
 
 #: data/org.gnome.Fractal.metainfo.xml.in.in:39
 msgid "Fractal’s main window"
@@ -140,11 +144,11 @@ msgstr "Fractal 的界面可适应小屏幕"
 
 #: src/account_chooser_dialog/mod.blp:5 src/account_chooser_dialog/mod.blp:35
 msgid "Select an Account"
-msgstr "选择账号"
+msgstr "选择账户"
 
 #: src/account_chooser_dialog/mod.blp:62
 msgid "Select the account you want to open the URI with"
-msgstr "选择您想要打开该网址使用的账号"
+msgstr "选择您想要打开该网址使用的账户"
 
 #: src/account_settings/encryption_page/import_export_keys_subpage.blp:68
 msgid "Passphrase"
@@ -177,7 +181,7 @@ msgid ""
 "to decrypt your messages in end-to-end encrypted rooms on another device or "
 "with another Matrix client."
 msgstr ""
-"导出聊天室加密密钥允许您在其它设备或其它 Matrix 客户端上解密端对端加密聊天室"
+"导出聊天室加密密钥允许您在其他设备或其他 Matrix 客户端上解密端对端加密聊天室"
 "中的消息。"
 
 #: src/account_settings/encryption_page/import_export_keys_subpage.rs:156
@@ -273,17 +277,17 @@ msgstr "加密身份"
 msgid ""
 "Allows you to verify other Matrix accounts and automatically trust their "
 "verified sessions"
-msgstr "允许您验证其它 Matrix 账号并自动信任其通过验证的会话"
+msgstr "允许您验证其他 Matrix 账户并自动信任其通过验证的会话"
 
 #: src/account_settings/encryption_page/mod.blp:75
 msgid "Account Recovery"
-msgstr "账号恢复"
+msgstr "账户恢复"
 
 #: src/account_settings/encryption_page/mod.blp:77
 msgid ""
 "Allows to fully recover your account with a recovery key or passphrase, if "
 "you ever lose access to all your sessions"
-msgstr "允许您使用恢复密钥或口令完整的恢复账号，就算你失去对所有会话的访问"
+msgstr "允许您使用恢复密钥或口令完整的恢复账户，就算你失去对所有会话的访问"
 
 #: src/account_settings/encryption_page/mod.rs:151
 msgid "No Crypto Identity"
@@ -340,20 +344,20 @@ msgstr "验证本会话"
 
 #: src/account_settings/encryption_page/mod.rs:224
 msgid "Account Recovery Disabled"
-msgstr "账号恢复以禁用"
+msgstr "账户恢复以禁用"
 
 #: src/account_settings/encryption_page/mod.rs:226
 msgid ""
 "Enable recovery to be able to restore your account without another device"
-msgstr "启用备份来无需其他设备就能恢复您的账号"
+msgstr "启用备份来无需其他设备就能恢复您的账户"
 
 #: src/account_settings/encryption_page/mod.rs:232
 msgid "Enable Account Recovery"
-msgstr "启用账号恢复"
+msgstr "启用账户恢复"
 
 #: src/account_settings/encryption_page/mod.rs:243
 msgid "Account Recovery Enabled"
-msgstr "账号恢复已启用"
+msgstr "账户恢复已启用"
 
 #: src/account_settings/encryption_page/mod.rs:245
 msgid "Your signing keys and encryption keys are synchronized"
@@ -361,13 +365,13 @@ msgstr "您的签名和加密密钥已同步"
 
 #: src/account_settings/encryption_page/mod.rs:251
 msgid "Reset Account Recovery Key"
-msgstr "重置账号恢复密钥"
+msgstr "重置账户恢复密钥"
 
 #: src/account_settings/encryption_page/mod.rs:263
 #: src/components/crypto/recovery_setup_view.blp:424
 #: src/components/crypto/recovery_setup_view.blp:450
 msgid "Account Recovery Incomplete"
-msgstr "账号恢复未完成"
+msgstr "账户恢复未完成"
 
 #: src/account_settings/encryption_page/mod.rs:265
 msgid "Recover to synchronize your signing keys and encryption keys"
@@ -379,7 +383,7 @@ msgstr "恢复…"
 
 #: src/account_settings/encryption_page/mod.rs:271
 msgid "Recover Account Data"
-msgstr "恢复账号数据"
+msgstr "恢复账户数据"
 
 #: src/account_settings/general_page/change_password_subpage.rs:104
 msgid "Password must be at least 8 characters long"
@@ -424,7 +428,7 @@ msgstr "更改密码"
 
 #: src/account_settings/general_page/change_password_subpage.ui:43
 msgid "Changing your password will log you out of your other sessions."
-msgstr "更改您的密码将登出您的其它会话。"
+msgstr "更改您的密码将登出您的其他会话。"
 
 #: src/account_settings/general_page/change_password_subpage.ui:70
 msgid "New Password"
@@ -446,28 +450,28 @@ msgstr "继续"
 #: src/account_settings/general_page/deactivate_account_subpage.blp:6
 #: src/account_settings/general_page/mod.blp:88
 msgid "Deactivate Account"
-msgstr "停用账号"
+msgstr "停用账户"
 
 #: src/account_settings/general_page/deactivate_account_subpage.blp:46
 msgid ""
 "Deactivating your account means you will lose access to all your messages, "
 "contacts, files, and more, forever."
-msgstr "停用您的账号意味着您将永远失去所有的消息、联系人、文件和更多数据。"
+msgstr "停用您的账户意味着您将永远失去所有的消息、联系人、文件和更多数据。"
 
 #. Translators: Deactivation is a permanent action that occurs on the server.
 #: src/account_settings/general_page/deactivate_account_subpage.blp:59
 msgid ""
 "To confirm that you really want to deactivate this account, type in your "
 "Matrix user ID:"
-msgstr "为确认您真要停用该账号请输入您的 Matrix 用户标识："
+msgstr "为确认您真要停用该账户请输入您的 Matrix 用户标识："
 
 #: src/account_settings/general_page/deactivate_account_subpage.rs:156
 msgid "Account successfully deactivated"
-msgstr "账号已成功停用"
+msgstr "账户已成功停用"
 
 #: src/account_settings/general_page/deactivate_account_subpage.rs:164
 msgid "Could not deactivate account"
-msgstr "无法停用账号"
+msgstr "无法停用账户"
 
 #: src/account_settings/general_page/log_out_subpage.blp:5
 #: src/account_settings/general_page/mod.blp:75
@@ -485,7 +489,7 @@ msgstr "您确认想要登出该会话吗？"
 
 #: src/account_settings/general_page/log_out_subpage.blp:72
 msgid "Review Account Security"
-msgstr "检查账号安全性"
+msgstr "检查账户安全性"
 
 #: src/account_settings/general_page/log_out_subpage.blp:102
 msgid "Logout Failed"
@@ -515,7 +519,7 @@ msgid ""
 "homeserver and other sessions will not be aware that this session was logged "
 "out."
 msgstr ""
-"移除该会话会从系统删除关联数据，但您的主服务器和其它会话将不会知道该会话已登"
+"移除该会话会从系统删除关联数据，但您的主服务器和其他会话将不会知道该会话已登"
 "出。"
 
 #: src/account_settings/general_page/log_out_subpage.blp:162
@@ -528,8 +532,8 @@ msgid ""
 "your last connected session and you have no recent local backup of your "
 "encryption keys, you will not be able to restore your account."
 msgstr ""
-"加密身份和账号恢复未正确设置。如果这是您最后一个连接的会话和您没有目前的加密"
-"密钥本地备份，您将会无法恢复您的账号。"
+"加密身份和账户恢复未正确设置。如果这是您最后一个连接的会话和您没有目前的加密"
+"密钥本地备份，您将会无法恢复您的账户。"
 
 #: src/account_settings/general_page/log_out_subpage.rs:91
 msgid ""
@@ -546,7 +550,7 @@ msgstr "常规"
 
 #: src/account_settings/general_page/mod.blp:16
 msgid "Account Avatar"
-msgstr "账号头像"
+msgstr "账户头像"
 
 #: src/account_settings/general_page/mod.blp:23
 #: src/session_view/create_room_dialog.blp:48
@@ -575,7 +579,7 @@ msgstr "会话"
 
 #: src/account_settings/general_page/mod.blp:68
 msgid "Manage Account"
-msgstr "管理账号"
+msgstr "管理账户"
 
 #: src/account_settings/general_page/mod.blp:101
 #: src/session_view/room_details/general_page.blp:229
@@ -655,7 +659,7 @@ msgstr "您确定想要移除您的头像吗？"
 #: src/components/dialogs/message_dialogs.rs:513
 #: src/identity_verification_view/confirm_qr_code_page.blp:55
 #: src/session_view/room_details/edit_details_subpage.rs:267
-#: src/session_view/room_details/general_page.rs:1001
+#: src/session_view/room_details/general_page.rs:1021
 #: src/session_view/room_details/upgrade_dialog/mod.blp:134
 #: src/session_view/room_history/event_actions/group.rs:584
 #: src/session_view/room_history/event_actions/group.rs:648
@@ -686,7 +690,7 @@ msgstr "无法更改展示名字"
 
 #: src/account_settings/mod.blp:5 src/account_switcher/session_item.blp:58
 msgid "Account Settings"
-msgstr "账号设置"
+msgstr "账户设置"
 
 #: src/account_settings/notifications_page.blp:6
 #: src/session_view/room_details/general_page.blp:111
@@ -695,7 +699,7 @@ msgstr "通知"
 
 #: src/account_settings/notifications_page.blp:11
 msgid "Enable for This Account"
-msgstr "为该账号启用"
+msgstr "为该账户启用"
 
 #: src/account_settings/notifications_page.blp:18
 msgid "Enable for This Session"
@@ -741,11 +745,11 @@ msgstr "添加关键词"
 
 #: src/account_settings/notifications_page.rs:195
 msgid "Could not enable account notifications"
-msgstr "无法启用账号通知"
+msgstr "无法启用账户通知"
 
 #: src/account_settings/notifications_page.rs:197
 msgid "Could not disable account notifications"
-msgstr "无法禁用账号通知"
+msgstr "无法禁用账户通知"
 
 #: src/account_settings/notifications_page.rs:284
 msgid "Could not change global notifications setting"
@@ -882,7 +886,7 @@ msgstr "当前会话"
 #: src/account_settings/user_session/user_session_list_subpage.blp:29
 #: src/account_settings/user_session/user_session_list_subpage.blp:57
 msgid "Other Active Sessions"
-msgstr "其它活动会话"
+msgstr "其他活动会话"
 
 #: src/account_settings/user_session/user_session_list_subpage.blp:74
 msgid "Could not load the list of connected devices"
@@ -946,15 +950,11 @@ msgstr "无法断开会话“{device_name}”的连接"
 
 #: src/account_switcher/account_switcher_button.blp:18
 msgid "Switch Accounts"
-msgstr "切换账号"
+msgstr "切换账户"
 
 #: src/account_switcher/account_switcher_popover.blp:40
 msgid "_Add Account"
-msgstr "添加账号(_A)"
-
-#: src/application.rs:244
-msgid "The Fractal Team"
-msgstr "Fractal 团队"
+msgstr "添加账户(_A)"
 
 #: src/application.rs:250
 msgid "© The Fractal Team"
@@ -999,7 +999,7 @@ msgstr "警告"
 
 #: src/components/action_button.blp:119 src/error_page.blp:9
 #: src/session_view/create_direct_chat_dialog/mod.blp:93
-#: src/session_view/explore/mod.blp:113 src/session_view/explore/mod.blp:117
+#: src/session_view/explore/mod.blp:108 src/session_view/explore/mod.blp:112
 #: src/session_view/room_details/invite_subpage/mod.blp:109
 #: src/session_view/room_details/invite_subpage/mod.blp:113
 #: src/session_view/room_details/members_page/members_list_view/mod.blp:68
@@ -1070,13 +1070,13 @@ msgstr "用另一个会话验证"
 
 #: src/components/crypto/identity_setup_view.blp:68
 msgid "No other devices logged into this account?"
-msgstr "没有其它设备已登录该账号吗？"
+msgstr "没有其他设备已登录该账户吗？"
 
 #: src/components/crypto/identity_setup_view.blp:76
 #: src/components/crypto/recovery_setup_view.blp:8
 #: src/components/crypto/recovery_setup_view.blp:33
 msgid "Recover Account"
-msgstr "恢复账号"
+msgstr "恢复账户"
 
 #: src/components/crypto/identity_setup_view.blp:87
 #: src/components/crypto/identity_setup_view.blp:269
@@ -1101,7 +1101,7 @@ msgstr "设置加密身份"
 msgid ""
 "Your crypto identity allows you to verify other Matrix accounts and "
 "automatically trust their verified sessions."
-msgstr "您的加密身份允许您去认证其他Matrix账号并自动的信任他们通过认证的会话。"
+msgstr "您的加密身份允许您去认证其他Matrix账户并自动的信任他们通过认证的会话。"
 
 #: src/components/crypto/identity_setup_view.blp:167
 msgid "You need to set up a crypto identity, since it has never been created."
@@ -1120,7 +1120,7 @@ msgstr "如果有不属于您的设备成功认证了，您应该重置加密身
 
 #: src/components/crypto/identity_setup_view.blp:257
 msgid "To proceed, you will also need to reset your account recovery key."
-msgstr "要继续进行，您将需要重置您的账号恢复密钥。"
+msgstr "要继续进行，您将需要重置您的账户恢复密钥。"
 
 #: src/components/crypto/identity_setup_view.rs:415
 #: src/identity_verification_view/cancelled_page.rs:196
@@ -1133,13 +1133,13 @@ msgstr "无法创建加密身份"
 
 #: src/components/crypto/recovery_setup_view.blp:44
 msgid "Restore full access to your account."
-msgstr "恢复对您账号的全面访问。"
+msgstr "恢复对您账户的全面访问。"
 
 #: src/components/crypto/recovery_setup_view.blp:52
 msgid ""
 "To access the recovery data, we need the recovery passphrase or the recovery "
 "key that is usually set up when you create your account."
-msgstr "为了访问恢复数据，我们需要您创建账号时通常会设置的恢复口令或恢复密钥。"
+msgstr "为了访问恢复数据，我们需要您创建账户时通常会设置的恢复口令或恢复密钥。"
 
 #: src/components/crypto/recovery_setup_view.blp:69
 msgid "Recovery Passphrase or Key"
@@ -1157,13 +1157,13 @@ msgstr "弄丢了您的恢复口令或密钥？"
 #: src/components/crypto/recovery_setup_view.blp:113
 #: src/components/crypto/recovery_setup_view.blp:138
 msgid "Reset Account Recovery"
-msgstr "重置账号恢复"
+msgstr "重置账户恢复"
 
 #: src/components/crypto/recovery_setup_view.blp:150
 msgid ""
 "Resetting account recovery can allow you to fix or reset part or all of your "
 "recovery setup."
-msgstr "重置账号恢复可让您修复或重置您的部分或全部恢复部署。"
+msgstr "重置账户恢复可让您修复或重置您的部分或全部恢复部署。"
 
 #: src/components/crypto/recovery_setup_view.blp:171
 msgid "Reset Room Encryption Keys Backup"
@@ -1182,7 +1182,7 @@ msgid ""
 "Otherwise, if someone manages to get your account password, they will also "
 "be able to access all your encrypted conversations and to impersonate you."
 msgstr ""
-"您不应该重复使用您的Matrix账号密码作为口令。否则，如果有人设法获得您的帐户密"
+"您不应该重复使用您的Matrix账户密码作为口令。否则，如果有人设法获得您的帐户密"
 "码，他们也将能够访问您的所有的加密对话并冒充您。"
 
 #: src/components/crypto/recovery_setup_view.blp:205
@@ -1193,14 +1193,14 @@ msgstr "恢复口令（可选）"
 #: src/components/crypto/recovery_setup_view.blp:227
 #: src/components/crypto/recovery_setup_view.blp:252
 msgid "Set Up Account Recovery"
-msgstr "设置账号恢复"
+msgstr "设置账户恢复"
 
 #: src/components/crypto/recovery_setup_view.blp:264
 msgid ""
 "Account recovery allows you to recover your crypto identity and to read your "
 "encrypted messages even if you lose access to all your sessions."
 msgstr ""
-"即使无法访问所有您的会话，账号恢复使您能恢复您的加密身份并且读取您之前所有的"
+"即使无法访问所有您的会话，账户恢复使您能恢复您的加密身份并且读取您之前所有的"
 "加密信息。"
 
 #: src/components/crypto/recovery_setup_view.blp:276
@@ -1211,7 +1211,7 @@ msgstr "如果您不提供一个恢复口令，将会创建一个恢复密钥。
 #: src/components/crypto/recovery_setup_view.blp:328
 #: src/components/crypto/recovery_setup_view.blp:354
 msgid "Account Recovery Set Up Successfully"
-msgstr "成功设置账号恢复"
+msgstr "成功设置账户恢复"
 
 #: src/components/crypto/recovery_setup_view.blp:389
 msgid "Copy Recovery Key"
@@ -1242,12 +1242,12 @@ msgid ""
 "Note that account recovery can have a different name in other Matrix "
 "clients, like “key backup” or “secure backup”."
 msgstr ""
-"请注意，账号备份在其他 Matrix 客户端中会有不同的名称，如“密钥备份”或“安全备"
+"请注意，账户备份在其他 Matrix 客户端中会有不同的名称，如“密钥备份”或“安全备"
 "份”。"
 
 #: src/components/crypto/recovery_setup_view.blp:499
 msgid "Alternatively, you can reset Account Recovery"
-msgstr "或者，您可以重置账号恢复"
+msgstr "或者，您可以重置账户恢复"
 
 #: src/components/crypto/recovery_setup_view.rs:221
 msgid "Invalidates the verifications of all users and sessions"
@@ -1301,15 +1301,15 @@ msgstr "无法重置加密身份"
 #: src/components/crypto/recovery_setup_view.rs:446
 #: src/components/crypto/recovery_setup_view.rs:471
 msgid "Could not reset account recovery"
-msgstr "无法重置账号恢复"
+msgstr "无法重置账户恢复"
 
 #: src/components/crypto/recovery_setup_view.rs:506
 msgid "Could not reset account recovery key"
-msgstr "无法重置账号恢复密钥"
+msgstr "无法重置账户恢复密钥"
 
 #: src/components/crypto/recovery_setup_view.rs:544
 msgid "Could not enable account recovery"
-msgstr "无法启用账号恢复"
+msgstr "无法启用账户恢复"
 
 #: src/components/dialogs/auth/in_browser_page.blp:36
 #: src/components/dialogs/auth/mod.blp:4
@@ -1678,13 +1678,13 @@ msgstr "输入地址或链接来查找聊天室"
 
 #. Translators: This is a verb, as in 'Look up Room'.
 #: src/components/dialogs/room_preview.blp:90
-#: src/components/dialogs/room_preview.rs:242
+#: src/components/dialogs/room_preview.rs:257
 msgid "Look Up"
 msgstr "查找"
 
 #. Translators: This is a verb, as in 'View Room'.
-#: src/components/dialogs/room_preview.rs:239
-#: src/components/dialogs/room_preview.rs:347
+#: src/components/dialogs/room_preview.rs:254
+#: src/components/dialogs/room_preview.rs:362
 #: src/session_view/explore/public_room_row.rs:182
 #: src/session_view/room_history/message_toolbar/mod.rs:382
 #: src/session_view/room_history/mod.blp:82
@@ -1692,7 +1692,7 @@ msgstr "查找"
 msgid "View"
 msgstr "查看"
 
-#: src/components/dialogs/room_preview.rs:302
+#: src/components/dialogs/room_preview.rs:317
 msgid ""
 "The room details cannot be previewed. It can be because the room is not "
 "known by the homeserver or because its details are private. You can still "
@@ -1703,19 +1703,19 @@ msgstr ""
 
 #. Translators: Do NOT translate the content between '{' and '}',
 #. this is a variable name.
-#: src/components/dialogs/room_preview.rs:325
+#: src/components/dialogs/room_preview.rs:340
 #: src/session_view/explore/public_room_row.rs:161
 #, rust-format
 msgid "1 member"
 msgid_plural "{n} members"
 msgstr[0] "{n} 个成员"
 
-#: src/components/dialogs/room_preview.rs:349
+#: src/components/dialogs/room_preview.rs:364
 #: src/session_view/explore/public_room_row.rs:187
 msgid "Request an Invite"
 msgstr "请求邀请"
 
-#: src/components/dialogs/room_preview.rs:351
+#: src/components/dialogs/room_preview.rs:366
 #: src/session_view/explore/public_room_row.rs:195
 #: src/session_view/room_history/message_toolbar/mod.rs:384
 msgid "Join"
@@ -2063,7 +2063,7 @@ msgstr "发送新请求"
 
 #: src/identity_verification_view/cancelled_page.rs:140
 msgid "The verification was cancelled from the other session."
-msgstr "该验证已从其它会话取消。"
+msgstr "该验证已从其他会话取消。"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2132,7 +2132,7 @@ msgstr "验证会话"
 
 #: src/identity_verification_view/choose_method_page.rs:180
 msgid "Scan this QR code from the other session."
-msgstr "从其它会话扫描该二维码。"
+msgstr "从其他会话扫描该二维码。"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2197,7 +2197,7 @@ msgstr "确认"
 
 #: src/identity_verification_view/confirm_qr_code_page.rs:129
 msgid "Does the other session show a confirmation?"
-msgstr "其它会话显示确认了吗？"
+msgstr "其他会话显示确认了吗？"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2297,7 +2297,7 @@ msgstr "无法拒绝验证"
 msgid ""
 "You scanned the QR code successfully. You may need to confirm the "
 "verification from the other session."
-msgstr "您已成功扫描该二维码。您可能需要从其它会话确认该验证。"
+msgstr "您已成功扫描该二维码。您可能需要从其他会话确认该验证。"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2326,11 +2326,11 @@ msgstr "匹配"
 
 #: src/identity_verification_view/sas_page.rs:151
 msgid "Check if the same emoji appear in the same order on the other client."
-msgstr "请查验相同的表情在其它设备上是否以相同顺序显示。"
+msgstr "请查验相同的表情在其他设备上是否以相同顺序显示。"
 
 #: src/identity_verification_view/sas_page.rs:155
 msgid "Check if the same numbers appear in the same order on the other client."
-msgstr "请查验相同的数字在其它设备上是否以相同顺序显示。"
+msgstr "请查验相同的数字在其他设备上是否以相同顺序显示。"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2360,11 +2360,11 @@ msgstr "无法发送数据匹配的确认"
 
 #: src/identity_verification_view/scan_qr_code_page.blp:64
 msgid "Show a QR code to scan with another device"
-msgstr "显示可用其它设备扫描的二维码"
+msgstr "显示可用其他设备扫描的二维码"
 
 #: src/identity_verification_view/scan_qr_code_page.rs:156
 msgid "Scan the QR code displayed by the other session."
-msgstr "扫描其它会话显示的二维码。"
+msgstr "扫描其他会话显示的二维码。"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2385,7 +2385,7 @@ msgstr "为了安全起见，验证应该亲自进行或使用可信的通信方
 
 #: src/identity_verification_view/wait_for_other_page.blp:61
 msgid "The request is not showing up on the other device?"
-msgstr "该请求没有出现在其它设备上吗？"
+msgstr "该请求没有出现在其他设备上吗？"
 
 #: src/identity_verification_view/wait_for_other_page.blp:73
 msgid "Cancel Verification Request"
@@ -2442,7 +2442,7 @@ msgstr "登录(_L)"
 
 #: src/login/greeter.blp:118
 msgid "_Create Account"
-msgstr "创建账号(_C)"
+msgstr "创建账户(_C)"
 
 #: src/login/homeserver_page.blp:103 src/login/method_page.blp:129
 msgid "Next"
@@ -2544,7 +2544,7 @@ msgstr "会话设置"
 
 #: src/login/session_setup_view.blp:47 src/window.blp:59
 msgid "Fetching Account Data…"
-msgstr "正在获取账号数据…"
+msgstr "正在获取账户数据…"
 
 #. Translators: Do NOT translate the content between '{' and '}', this is a
 #. variable name.
@@ -2567,7 +2567,7 @@ msgstr "访问保密存储文件时发生意外错误。"
 
 #: src/secret/linux.rs:538
 msgid "The secret storage file has been changed by another process."
-msgstr "保密存储文件已被其它进程修改。"
+msgstr "保密存储文件已被其他进程修改。"
 
 #: src/secret/linux.rs:541
 msgid ""
@@ -2737,7 +2737,7 @@ msgid "Any registered user"
 msgstr "任何注册的用户"
 
 #: src/session/room/join_rule.rs:288
-#: src/session_view/room_details/general_page.rs:946
+#: src/session_view/room_details/general_page.rs:966
 msgid "Unsupported rule"
 msgstr "不支持的规则"
 
@@ -2995,7 +2995,7 @@ msgid "No users matching the search pattern were found"
 msgstr "未发现匹配搜索方案的用户"
 
 #: src/session_view/create_direct_chat_dialog/mod.blp:94
-#: src/session_view/explore/mod.blp:118
+#: src/session_view/explore/mod.blp:113
 #: src/session_view/room_details/invite_subpage/mod.blp:114
 msgid "An error occurred while searching for matches"
 msgstr "搜索匹配项时发生错误"
@@ -3042,7 +3042,7 @@ msgstr "无法在之后禁用"
 
 #: src/session_view/create_room_dialog.blp:128
 #: src/session_view/room_details/addresses_subpage/mod.rs:431
-#: src/session_view/room_details/general_page.rs:689
+#: src/session_view/room_details/general_page.rs:709
 msgid "Main Address"
 msgstr "主地址"
 
@@ -3090,15 +3090,16 @@ msgstr "在选择服务器的公开目录中搜索聊天室"
 msgid "Switch servers"
 msgstr "切换服务器"
 
-#: src/session_view/explore/mod.blp:70 src/session_view/sidebar/mod.blp:188
+#: src/session_view/explore/mod.blp:70 src/session_view/explore/mod.blp:74
+#: src/session_view/sidebar/mod.blp:188
 msgid "No Rooms"
 msgstr "无聊天室"
 
-#: src/session_view/explore/mod.blp:76 src/session_view/sidebar/mod.blp:189
+#: src/session_view/explore/mod.blp:75 src/session_view/sidebar/mod.blp:189
 msgid "No rooms matching the search were found"
 msgstr "未发现匹配搜索的聊天室"
 
-#: src/session_view/explore/mod.blp:86
+#: src/session_view/explore/mod.blp:81
 msgid "List of Public Rooms"
 msgstr "公开聊天室的列表"
 
@@ -3449,7 +3450,7 @@ msgstr "允许客人"
 
 #: src/session_view/room_details/general_page.blp:209
 msgid "Guests are Matrix users without a registered account"
-msgstr "客人为未注册账号的 Matrix 用户"
+msgstr "客人为未注册账户的 Matrix 用户"
 
 #: src/session_view/room_details/general_page.blp:218
 #: src/session_view/room_details/history_visibility_subpage.blp:5
@@ -3492,108 +3493,108 @@ msgstr "升级…"
 msgid "Federation"
 msgstr "联合"
 
-#: src/session_view/room_details/general_page.rs:466
-#: src/session_view/room_details/general_page.rs:517
+#: src/session_view/room_details/general_page.rs:486
+#: src/session_view/room_details/general_page.rs:537
 #: src/session_view/room_details/invite_subpage/list.rs:260
 msgid "Member"
 msgstr "成员"
 
-#: src/session_view/room_details/general_page.rs:468
-#: src/session_view/room_details/general_page.rs:519
+#: src/session_view/room_details/general_page.rs:488
+#: src/session_view/room_details/general_page.rs:539
 msgid "Members"
 msgstr "成员"
 
-#: src/session_view/room_details/general_page.rs:644
+#: src/session_view/room_details/general_page.rs:664
 msgid "Could not change notifications setting"
 msgstr "无法更改通知设置"
 
-#: src/session_view/room_details/general_page.rs:684
-#: src/session_view/room_details/general_page.rs:723
+#: src/session_view/room_details/general_page.rs:704
+#: src/session_view/room_details/general_page.rs:743
 msgid "Copy address"
 msgstr "复制地址"
 
-#: src/session_view/room_details/general_page.rs:685
-#: src/session_view/room_details/general_page.rs:724
+#: src/session_view/room_details/general_page.rs:705
+#: src/session_view/room_details/general_page.rs:744
 msgid "Address copied to clipboard"
 msgstr "地址已复制到剪贴板"
 
-#: src/session_view/room_details/general_page.rs:766
+#: src/session_view/room_details/general_page.rs:786
 msgid "Room link copied to clipboard"
 msgstr "聊天室链接已复制到剪贴板"
 
-#: src/session_view/room_details/general_page.rs:825
+#: src/session_view/room_details/general_page.rs:845
 msgid "Could not change guest access"
 msgstr "无法更改访客访问权限"
 
 #. Translators: Do NOT translate the content between '{' and '}',
 #. this is a variable name.
-#: src/session_view/room_details/general_page.rs:842
+#: src/session_view/room_details/general_page.rs:862
 #, rust-format
 msgid "Publish in the {homeserver} directory"
 msgstr "公布在 {homeserver} 目录"
 
-#: src/session_view/room_details/general_page.rs:917
+#: src/session_view/room_details/general_page.rs:937
 msgid "Could not publish room in directory"
 msgstr "无法在目录公布聊天室"
 
-#: src/session_view/room_details/general_page.rs:919
+#: src/session_view/room_details/general_page.rs:939
 msgid "Could not unpublish room from directory"
 msgstr "无法从目录撤下聊天室"
 
-#: src/session_view/room_details/general_page.rs:937
+#: src/session_view/room_details/general_page.rs:957
 #: src/session_view/room_details/history_visibility_subpage.blp:53
 msgid "Anyone, even if they are not in the room"
 msgstr "任何人，即使他们未加入聊天室"
 
-#: src/session_view/room_details/general_page.rs:940
+#: src/session_view/room_details/general_page.rs:960
 #: src/session_view/room_details/history_visibility_subpage.blp:59
 msgid "Members only, since this option was selected"
 msgstr "仅成员，在选择该选项之后"
 
-#: src/session_view/room_details/general_page.rs:942
+#: src/session_view/room_details/general_page.rs:962
 #: src/session_view/room_details/history_visibility_subpage.blp:65
 msgid "Members only, since they were invited"
 msgstr "仅成员，在他们被邀请之后"
 
-#: src/session_view/room_details/general_page.rs:944
+#: src/session_view/room_details/general_page.rs:964
 #: src/session_view/room_details/history_visibility_subpage.blp:71
 msgid "Members only, since they joined the room"
 msgstr "仅成员，在他们加入聊天室后"
 
-#: src/session_view/room_details/general_page.rs:996
+#: src/session_view/room_details/general_page.rs:1016
 msgid "Enable Encryption?"
 msgstr "启用加密吗？"
 
-#: src/session_view/room_details/general_page.rs:997
+#: src/session_view/room_details/general_page.rs:1017
 msgid ""
 "Enabling encryption will prevent new members to read the history before they "
 "arrived. This cannot be disabled later."
 msgstr "启用加密将阻止新成员在到达聊天室前查阅聊天历史。该选项无法在随后禁用。"
 
-#: src/session_view/room_details/general_page.rs:1002
+#: src/session_view/room_details/general_page.rs:1022
 #: src/session_view/sidebar/mod.rs:353 src/session_view/sidebar/mod.rs:359
 msgid "Enable"
 msgstr "启用"
 
-#: src/session_view/room_details/general_page.rs:1013
+#: src/session_view/room_details/general_page.rs:1033
 msgid "Could not enable encryption"
 msgstr "无法启用加密"
 
 #. Translators: As in, 'Room federated'.
-#: src/session_view/room_details/general_page.rs:1073
+#: src/session_view/room_details/general_page.rs:1093
 msgid "Federated"
 msgstr "联合的"
 
 #. Translators: As in, 'Room not federated'.
-#: src/session_view/room_details/general_page.rs:1076
+#: src/session_view/room_details/general_page.rs:1096
 msgid "Not federated"
 msgstr "未联合"
 
-#: src/session_view/room_details/general_page.rs:1110
+#: src/session_view/room_details/general_page.rs:1130
 msgid "Room upgraded successfully"
 msgstr "聊天室已成功升级"
 
-#: src/session_view/room_details/general_page.rs:1114
+#: src/session_view/room_details/general_page.rs:1134
 msgid "Could not upgrade room"
 msgstr "无法升级聊天室"
 
@@ -4626,7 +4627,7 @@ msgstr "聊天室菜单"
 
 #: src/session_view/room_history/mod.blp:72
 msgid "Call room - other clients may not show messages you send in this room."
-msgstr "呼叫聊天室 — 其它客户端可能不会显示您在此聊天室中发送的消息。"
+msgstr "呼叫聊天室 — 其他客户端可能不会显示您在此聊天室中发送的消息。"
 
 #: src/session_view/room_history/mod.blp:99
 #: src/session_view/room_history/mod.blp:106
@@ -4976,11 +4977,11 @@ msgstr "加密身份不完整"
 
 #: src/session_view/sidebar/mod.rs:359
 msgid "Account recovery disabled"
-msgstr "账号恢复已禁用"
+msgstr "账户恢复已禁用"
 
 #: src/session_view/sidebar/mod.rs:362
 msgid "Account recovery incomplete"
-msgstr "账号恢复不完全"
+msgstr "账户恢复不完全"
 
 #. Translators: A "call room" is a room where an audio or video call
 #. is always active, that users can join and leave at any time.
@@ -5108,7 +5109,7 @@ msgstr "通过地址或链接搜索聊天室"
 #: src/shortcuts-dialog.blp:14
 msgctxt "shortcut window"
 msgid "Account Settings"
-msgstr "账号设置"
+msgstr "账户设置"
 
 #: src/shortcuts-dialog.blp:19
 msgctxt "shortcut window"
@@ -5194,7 +5195,7 @@ msgstr "无效认证。"
 
 #: src/user_facing_error.rs:27
 msgid "Account deactivated."
-msgstr "账号已被停用。"
+msgstr "账户已被停用。"
 
 #. Translators: Do NOT translate the content between '{' and '}',
 #. this is a variable name.
