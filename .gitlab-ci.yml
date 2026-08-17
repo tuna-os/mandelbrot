@@ -5,9 +5,17 @@ stages:
   - deploy
 
 variables:
+  # The name of the Flatpak module of our app.
   FLATPAK_MODULE: "fractal"
+  # The path to the Flatpak manifest.
   MANIFEST_PATH: "build-aux/org.gnome.Fractal.Devel.json"
+  # The ID of our Flatpak app.
   APP_ID: "org.gnome.Fractal.Devel"
+  # The latest GNOME stable Flatpak runtime.
+  GNOME_STABLE_VERSION: "50"
+  # The version of the Freedesktop.org Flatpak runtime used by the stable GNOME runtime.
+  FREEDESKTOP_RUNTIME_BRANCH: "25.08"
+
 
 workflow:
   rules:

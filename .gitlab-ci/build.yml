@@ -30,8 +30,10 @@ build@aarch64:
 # Test builds with the stable runtime to make sure that the Flatpak will build on Flathub.
 # Should be run manually before tagging a new release.
 .build_stable:
-  extends:
-    - .stable_runtime
+  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-${GNOME_STABLE_VERSION}'
+  before_script:
+    # We want to use the latest stable GNOME runtime instead of the nightly runtime.
+    - sed -i "s|master|${GNOME_STABLE_VERSION}|g" ${MANIFEST_PATH}
   variables:
     RUNTIME_REPO: "https://flathub.org/repo/flathub.flatpakrepo"
     RUN_TESTS: 0
