@@ -184,7 +184,7 @@ mod imp {
         pub(super) async fn build_client(
             &self,
             autodiscovery: bool,
-        ) -> Result<Client, ClientBuildError> {
+        ) -> Result<Client, Box<ClientBuildError>> {
             if autodiscovery {
                 self.build_client_with_autodiscovery().await
             } else {
@@ -193,7 +193,7 @@ mod imp {
         }
 
         /// Try to build a client by using homeserver autodiscovery.
-        async fn build_client_with_autodiscovery(&self) -> Result<Client, ClientBuildError> {
+        async fn build_client_with_autodiscovery(&self) -> Result<Client, Box<ClientBuildError>> {
             let homeserver = self.homeserver();
             let handle = spawn_tokio!(async move {
                 Self::client_builder()
@@ -206,13 +206,13 @@ mod imp {
                 Ok(client) => Ok(client),
                 Err(error) => {
                     warn!("Could not discover homeserver: {error}");
-                    Err(error)
+                    Err(Box::new(error))
                 }
             }
         }
 
         /// Try to build a client by using the homeserver's URL.
-        async fn build_client_with_url(&self) -> Result<Client, ClientBuildError> {
+        async fn build_client_with_url(&self) -> Result<Client, Box<ClientBuildError>> {
             let homeserver = self.homeserver();
             spawn_tokio!(async move {
                 let client = Self::client_builder()
@@ -229,6 +229,7 @@ mod imp {
             })
             .await
             .expect("task was not aborted")
+            .map_err(Box::new)
         }
 
         /// Discover the login API supported by the homeserver.
@@ -303,7 +304,7 @@ impl LoginHomeserverPage {
     pub(super) async fn build_client(
         &self,
         autodiscovery: bool,
-    ) -> Result<Client, ClientBuildError> {
+    ) -> Result<Client, Box<ClientBuildError>> {
         self.imp().build_client(autodiscovery).await
     }
 }
