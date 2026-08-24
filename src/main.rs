@@ -3,6 +3,10 @@
     html_favicon_url = "https://gitlab.gnome.org/World/fractal/-/raw/main/data/icons/org.tunaos.mandelbrot-symbolic.svg?inline=false"
 )]
 
+// Matrix SDK error enums are intentionally propagated by value. Boxing them
+// only to satisfy this size heuristic would make these error paths less clear.
+#![allow(clippy::result_large_err)]
+
 mod account_chooser_dialog;
 mod account_switcher;
 mod application;
