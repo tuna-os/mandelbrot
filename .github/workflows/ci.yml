@@ -32,7 +32,7 @@ jobs:
       # Install the prebuilt binary rather than letting the checks tool build
       # it: compiling cargo-binstall from source on nightly currently fails
       # inside tokio, which has nothing to do with this repo.
-      - uses: cargo-bins/cargo-binstall@v1.21.1
+      - uses: cargo-bins/cargo-binstall@v1.22.0
       - name: Run pre-commit checks
         run: |
           RUST_BACKTRACE=1 cargo run --manifest-path hooks/checks/Cargo.toml -- --verbose --force-install --cargo-binstall
