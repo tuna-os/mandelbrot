@@ -114,7 +114,7 @@ matrix-authentication-service):
   runs as the "MatrixRTC conformance tests" CI job.
 
 * `tests/e2e/` — a podman-compose interop harness (synapse + LiveKit +
-  lk-jwt-service) that runs real calls between clients; see its README.
+  lk-jwt-service) that runs real calls between clients; see [tests/e2e/README.md](../tests/e2e/README.md) and [tests/e2e/CONFORMANCE.md](../tests/e2e/CONFORMANCE.md).
 
 * Media (`calls-media` cargo feature / `-Dcalls-media` meson option) links
   LiveKit's Rust SDK with a statically-built libwebrtc; the default build
