@@ -1,7 +1,10 @@
-# Publishing is deliberately NOT triggered by every push to main: a publish
-# run is a heavy flatpak build competing with CI for runners. Releases go out
-# on tags, or on demand.
 name: Build and Publish Flatpak OCI
+
+# Build/publish body lives in tuna-os/.github's reusable publish-flatpak.yml
+# (tunaos#1183 recommendation #2). This file just keeps mandelbrot's own
+# trigger policy: releases go out on tags or on demand, deliberately not on
+# every push to main (a publish run is a heavy flatpak build competing with
+# CI for runners).
 
 on:
   push:
@@ -18,100 +21,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-oci:
-    name: "Build Flatpak OCI (${{ matrix.arch }})"
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: x86_64
-            runner: ubuntu-latest
-          - arch: aarch64
-            runner: ubuntu-24.04-arm
-    container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
-      options: --privileged
-
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v7
-
-    - name: Build Flatpak
-      uses: flatpak/flatpak-github-actions/flatpak-builder@v6
-      with:
-        manifest-path: org.tunaos.mandelbrot.json
-        cache-key: flatpak-builder-${{ matrix.arch }}-${{ github.sha }}
-        arch: ${{ matrix.arch }}
-        build-bundle: false
-        upload-artifact: false
-
-    - name: Export OCI Directory
-      run: |
-        flatpak build-bundle --oci --arch=${{ matrix.arch }} \
-          repo mandelbrot-${{ matrix.arch }}.oci org.tunaos.mandelbrot
-
-    - name: Upload OCI Artifact
-      uses: actions/upload-artifact@v7
-      with:
-        name: mandelbrot-oci-${{ matrix.arch }}
-        path: mandelbrot-${{ matrix.arch }}.oci/
-        retention-days: 1
-
-  publish-oci:
-    name: "Publish OCI & Update Index"
-    needs: build-oci
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v7
-
-    - name: Download OCI Artifacts
-      uses: actions/download-artifact@v8
-      with:
-        path: oci
-
-    - name: Log in to GHCR
-      run: |
-        echo "${{ env.GITHUB_TOKEN }}" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Push both arches to GHCR
-      run: |
-        # Each arch is pushed under an arch-qualified tag so both manifests are
-        # retained (untagged manifests can be garbage-collected). The static
-        # index records each arch's digest independently, so flatpak's oci+
-        # remote resolves the right arch by digest regardless of tag.
-        set -euo pipefail
-        VERSION_TAG=""
-        if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-          VERSION_TAG="${{ github.ref_name }}"
-        fi
-        for arch in x86_64 aarch64; do
-          dir="oci/mandelbrot-oci-${arch}"
-          [ -d "$dir" ] || { echo "missing $dir"; exit 1; }
-          skopeo copy "oci:${dir}" "docker://ghcr.io/tuna-os/mandelbrot:latest-${arch}"
-          if [ -n "$VERSION_TAG" ]; then
-            skopeo copy "oci:${dir}" "docker://ghcr.io/tuna-os/mandelbrot:${VERSION_TAG}-${arch}"
-          fi
-        done
-        # Keep :latest pointing at x86_64 for anything that pulls it by tag.
-        skopeo copy oci:oci/mandelbrot-oci-x86_64 docker://ghcr.io/tuna-os/mandelbrot:latest
-
-    - name: Update central index (tuna-os/docs, x86_64)
-      uses: tuna-os/.github/.github/actions/publish-flatpak-index@main
-      with:
-        oci-dir: oci/mandelbrot-oci-x86_64
-        repo-name: tuna-os/mandelbrot
-        tags: latest
-        token: ${{ secrets.FLATPAK_INDEX_TOKEN }}
-
-    - name: Update central index (tuna-os/docs, aarch64)
-      uses: tuna-os/.github/.github/actions/publish-flatpak-index@main
-      with:
-        oci-dir: oci/mandelbrot-oci-aarch64
-        repo-name: tuna-os/mandelbrot
-        tags: latest
-        token: ${{ secrets.FLATPAK_INDEX_TOKEN }}
+  publish:
+    uses: tuna-os/.github/.github/workflows/publish-flatpak.yml@main
+    with:
+      app-id: org.tunaos.mandelbrot
+      manifest-path: org.tunaos.mandelbrot.json
+      repo-name: tuna-os/mandelbrot
+    secrets: inherit
