@@ -100,35 +100,18 @@ jobs:
         # Keep :latest pointing at x86_64 for anything that pulls it by tag.
         skopeo copy oci:oci/mandelbrot-oci-x86_64 docker://ghcr.io/tuna-os/mandelbrot:latest
 
-    - name: Update central index (tuna-os/docs)
-      env:
-        FLATPAK_INDEX_TOKEN: ${{ secrets.FLATPAK_INDEX_TOKEN }}
-      run: |
-        set -euo pipefail
-        git clone --depth 1 \
-          https://github.com/tuna-os/docs.git \
-          index-repo
-        # Use header-based auth so the token never lands in the remote URL
-        # (avoids leaks via .git/config, `git remote -v`, and process listings).
-        git -C index-repo config --local http.extraheader \
-          "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$FLATPAK_INDEX_TOKEN" | base64)"
-        pip install requests
-        # One entry per architecture; update-index.py replaces only the matching
-        # arch, leaving the other in place.
-        for arch in x86_64 aarch64; do
-          python3 .github/scripts/update-index.py \
-            --oci-dir "oci/mandelbrot-oci-${arch}" \
-            --index-file index-repo/static/flatpak/index/static \
-            --repo-name tuna-os/mandelbrot \
-            --tags latest
-        done
-        cd index-repo
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add static/flatpak/index/static
-        if git diff --cached --quiet; then
-          echo "No index changes"
-        else
-          git commit -m "chore(flatpak): update Mandelbrot OCI index (x86_64 + aarch64)"
-          git push origin main
-        fi
+    - name: Update central index (tuna-os/docs, x86_64)
+      uses: tuna-os/.github/.github/actions/publish-flatpak-index@main
+      with:
+        oci-dir: oci/mandelbrot-oci-x86_64
+        repo-name: tuna-os/mandelbrot
+        tags: latest
+        token: ${{ secrets.FLATPAK_INDEX_TOKEN }}
+
+    - name: Update central index (tuna-os/docs, aarch64)
+      uses: tuna-os/.github/.github/actions/publish-flatpak-index@main
+      with:
+        oci-dir: oci/mandelbrot-oci-aarch64
+        repo-name: tuna-os/mandelbrot
+        tags: latest
+        token: ${{ secrets.FLATPAK_INDEX_TOKEN }}
