@@ -65,10 +65,12 @@ flatpak remote-modify --user tuna-os --url=oci+https://tunaos.org/flatpak
 ## Relationship to Fractal
 
 Mandelbrot is a friendly downstream fork of GNOME Fractal (GPL-3.0-or-later). All Fractal
-functionality is retained, and we aim to track upstream releases. See [MANDELBROT.md](MANDELBROT.md)
-for the roadmap and the feature gap analysis. Please report issues with core messaging that also
-reproduce in Fractal to the [Fractal project](https://gitlab.gnome.org/World/fractal/-/issues), and
-Mandelbrot-specific issues (calls, sliding sync, QR login…) to this repo.
+functionality is retained, and we aim to track upstream releases. See
+[docs/UPSTREAM.md](docs/UPSTREAM.md) for upstream tracking and baseline documentation, and
+[MANDELBROT.md](MANDELBROT.md) for the roadmap and the feature gap analysis. Please report
+issues with core messaging that also reproduce in Fractal to the
+[Fractal project](https://gitlab.gnome.org/World/fractal/-/issues), and Mandelbrot-specific
+issues (calls, sliding sync, QR login…) to this repo.
 
 ## Security Best Practices
 
