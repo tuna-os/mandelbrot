@@ -1,6 +1,6 @@
 # Mandelbrot — Fractal fork roadmap
 
-## Status (2026-07-23 evening)
+## Status (Current)
 
 * **Published**: repo github.com/tuna-os/mandelbrot · flatpak
   `org.tunaos.mandelbrot` on the tuna-os remote (install verified end-to-end)
@@ -13,28 +13,30 @@
   connection behind feature flag — 114 ported conformance tests); native call
   UI shell (CallView/prescreen/tiles/call bar, demo-driven).
 
-* **Done (2026-07-24)**: sliding sync (with classic fallback) · QR login (both
+* **Done**: sliding sync (with classic fallback) · QR login (both
   directions) · full native calls (engine + app integration + media via
   livekit, mounted UI, portal-v2 call notifications) · threads · polls ·
   voice-message recording · interop e2e harness (phase 1 PASSED: live
   two-client encrypted call with delayed-leave cleanup on a local
-  synapse+livekit stack). Feature docs: docs/FEATURES.md.
+  synapse+livekit stack). Feature docs: [docs/FEATURES.md](docs/FEATURES.md).
 
-* **Interop verified (2026-07-24)**: phase 2 ran against Element Call v0.22.0 —
+* **Interop verified**: phase 2 ran against Element Call v0.22.0 —
   same membership format both ways, calls connect in both directions,
-  delayed-leave cleanup crosses implementations. See tests/e2e/CONFORMANCE.md.
+  delayed-leave cleanup crosses implementations.
+  See [tests/e2e/CONFORMANCE.md](tests/e2e/CONFORMANCE.md)
+  and [tests/e2e/README.md](tests/e2e/README.md).
   Open: app-level media E2EE with EC (harness client has no Olm stack, the app
   does), and MSC4354 sticky events (EC's matrix_2_0 mode).
 
 * **Done also**: spaces hierarchy browsing.
 
-* **Done (2026-07-24, later)**: metainfo 14.1.1 release notes for the first
+* **Done**: metainfo release notes for the first
   Mandelbrot tag; MatrixRTC e2e scenario harness committed — 20 engine-level
   Element-Call-scenario tests (`matrixrtc/tests/element_call_scenarios.rs`,
   on the PR gate) plus live-stack harness scripts (federation/huddle/
   resilience/restricted-sfu/incoming-call) and a nightly `matrixrtc-e2e.yml`.
 
-* **Done (2026-07-24, later still)**: camera capture — the camera toggle
+* **Done**: camera capture — the camera toggle
   opens the camera through the XDG camera portal (aperture's PipeWire device
   provider, as used by the QR scanner), captures it with `GStreamer` into
   I420, and publishes it to the SFU as a LiveKit camera track. The pipeline
@@ -44,7 +46,7 @@
   or leaving the call) stops the pipeline, which closes the device, and
   unpublishes the track.
 
-* **Next**: live testing against matrix.org (calls, QR, threads receipts),
+* **Roadmap items in progress**: live testing against matrix.org (calls, QR, threads receipts),
   threaded read receipts (MSC3771), location pin-drop.
 
 Goal: take Fractal (the most GNOME-native Matrix client, matrix-sdk 0.18 +
