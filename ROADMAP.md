@@ -1,6 +1,6 @@
 # Mandelbrot Roadmap
 
-**Last updated**: 2026-08-24 | **Maintainer**: tuna-os (hanthor)
+**Last updated**: 2026-08-29 | **Maintainer**: tuna-os (hanthor)
 
 ---
 
@@ -29,7 +29,8 @@ Matrix get a native desktop experience instead of a web app.
   verified — see tests/e2e/CONFORMANCE.md), sliding sync (MSC4186) with
   classic fallback, QR login (MSC4108), threads, polls, spaces hierarchy.
 - **CI health**: MatrixRTC e2e failing every nightly for 10 consecutive days
-  (#66); h2 RUSTSEC-2026 pending (#69/#70).
+  (#66). The h2 RUSTSEC-2026-0258 advisory is closed — main is on h2 0.4.18
+  via #70. The yanked `chacha20` that reddened every open PR is fixed in #87.
 
 ### Priorities
 
@@ -38,8 +39,8 @@ Matrix get a native desktop experience instead of a web app.
 | P0 | Fix MatrixRTC e2e nightly (synapse container never comes up) | #66 | 🔴 10d red |
 | P0 | First GitHub Release with binaries + checksums; decide release cadence | #73 | ⬜ Not started |
 | P1 | Resolve fork identity — crate still `fractal` 14.1.0 upstream authors | #60 | 🟡 Open |
-| P1 | h2 dependency RUSTSEC-2026 bump | #69/#70 | 🟡 Open |
-| P2 | ROADMAP-coverage entry in org ROADMAP tally | #1295 | ⬜ Not started |
+| P1 | h2 dependency RUSTSEC-2026 bump | #69/#70 | ✅ Done — main on h2 0.4.18 |
+| P2 | ROADMAP-coverage entry in org ROADMAP tally | org `#1295` | ⬜ Not started |
 
 ---
 
@@ -62,8 +63,4 @@ Matrix get a native desktop experience instead of a web app.
 | Goal | Owner | Tracking | Status |
 |------|-------|----------|--------|
 | Release cadence aligned with org (weekly/monthly tagged builds) | tuna-os | #73 | ⬜ Not started |
-| Surface in ADOPTION-METRICS snapshot | tuna-os | #1174 | ⬜ Not started |
-
----
-
-*ROADMAP added by strategist agent (ACMM L6 — full mode). Signed-off-by: hanthor-hive-agent[bot] <290068839+hanthor-hive-agent[bot]@users.noreply.github.com>*
+| Surface in ADOPTION-METRICS snapshot | tuna-os | org `#1174` | ⬜ Not started |
