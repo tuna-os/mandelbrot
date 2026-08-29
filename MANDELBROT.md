@@ -22,7 +22,9 @@
 
 * **Interop verified**: phase 2 ran against Element Call v0.22.0 —
   same membership format both ways, calls connect in both directions,
-  delayed-leave cleanup crosses implementations. See [tests/e2e/CONFORMANCE.md](tests/e2e/CONFORMANCE.md) and [tests/e2e/README.md](tests/e2e/README.md).
+  delayed-leave cleanup crosses implementations.
+  See [tests/e2e/CONFORMANCE.md](tests/e2e/CONFORMANCE.md)
+  and [tests/e2e/README.md](tests/e2e/README.md).
   Open: app-level media E2EE with EC (harness client has no Olm stack, the app
   does), and MSC4354 sticky events (EC's matrix_2_0 mode).
 
