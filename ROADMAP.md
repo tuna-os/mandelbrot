@@ -17,18 +17,18 @@ Matrix get a native desktop experience instead of a web app.
 
 ## Current Status
 
-- **Published**: flatpak `org.tunaos.mandelbrot` on the tuna-os remote
+* **Published**: flatpak `org.tunaos.mandelbrot` on the tuna-os remote
   (install verified end-to-end, 2026-07-23); landing page at
   tunaos.org/mandelbrot; docs at tunaos.org/docs/mandelbrot.
-- **Distribution**: OCI flatpak published to GHCR via `publish-flatpak.yml`
+* **Distribution**: OCI flatpak published to GHCR via `publish-flatpak.yml`
   on `v*` tag push. **No GitHub Releases page** — no binaries, no checksums,
   no changelog on the Releases surface (see #73).
-- **Latest tag**: v14.1.1 (2026-07-24, OCI publish ran). No tag since,
+* **Latest tag**: v14.1.1 (2026-07-24, OCI publish ran). No tag since,
   despite active development (commits through 08-14+).
-- **Differentiators**: native MatrixRTC calls (Element Call v0.22.0 interop
+* **Differentiators**: native MatrixRTC calls (Element Call v0.22.0 interop
   verified — see tests/e2e/CONFORMANCE.md), sliding sync (MSC4186) with
   classic fallback, QR login (MSC4108), threads, polls, spaces hierarchy.
-- **CI health**: MatrixRTC e2e failing every nightly for 10 consecutive days
+* **CI health**: MatrixRTC e2e failing every nightly for 10 consecutive days
   (#66). The h2 RUSTSEC-2026-0258 advisory is closed — main is on h2 0.4.18
   via #70. The yanked `chacha20` that reddened every open PR is fixed in #87.
 
