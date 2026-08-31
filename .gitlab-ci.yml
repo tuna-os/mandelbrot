@@ -15,6 +15,12 @@ variables:
   GNOME_STABLE_VERSION: "50"
   # The version of the Freedesktop.org Flatpak runtime used by the stable GNOME runtime.
   FREEDESKTOP_RUNTIME_BRANCH: "25.08"
+  # The version of the Rust nightly toolchain used for some checks.
+  #
+  # Should be a date formatted as `YYYY-MM-DD`.
+  #
+  # Keep in sync with `RUSTUP_NIGHTLY_OVERRIDE` constant in `hooks/checks/src/main.rs`.
+  RUST_NIGHTLY_VERSION: "2026-08-24"
 
 
 workflow:

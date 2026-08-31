@@ -5,7 +5,7 @@ include: '.gitlab-ci/utils.yml'
 # Checks from the pre-commit hook
 pre-commit-checks:
   stage: check
-  image: "rustlang/rust:nightly-slim"
+  image: "rustlang/rust:nightly-slim-${RUST_NIGHTLY_VERSION}"
   interruptible: true
   script:
     - apt-get update && apt-get install -y --no-install-recommends git

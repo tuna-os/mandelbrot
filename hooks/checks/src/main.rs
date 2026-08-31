@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     collections::BTreeSet,
     fs::File,
     io::{BufRead, BufReader},
@@ -16,6 +17,18 @@ use crate::utils::{
 
 /// The path to the directory containing the workspace.
 const WORKSPACE_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../");
+
+/// The rustup override shorthand to use the Rust nightly toolchain for checks
+/// that required it.
+///
+/// Should be `+nightly-` followed by a date formatted as `YYYY-MM-DD`.
+///
+/// Keep in sync with `RUST_NIGHTLY_VERSION` variable in `.gitlab-ci.yml`.
+const RUSTUP_NIGHTLY_OVERRIDE: &str = "+nightly-2026-08-24";
+
+/// The version of the Rust nightly toolchain used to run checks that require
+/// it.
+const RUST_NIGHTLY_VERSION: &str = RUSTUP_NIGHTLY_OVERRIDE.split_at(1).1;
 
 /// Whether to use verbose output.
 ///
@@ -46,7 +59,7 @@ enum ScriptCommand {
     PrintHelp(PrintHelpCmd),
     /// A command that prints the version of this script.
     PrintVersion(PrintVersionCmd),
-    /// A command that runs conformity checks on the current Rust and GTK    ///
+    /// A command that runs conformity checks on the current Rust and GTK
     /// project.
     Check(CheckCmd),
 }
@@ -156,7 +169,7 @@ USAGE: {name} [OPTIONS]
 OPTIONS:
     -s, --git-staged        Only check files staged to be committed
     -f, --force-install     Install missing dependencies without asking
-    --cargo-binstall     Use cargo-binstall instead of `cargo install` when installing
+    --cargo-binstall        Use cargo-binstall instead of `cargo install` when installing
                             missing crate dependencies
     -v, --verbose           Use verbose output
     --version               Print the version of this script
@@ -213,15 +226,23 @@ impl CheckCmd {
 
     /// Check code style with rustfmt nightly.
     fn code_style(&self) -> Result<(), ScriptError> {
-        let mut check = Check::start("code style")
-            .with_fix("either manually or by running: cargo +nightly fmt --all");
+        let mut check = Check::start("code style").with_fix(format!(
+            "either manually or by running: \
+             cargo {RUSTUP_NIGHTLY_OVERRIDE} fmt --all"
+        ));
 
         CheckDependency {
             name: "rustfmt",
-            version: CommandData::new("cargo", &["+nightly", "fmt", "--version"]),
+            version: CommandData::new("cargo", &[RUSTUP_NIGHTLY_OVERRIDE, "fmt", "--version"]),
             install: InstallationCommand::Custom(CommandData::new(
                 "rustup",
-                &["component", "add", "--toolchain", "nightly", "rustfmt"],
+                &[
+                    "component",
+                    "add",
+                    "--toolchain",
+                    RUST_NIGHTLY_VERSION,
+                    "rustfmt",
+                ],
             )),
         }
         .check(self.force_install, self.cargo_install_method)?;
@@ -230,7 +251,7 @@ impl CheckCmd {
             let cmd = CommandData::new(
                 "cargo",
                 &[
-                    "+nightly",
+                    RUSTUP_NIGHTLY_OVERRIDE,
                     "fmt",
                     "--check",
                     "--",
@@ -245,9 +266,12 @@ impl CheckCmd {
                 check.merge_output(output);
             }
         } else {
-            let output = CommandData::new("cargo", &["+nightly", "fmt", "--check", "--all"])
-                .print_output()
-                .run()?;
+            let output = CommandData::new(
+                "cargo",
+                &[RUSTUP_NIGHTLY_OVERRIDE, "fmt", "--check", "--all"],
+            )
+            .print_output()
+            .run()?;
             check.merge_output(output);
         }
 
@@ -285,9 +309,12 @@ impl CheckCmd {
         check.merge_output(output);
 
         // We should have already checked that rustfmt is installed.
-        let output = CommandData::new("cargo", &["+nightly", "fmt", "--check", "--manifest-path"])
-            .print_output()
-            .run_with_args(&[&manifest_path])?;
+        let output = CommandData::new(
+            "cargo",
+            &[RUSTUP_NIGHTLY_OVERRIDE, "fmt", "--check", "--manifest-path"],
+        )
+        .print_output()
+        .run_with_args(&[&manifest_path])?;
         check.merge_output(output);
 
         check.end()
@@ -688,7 +715,7 @@ struct Check {
     /// The name of this check.
     name: &'static str,
     /// The way to fix a failure of this check.
-    fix: Option<&'static str>,
+    fix: Option<Cow<'static, str>>,
     /// Whether this check was successful.
     success: bool,
 }
@@ -706,8 +733,8 @@ impl Check {
     }
 
     /// Set the way to fix a failure of this check.
-    fn with_fix(mut self, fix: &'static str) -> Self {
-        self.fix = Some(fix);
+    fn with_fix(mut self, fix: impl Into<Cow<'static, str>>) -> Self {
+        self.fix = Some(fix.into());
         self
     }
 
