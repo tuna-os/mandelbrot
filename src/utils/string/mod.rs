@@ -122,8 +122,9 @@ impl StrMutExt for String {
             .char_indices()
             .rfind(|(_, c)| !c.is_whitespace())
             .map(|(idx, c)| {
-                // We have the position of the last non-whitespace character, so the last
-                // whitespace character is the character after it.
+                // We have the position of the last non-whitespace character, so
+                // the last whitespace character is the
+                // character after it.
                 idx + c.len_utf8()
             })
             // 0 means that there are only whitespaces in the string.
@@ -193,7 +194,8 @@ pub(crate) trait PangoStrMutExt {
 impl PangoStrMutExt for String {
     fn append_link_opening_tag(&mut self, uri: impl AsRef<str>) {
         let uri = uri.escape_markup();
-        // We need to escape the title twice because GTK doesn't take care of it.
+        // We need to escape the title twice because GTK doesn't take care of
+        // it.
         let title = uri.escape_markup();
 
         let _ = write!(self, r#"<a href="{uri}" title="{title}">"#);
@@ -223,8 +225,8 @@ impl PangoStrMutExt for String {
             self.push_str(LabelWithWidgets::PLACEHOLDER);
             self.push_str(&(&s[pos + AT_ROOM.len()..]).escape_markup());
 
-            // We do not need to watch safety settings for mentions, rooms will be watched
-            // automatically.
+            // We do not need to watch safety settings for mentions, rooms will
+            // be watched automatically.
             Some(room.at_room().to_pill(AvatarImageSafetySetting::None, None))
         } else {
             self.push_str(&s.escape_markup());
@@ -307,7 +309,8 @@ impl<'a> Linkifier<'a> {
                     self.inner.push_str(&span_text.escape_markup());
                     self.inner.push_str("</a>");
 
-                    // The span was a valid email so we will not need to check it for the next span.
+                    // The span was a valid email so we will not need to check
+                    // it for the next span.
                     prev_span = None;
                 }
                 _ => {
@@ -389,22 +392,26 @@ impl<'a> Linkifier<'a> {
             return false;
         }
 
-        // The LinkFinder detects the homeserver part of `matrix:` URIs and Matrix
-        // identifiers, e.g. it detects `example.org` in `matrix:r/somewhere:
-        // example.org` or in `#somewhere:matrix.org`. We can use that to detect the
+        // The LinkFinder detects the homeserver part of `matrix:` URIs and
+        // Matrix identifiers, e.g. it detects `example.org` in
+        // `matrix:r/somewhere: example.org` or in
+        // `#somewhere:matrix.org`. We can use that to detect the
         // full URI or identifier with the previous span.
 
-        // First, detect if the previous character is `:`, this is common to URIs and
-        // identifiers.
+        // First, detect if the previous character is `:`, this is common to
+        // URIs and identifiers.
         if let Some(prev_span) = prev_span.filter(|s| s.ends_with(':')) {
-            // Most identifiers in Matrix do not have a list of allowed characters, so all
-            // characters are allowed… which makes it difficult to find where they start.
-            // We have to set arbitrary rules for the localpart to match most cases:
+            // Most identifiers in Matrix do not have a list of allowed
+            // characters, so all characters are allowed… which
+            // makes it difficult to find where they start.
+            // We have to set arbitrary rules for the localpart to match most
+            // cases:
             // - No whitespaces
-            // - No `:`, as it is the separator between localpart and server name, and after
-            //   the scheme in URIs
-            // - As soon as we encounter a known sigil, we assume we have the full ID. We
-            //   ignore event IDs because we need a room to be able to generate a link.
+            // - No `:`, as it is the separator between localpart and server
+            //   name, and after the scheme in URIs
+            // - As soon as we encounter a known sigil, we assume we have the
+            //   full ID. We ignore event IDs because we need a room to be able
+            //   to generate a link.
             if let Some((pos, c)) = prev_span[..]
                 .char_indices()
                 .rev()
