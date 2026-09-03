@@ -413,8 +413,8 @@ mod imp {
             let session = selected_session.downcast_ref::<Session>();
             self.session_view.set_session(session);
 
-            // Show the selected session automatically only if we are not showing a more
-            // important view.
+            // Show the selected session automatically only if we are not
+            // showing a more important view.
             if matches!(
                 self.visible_page(),
                 WindowPage::Session | WindowPage::Loading
