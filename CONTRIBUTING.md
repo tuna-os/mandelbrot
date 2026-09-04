@@ -31,6 +31,16 @@ You will also need to install the Rust nightly toolchain to be able to run our
 rustup toolchain install nightly
 ```
 
+CI pins a dated nightly instead, because `rustfmt.toml` enables unstable
+options whose output changes between nightlies — a new one can re-wrap comments
+across the tree and fail the gate on files nobody touched. If your local
+`nightly` disagrees with CI, run the hook against the pinned toolchain named in
+`.github/workflows/ci.yml`:
+
+```sh
+RUSTFMT_TOOLCHAIN=nightly-2026-08-28 cargo run --manifest-path hooks/checks/Cargo.toml
+```
+
 If you are building Fractal with Flatpak (via GNOME Builder or the command line), you will need to
 manually add the necessary remotes and install the Rust freedesktop.org extension:
 

@@ -23,8 +23,17 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@nightly
+      # Pinned, not floating `@nightly`. rustfmt.toml turns on unstable
+      # options (wrap_comments, normalize_comments among them) whose output
+      # is not stable between nightlies: on 2026-09-01 a new nightly re-wrapped
+      # comments in 131 files nobody had touched, so this gate failed for every
+      # PR and said nothing about any of them. RUSTFMT_TOOLCHAIN below makes
+      # hooks/checks use this same toolchain rather than whatever `+nightly`
+      # resolves to today. To bump: change both together and run
+      # `cargo +<new> fmt --all` in the same commit.
+      - uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: nightly-2026-08-28
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
@@ -34,6 +43,8 @@ jobs:
       # inside tokio, which has nothing to do with this repo.
       - uses: cargo-bins/cargo-binstall@v1.22.0
       - name: Run pre-commit checks
+        env:
+          RUSTFMT_TOOLCHAIN: nightly-2026-08-28
         run: |
           RUST_BACKTRACE=1 cargo run --manifest-path hooks/checks/Cargo.toml -- --verbose --force-install --cargo-binstall
 
