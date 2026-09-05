@@ -41,7 +41,7 @@ jobs:
       # Install the prebuilt binary rather than letting the checks tool build
       # it: compiling cargo-binstall from source on nightly currently fails
       # inside tokio, which has nothing to do with this repo.
-      - uses: cargo-bins/cargo-binstall@v1.22.0
+      - uses: cargo-bins/cargo-binstall@v1.23.0
       - name: Run pre-commit checks
         env:
           RUSTFMT_TOOLCHAIN: nightly-2026-08-28
