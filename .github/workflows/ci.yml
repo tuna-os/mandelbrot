@@ -33,7 +33,7 @@ jobs:
       # `cargo +<new> fmt --all` in the same commit.
       - uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2026-09-04
+          toolchain: nightly-2026-09-05
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
