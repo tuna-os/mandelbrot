@@ -1408,7 +1408,7 @@ dependencies = [
  "rand 0.10.2",
  "regex",
  "rmp-serde",
- "ruma",
+ "ruma 0.17.0",
  "secular",
  "serde",
  "serde_bytes",
@@ -3324,7 +3324,7 @@ dependencies = [
  "livekit",
  "livekit-api",
  "reqwest 0.13.3",
- "ruma",
+ "ruma 0.17.0",
  "serde",
  "serde_json",
  "thiserror 2.0.20",
@@ -3429,7 +3429,7 @@ dependencies = [
  "pin-project-lite",
  "rand 0.10.2",
  "reqwest 0.13.3",
- "ruma",
+ "ruma 0.16.0",
  "rustls",
  "rustls-native-certs",
  "rustls-pki-types",
@@ -3469,7 +3469,7 @@ dependencies = [
  "matrix-sdk-crypto",
  "matrix-sdk-store-encryption",
  "regex",
- "ruma",
+ "ruma 0.16.0",
  "serde",
  "serde_json",
  "thiserror 2.0.20",
@@ -3490,7 +3490,7 @@ dependencies = [
  "futures-util",
  "gloo-timers",
  "imbl",
- "ruma",
+ "ruma 0.16.0",
  "serde",
  "serde_json",
  "thiserror 2.0.20",
@@ -3528,7 +3528,7 @@ dependencies = [
  "pbkdf2",
  "rand 0.10.2",
  "rmp-serde",
- "ruma",
+ "ruma 0.16.0",
  "serde",
  "serde_json",
  "sha2",
@@ -3562,7 +3562,7 @@ dependencies = [
  "matrix-sdk-store-encryption",
  "matrix_indexed_db_futures",
  "rmp-serde",
- "ruma",
+ "ruma 0.16.0",
  "serde",
  "serde-wasm-bindgen",
  "serde_json",
@@ -3584,7 +3584,7 @@ checksum = "fc199f424cd31ad8a63717965779f6ecc877b3ecebe31db8030ef3be8200b0cd"
 dependencies = [
  "byteorder",
  "qrcode",
- "ruma",
+ "ruma 0.16.0",
  "thiserror 2.0.20",
  "vodozemac",
 ]
@@ -3605,7 +3605,7 @@ dependencies = [
  "matrix-sdk-store-encryption",
  "num_cpus",
  "rmp-serde",
- "ruma",
+ "ruma 0.16.0",
  "rusqlite",
  "serde",
  "serde_json",
@@ -3667,7 +3667,7 @@ dependencies = [
  "matrix-sdk-common",
  "mime",
  "pin-project-lite",
- "ruma",
+ "ruma 0.16.0",
  "serde",
  "serde_json",
  "thiserror 2.0.20",
@@ -4571,7 +4571,7 @@ checksum = "22505a5c94da8e3b7c2996394d1c933236c4d743e81a410bcca4e6989fc066a4"
 dependencies = [
  "bytes",
  "heck 0.5.0",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "log",
  "multimap",
  "once_cell",
@@ -4591,7 +4591,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "81bddcdb20abf9501610992b6759a4c888aef7d1a7247ef75e2404275ac24af1"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.117",
@@ -5012,10 +5012,26 @@ dependencies = [
  "assign",
  "js_int",
  "js_option",
- "ruma-client-api",
- "ruma-common",
- "ruma-events",
- "ruma-html",
+ "ruma-client-api 0.24.0",
+ "ruma-common 0.19.0",
+ "ruma-events 0.34.0",
+ "ruma-html 0.8.0",
+ "web-time",
+]
+
+[[package]]
+name = "ruma"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc484e2676b31e677a3e3646078c01d41529eed3360226804a857db8428cc978"
+dependencies = [
+ "assign",
+ "js_int",
+ "js_option",
+ "ruma-client-api 0.25.0",
+ "ruma-common 0.20.0",
+ "ruma-events 0.35.0",
+ "ruma-html 0.9.0",
  "web-time",
 ]
 
@@ -5032,8 +5048,31 @@ dependencies = [
  "js_int",
  "js_option",
  "maplit",
- "ruma-common",
- "ruma-events",
+ "ruma-common 0.19.0",
+ "ruma-events 0.34.0",
+ "serde",
+ "serde_html_form",
+ "serde_json",
+ "thiserror 2.0.20",
+ "url",
+ "web-time",
+]
+
+[[package]]
+name = "ruma-client-api"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a6187ddda33fefafe3a738f40075ce2e8a7ecd3606998d2a885cf6dac73629d"
+dependencies = [
+ "as_variant",
+ "assign",
+ "bytes",
+ "http",
+ "js_int",
+ "js_option",
+ "maplit",
+ "ruma-common 0.20.0",
+ "ruma-events 0.35.0",
  "serde",
  "serde_html_form",
  "serde_json",
@@ -5062,7 +5101,7 @@ dependencies = [
  "rand 0.10.2",
  "regex",
  "ruma-identifiers-validation",
- "ruma-macros",
+ "ruma-macros 0.19.0",
  "serde",
  "serde_html_form",
  "serde_json",
@@ -5071,6 +5110,37 @@ dependencies = [
  "tracing",
  "url",
  "uuid",
+ "web-time",
+ "wildmatch",
+ "zeroize",
+]
+
+[[package]]
+name = "ruma-common"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dfbfb1235d65ebd89e169c67cc120a6608530b3445babb8689baba7ef2e72a12"
+dependencies = [
+ "as_variant",
+ "base64 0.23.1",
+ "bytes",
+ "date_header",
+ "form_urlencoded",
+ "http",
+ "indexmap",
+ "js_int",
+ "konst",
+ "percent-encoding",
+ "regex",
+ "ruma-identifiers-validation",
+ "ruma-macros 0.20.0",
+ "serde",
+ "serde_html_form",
+ "serde_json",
+ "thiserror 2.0.20",
+ "time",
+ "tracing",
+ "url",
  "web-time",
  "wildmatch",
  "zeroize",
@@ -5087,9 +5157,32 @@ dependencies = [
  "js_int",
  "js_option",
  "pulldown-cmark",
- "ruma-common",
- "ruma-html",
- "ruma-macros",
+ "ruma-common 0.19.0",
+ "ruma-html 0.8.0",
+ "ruma-macros 0.19.0",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.20",
+ "tracing",
+ "web-time",
+ "wildmatch",
+ "zeroize",
+]
+
+[[package]]
+name = "ruma-events"
+version = "0.35.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "140e7848282c33721f4bc4f1e5922fa5eb92d3a7b497ec4b71086b047ee7cd0d"
+dependencies = [
+ "as_variant",
+ "indexmap",
+ "js_int",
+ "js_option",
+ "pulldown-cmark",
+ "ruma-common 0.20.0",
+ "ruma-html 0.9.0",
+ "ruma-macros 0.20.0",
  "serde",
  "serde_json",
  "thiserror 2.0.20",
@@ -5107,7 +5200,19 @@ checksum = "48d33a944650f4bbd2188dd204d39dd87a9a1498f14b3a13252910c90ed7cd43"
 dependencies = [
  "as_variant",
  "html5ever",
- "ruma-common",
+ "tracing",
+ "wildmatch",
+]
+
+[[package]]
+name = "ruma-html"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e27e35e6c36fa1abc4def766e474a0f2f709e87f1602d57ec34d41b09253da4"
+dependencies = [
+ "as_variant",
+ "html5ever",
+ "ruma-common 0.20.0",
  "tracing",
  "wildmatch",
 ]
@@ -5136,6 +5241,23 @@ dependencies = [
  "ruma-identifiers-validation",
  "serde",
  "syn 2.0.117",
+ "toml",
+]
+
+[[package]]
+name = "ruma-macros"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4b8571408bf1aefd0f06ea49e9d19551bcf4ba7388e19848adcd9291547c6cb"
+dependencies = [
+ "as_variant",
+ "cfg-if",
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "ruma-identifiers-validation",
+ "serde",
+ "syn 3.0.3",
  "toml",
 ]
 

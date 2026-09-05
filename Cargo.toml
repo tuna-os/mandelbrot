@@ -128,7 +128,7 @@ version = "0.18"
 default-features = false
 
 [dependencies.ruma]
-version = "0.16"
+version = "0.17"
 # git = "https://github.com/ruma/ruma.git"
 # rev = "7680eebd9586669e1a4e5b1fd1c2c691221369d4"
 features = [
