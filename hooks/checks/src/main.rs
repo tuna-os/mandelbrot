@@ -1,10 +1,14 @@
 use std::{
     collections::BTreeSet,
+    env,
     fs::File,
     io::{BufRead, BufReader},
     path::Path,
     process::{ExitCode, Output},
-    sync::atomic::{AtomicBool, Ordering},
+    sync::{
+        LazyLock,
+        atomic::{AtomicBool, Ordering},
+    },
 };
 
 mod utils;
@@ -16,6 +20,58 @@ use crate::utils::{
 
 /// The path to the directory containing the workspace.
 const WORKSPACE_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../");
+
+/// The rustup toolchain used for every rustfmt invocation, from
+/// `$RUSTFMT_TOOLCHAIN`, defaulting to `nightly`.
+///
+/// `rustfmt.toml` turns on unstable options — `wrap_comments` and
+/// `normalize_comments` among them — and their output is not stable between
+/// nightlies: a newer one re-wraps comments an older one left alone. Against a
+/// floating `nightly` that makes `fmt --check` fail on files nobody touched,
+/// which is not a signal about anyone's change. CI therefore pins a dated
+/// nightly through this variable. The default stays plain `nightly` so a
+/// contributor needs no extra toolchain to run the hook locally; only the
+/// gate that has to give the same answer twice is pinned.
+static RUSTFMT_TOOLCHAIN: LazyLock<&'static str> =
+    LazyLock::new(|| match env::var("RUSTFMT_TOOLCHAIN") {
+        Ok(name) if !name.trim().is_empty() => name.trim().to_owned().leak(),
+        _ => "nightly",
+    });
+
+/// The `+toolchain` selector naming [`RUSTFMT_TOOLCHAIN`], e.g. `+nightly`.
+static RUSTFMT_SELECTOR: LazyLock<&'static str> =
+    LazyLock::new(|| &*format!("+{}", *RUSTFMT_TOOLCHAIN).leak());
+
+/// How to reformat the tree, naming the toolchain actually in use so the
+/// advice works under a pin as well as under the default.
+static RUSTFMT_FIX_HINT: LazyLock<&'static str> = LazyLock::new(|| {
+    &*format!(
+        "either manually or by running: cargo {} fmt --all",
+        *RUSTFMT_SELECTOR
+    )
+    .leak()
+});
+
+/// A `rustup component add` invocation targeting [`RUSTFMT_TOOLCHAIN`].
+fn rustup_component_args(component: &'static str) -> &'static [&'static str] {
+    vec![
+        "component",
+        "add",
+        "--toolchain",
+        *RUSTFMT_TOOLCHAIN,
+        component,
+    ]
+    .leak()
+}
+
+/// `args` prefixed with [`RUSTFMT_SELECTOR`], as the `'static` slice
+/// [`CommandData`] takes.
+fn rustfmt_args(args: &[&'static str]) -> &'static [&'static str] {
+    let mut all = Vec::with_capacity(args.len() + 1);
+    all.push(*RUSTFMT_SELECTOR);
+    all.extend_from_slice(args);
+    all.leak()
+}
 
 /// Whether to use verbose output.
 ///
@@ -213,15 +269,14 @@ impl CheckCmd {
 
     /// Check code style with rustfmt nightly.
     fn code_style(&self) -> Result<(), ScriptError> {
-        let mut check = Check::start("code style")
-            .with_fix("either manually or by running: cargo +nightly fmt --all");
+        let mut check = Check::start("code style").with_fix(*RUSTFMT_FIX_HINT);
 
         CheckDependency {
             name: "rustfmt",
-            version: CommandData::new("cargo", &["+nightly", "fmt", "--version"]),
+            version: CommandData::new("cargo", rustfmt_args(&["fmt", "--version"])),
             install: InstallationCommand::Custom(CommandData::new(
                 "rustup",
-                &["component", "add", "--toolchain", "nightly", "rustfmt"],
+                rustup_component_args("rustfmt"),
             )),
         }
         .check(self.force_install, self.cargo_install_method)?;
@@ -229,14 +284,13 @@ impl CheckCmd {
         if let Some(staged_files) = &self.staged_files {
             let cmd = CommandData::new(
                 "cargo",
-                &[
-                    "+nightly",
+                rustfmt_args(&[
                     "fmt",
                     "--check",
                     "--",
                     "--unstable-features",
                     "--skip-children",
-                ],
+                ]),
             )
             .print_output();
 
@@ -245,7 +299,7 @@ impl CheckCmd {
                 check.merge_output(output);
             }
         } else {
-            let output = CommandData::new("cargo", &["+nightly", "fmt", "--check", "--all"])
+            let output = CommandData::new("cargo", rustfmt_args(&["fmt", "--check", "--all"]))
                 .print_output()
                 .run()?;
             check.merge_output(output);
@@ -285,9 +339,12 @@ impl CheckCmd {
         check.merge_output(output);
 
         // We should have already checked that rustfmt is installed.
-        let output = CommandData::new("cargo", &["+nightly", "fmt", "--check", "--manifest-path"])
-            .print_output()
-            .run_with_args(&[&manifest_path])?;
+        let output = CommandData::new(
+            "cargo",
+            rustfmt_args(&["fmt", "--check", "--manifest-path"]),
+        )
+        .print_output()
+        .run_with_args(&[&manifest_path])?;
         check.merge_output(output);
 
         check.end()
