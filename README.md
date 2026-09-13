@@ -37,7 +37,7 @@ New in Mandelbrot (see [docs/FEATURES.md](docs/FEATURES.md) for details):
 Install from the TunaOS flatpak remote:
 
 ```sh
-flatpak remote-add --user --if-not-exists tuna-os https://tunaos.org/flatpak/tuna-os.flatpakrepo
+flatpak remote-add --user --if-not-exists tuna-os oci+https://tuna-os.github.io/flatpak-index
 flatpak install --user tuna-os org.tunaos.mandelbrot
 ```
 
@@ -54,12 +54,12 @@ Currently only **x86_64** builds are published. ARM (aarch64) is not yet
 available, so the Flatpak cannot be installed on aarch64 devices such as phones
 or Apple Silicon.
 
-If you added the `tuna-os` remote before it moved to tunaos.org, `--if-not-exists`
+If you added the `tuna-os` remote previously, `--if-not-exists`
 will keep your old one and the install will report that nothing matches. Point it
 at the current URL with:
 
 ```sh
-flatpak remote-modify --user tuna-os --url=oci+https://tunaos.org/flatpak
+flatpak remote-modify --user tuna-os --url=oci+https://tuna-os.github.io/flatpak-index
 ```
 
 ## Relationship to Fractal
