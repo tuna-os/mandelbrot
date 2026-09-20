@@ -52,25 +52,25 @@ rust-tests:
     reports:
       junit: '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/src/junit.xml'
 
-# Test that there are no errors in the docs.
+# Build the docs and make sure that there are no errors.
 build-docs:
-  extends:
-    - .remove_build_only_modules
   stage: test
-  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-${GNOME_STABLE_VERSION}'
-  tags:
-    - flatpak
+  image: 'ghcr.io/gtk-rs/gtk4-rs/gtk4:latest'
   interruptible: true
   script:
-    - flatpak install --user --noninteractive org.freedesktop.Sdk.Extension.rust-nightly//${FREEDESKTOP_RUNTIME_BRANCH}
-    # We want to use the latest stable GNOME runtime instead of the nightly runtime.
-    - sed -i "s|master|${GNOME_STABLE_VERSION}|g" ${MANIFEST_PATH}
-    # We want to use the nightly Rust toolchain inside the build terminal.
-    - sed -i 's|"org.freedesktop.Sdk.Extension.rust-stable"|"org.freedesktop.Sdk.Extension.rust-nightly"|g' ${MANIFEST_PATH}
-    - sed -i 's|/rust-stable/bin|/rust-nightly/bin|g' ${MANIFEST_PATH}
-    - flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse --stop-at=${FLATPAK_MODULE} flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
-    - echo "meson compile src/cargo-doc" | flatpak-builder --disable-rofiles-fuse --build-shell=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH}
-    - tar --auto-compress --create --file "${CI_PROJECT_DIR}/${CI_PROJECT_NAME}-docs.tar.gz" --directory ".flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/src/doc" .
+    # Print info about the container image.
+    - cat /etc/os-release
+    # Install the nightly Rust toolchain.
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+    - source $HOME/.cargo/env
+    - rustup toolchain install nightly-${RUST_NIGHTLY_VERSION} --profile minimal --allow-downgrade -c rust-docs
+    # Install the necessary dependencies.
+    - dnf install -y glycin-gtk4-devel gstreamer1-plugins-bad-free-devel gtksourceview5-devel libshumate-devel libwebp-devel sqlite-devel
+    # Build the docs.
+    - meson setup -Dprofile=build-env _build
+    - meson compile -C _build src/cargo-doc
+    # Bundle the docs in an archive.
+    - tar --auto-compress --create --file "${CI_PROJECT_DIR}/${CI_PROJECT_NAME}-docs.tar.gz" --directory "_build/src/doc" .
   dependencies: []
   artifacts:
     paths:
