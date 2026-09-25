@@ -7,8 +7,8 @@ use std::{
     rc::Rc,
 };
 
-use assert_matches2::assert_matches;
 use matrix_sdk_ui::eyeball_im::Vector;
+use strass::assert_let;
 
 use super::*;
 
@@ -411,7 +411,7 @@ fn minimize_simple_diff() {
 
     let item_diff_list = minimizer.item_diff_list(&old_item_ids, &new_item_ids);
     assert_eq!(item_diff_list.len(), 1);
-    assert_matches!(&item_diff_list[0], TimelineDiff::Splice(splice_diff));
+    assert_let!(TimelineDiff::Splice(splice_diff) = &item_diff_list[0]);
     assert_eq!(splice_diff.pos, 0);
     assert_eq!(splice_diff.n_removals, 0);
     assert_eq!(splice_diff.additions.len(), 4);
@@ -452,7 +452,7 @@ fn minimize_simple_diff() {
 
     let item_diff_list = minimizer.item_diff_list(&old_item_ids, &new_item_ids);
     assert_eq!(item_diff_list.len(), 1);
-    assert_matches!(&item_diff_list[0], TimelineDiff::Splice(splice_diff));
+    assert_let!(TimelineDiff::Splice(splice_diff) = &item_diff_list[0]);
     assert_eq!(splice_diff.pos, 0);
     assert_eq!(splice_diff.n_removals, 4);
     assert_eq!(splice_diff.additions.len(), 0);
@@ -559,21 +559,21 @@ fn minimize_complex_diff() {
 
     let item_diff_list = minimizer.item_diff_list(&old_item_ids, &new_item_ids);
     assert_eq!(item_diff_list.len(), 5);
-    assert_matches!(&item_diff_list[0], TimelineDiff::Splice(splice_diff));
+    assert_let!(TimelineDiff::Splice(splice_diff) = &item_diff_list[0]);
     assert_eq!(splice_diff.pos, 1);
     assert_eq!(splice_diff.n_removals, 0);
     assert_eq!(splice_diff.additions.len(), 1);
-    assert_matches!(&item_diff_list[1], TimelineDiff::Update(update_diff));
+    assert_let!(TimelineDiff::Update(update_diff) = &item_diff_list[1]);
     assert_eq!(update_diff.pos, 2);
     assert_eq!(update_diff.n_items, 1);
-    assert_matches!(&item_diff_list[2], TimelineDiff::Splice(splice_diff));
+    assert_let!(TimelineDiff::Splice(splice_diff) = &item_diff_list[2]);
     assert_eq!(splice_diff.pos, 3);
     assert_eq!(splice_diff.n_removals, 1);
     assert_eq!(splice_diff.additions.len(), 1);
-    assert_matches!(&item_diff_list[3], TimelineDiff::Update(update_diff));
+    assert_let!(TimelineDiff::Update(update_diff) = &item_diff_list[3]);
     assert_eq!(update_diff.pos, 4);
     assert_eq!(update_diff.n_items, 1);
-    assert_matches!(&item_diff_list[4], TimelineDiff::Splice(splice_diff));
+    assert_let!(TimelineDiff::Splice(splice_diff) = &item_diff_list[4]);
     assert_eq!(splice_diff.pos, 7);
     assert_eq!(splice_diff.n_removals, 1);
     assert_eq!(splice_diff.additions.len(), 0);

@@ -165,7 +165,7 @@ oo7 = { version = "0.7", default-features = false, features = [
 ] }
 
 [dev-dependencies]
-assert_matches2 = "0.1"
+strass = "0.2.2"
 
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }

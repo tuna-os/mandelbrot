@@ -88,9 +88,9 @@ fn svg_icon() -> String {
 
 #[cfg(test)]
 mod tests {
-    use assert_matches2::assert_matches;
     use gtk::gio;
     use matrix_sdk::utils::local_server::LocalServerResponse;
+    use strass::assert_let;
 
     use super::local_server_landing_page;
     use crate::config::tests::BUILD_DIR;
@@ -102,7 +102,7 @@ mod tests {
         gio::resources_register(&res);
 
         // Check that the variables were all replaced.
-        assert_matches!(local_server_landing_page(), LocalServerResponse::Html(html));
+        assert_let!(LocalServerResponse::Html(html) = local_server_landing_page());
         assert!(!html.is_empty());
         assert!(!html.contains("@app_name@"));
         assert!(!html.contains("@title@"));
