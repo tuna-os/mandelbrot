@@ -1,19 +1,19 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "local>tuna-os/.github"
   ],
-  "automerge": false,
-  "platformAutomerge": true,
   "packageRules": [
     {
-      "matchUpdateTypes": [
-        "patch",
-        "pin",
-        "pinDigest",
-        "digest"
+      "description": "ruma is re-exported by matrix-sdk; bumping it alone puts two ruma-common versions in the graph (see #104). Only bump the two together.",
+      "matchManagers": [
+        "cargo"
       ],
-      "automerge": true
+      "matchPackageNames": [
+        "/^ruma(-.*)?$/",
+        "/^matrix-sdk(-.*)?$/"
+      ],
+      "groupName": "matrix-sdk and ruma"
     }
   ]
 }
