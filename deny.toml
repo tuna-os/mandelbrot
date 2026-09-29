@@ -10,6 +10,11 @@ ignore = [
     { id = "RUSTSEC-2026-0173", reason = "proc-macro-error2 is unmaintained but used by dependencies of matrix-sdk" },
     { id = "RUSTSEC-2026-0247", reason = "bitmaps is unmaintained with no safe upgrade; it is a transitive dependency of imbl via matrix-sdk/eyeball-im" },
     { id = "RUSTSEC-2026-0253", reason = "lru 0.16.4 use-after-free in LruCache::pop() on a panicking Drop; fixed in 0.18.2, but rqrr 0.10.1 (latest, transitive via aperture for QR scanning) hard-pins lru = \"^0.16\" and cannot resolve past 0.16.x until rqrr releases a bump — see #61" },
+    # imbl-sized-chunks 0.1.3: double free / use-after-free when an element's Drop panics.
+    # Fixed in 0.2.0, which only imbl >=7 uses; imbl 6.1.0 (latest 6.x) pins ^0.1.3, and
+    # matrix-sdk / matrix-sdk-ui / matrix-sdk-common 0.18 require imbl ^6.1. Reaching the fix
+    # means bumping to matrix-sdk 0.19 (imbl 7.0.2, eyeball-im 0.9). Remove this entry with that bump.
+    { id = "RUSTSEC-2026-0292", reason = "imbl-sized-chunks fix needs imbl 7, i.e. matrix-sdk 0.19; remove when bumping matrix-sdk" },
 ]
 
 [bans]
