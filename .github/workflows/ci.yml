@@ -33,7 +33,7 @@ jobs:
       # `cargo +<new> fmt --all` in the same commit.
       - uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2026-09-13
+          toolchain: nightly-2026-09-30
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
@@ -41,7 +41,7 @@ jobs:
       # Install the prebuilt binary rather than letting the checks tool build
       # it: compiling cargo-binstall from source on nightly currently fails
       # inside tokio, which has nothing to do with this repo.
-      - uses: cargo-bins/cargo-binstall@v1.23.0
+      - uses: cargo-bins/cargo-binstall@v1.24.0
       - name: Run pre-commit checks
         env:
           RUSTFMT_TOOLCHAIN: nightly-2026-08-28
