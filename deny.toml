@@ -30,6 +30,17 @@ allow = [
     "BSD-2-Clause",
     "BSD-3-Clause",
     "BSL-1.0",
+    # Reached only under `--all-features`, via webpki-roots (0.26.11 through
+    # tokio-tungstenite -> livekit-net, and 1.0.7 through reqwest). It is a data
+    # license covering the bundled CA certificate set rather than code, and is
+    # permissive with no copyleft reciprocity, so it is compatible with this
+    # project's GPL-3.0-or-later.
+    #
+    # This entry and the `--all-features` audit in hooks/checks must stay
+    # together: `unused-allowed-license = "deny"` above rejects this line on its
+    # own (license-not-encountered), and widening the audit without it fails the
+    # other way.
+    "CDLA-Permissive-2.0",
     "GPL-3.0-or-later",
     "ISC",
     "MIT",
