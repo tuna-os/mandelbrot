@@ -15,6 +15,13 @@ ignore = [
     # matrix-sdk / matrix-sdk-ui / matrix-sdk-common 0.18 require imbl ^6.1. Reaching the fix
     # means bumping to matrix-sdk 0.19 (imbl 7.0.2, eyeball-im 0.9). Remove this entry with that bump.
     { id = "RUSTSEC-2026-0292", reason = "imbl-sized-chunks fix needs imbl 7, i.e. matrix-sdk 0.19; remove when bumping matrix-sdk" },
+    # matrix-sdk-crypto 0.18: encrypt_content_for_devices / encrypt_event_raw can panic with
+    # CollectStrategy::IdentityBasedStrategy when a recipient has no cross-signing keys.
+    # Fractal only reaches that path via Encryption::encrypt_and_send_raw_to_device in
+    # src/session/call/client_api.rs, which passes CollectStrategy::AllDevices, and matrix-sdk 0.18
+    # itself never uses IdentityBasedStrategy. Fixed in 0.19; remove this entry with the
+    # matrix-sdk 0.19 bump (#124).
+    { id = "RUSTSEC-2026-0318", reason = "panic only with IdentityBasedStrategy, which Fractal does not use (AllDevices); fixed by matrix-sdk 0.19 bump in #124" },
 ]
 
 [bans]
