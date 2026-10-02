@@ -79,7 +79,7 @@ zeroize = "1"
 # where it is a no-op, so this is safe both before and after the 0.9.2 bump.
 adw = { version = "0.9", features = ["v1_8", "gtk_v4_20"], package = "libadwaita" }
 glycin = { version = "0.1", package = "libglycin-rebind" }
-glycin-gtk4 = { version = "0.1", package = "libglycin-gtk4-rebind" }
+glycin-gtk4 = { version = "0.2", package = "libglycin-gtk4-rebind" }
 gst = { version = "0.25", package = "gstreamer" }
 gst_app = { version = "0.25", package = "gstreamer-app" }
 gst_pbutils = { version = "0.25", package = "gstreamer-pbutils" }
