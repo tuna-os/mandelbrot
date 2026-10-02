@@ -14,8 +14,8 @@ use tracing::error;
 use super::{Room, Session};
 use crate::{session::JoinRuleValue, spawn, spawn_tokio};
 
-/// We default the media previews setting to private.
-const DEFAULT_MEDIA_PREVIEWS: MediaPreviews = MediaPreviews::Private;
+/// We default the media previews setting to on.
+const DEFAULT_MEDIA_PREVIEWS: MediaPreviews = MediaPreviews::On;
 /// We enable the invite avatars by default.
 const DEFAULT_INVITE_AVATARS_ENABLED: bool = true;
 

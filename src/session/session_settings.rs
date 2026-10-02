@@ -322,9 +322,9 @@ pub(super) struct MediaPreviewsSetting {
 #[serde(rename_all = "lowercase")]
 pub(super) enum MediaPreviewsGlobalSetting {
     /// All rooms show media previews.
+    #[default]
     All,
     /// Only private rooms show media previews.
-    #[default]
     Private,
     /// No rooms show media previews.
     None,
