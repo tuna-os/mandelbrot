@@ -131,6 +131,9 @@ Fractal follows the official [GNOME Code of Conduct](https://conduct.gnome.org/)
 <!-- hive-contribute-plea: donated-compute appeal, keep in sync across repos -->
 ## Contribute compute — no code needed
 
-No time to write code? You can still push this project's backlog forward. A TunaOS AI-agent hive works on this repository. Lend the hive your AI subscription or API tokens, and your machine runs tasks from this project's backlog.
+No time to write code? You can still push this project's backlog forward.
+A TunaOS AI-agent hive works on this repository. Lend the hive your AI
+subscription or API tokens, and your machine runs tasks from this project's
+backlog.
 
-- 🪸 [Contribute compute to the reef hive](https://reef.tunaos.org/contribute)
+* 🪸 [Contribute compute to the reef hive](https://reef.tunaos.org/contribute)
