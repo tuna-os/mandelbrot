@@ -412,7 +412,13 @@ impl CheckCmd {
         }
         .check(self.force_install, self.cargo_install_method)?;
 
-        let output = CommandData::new("cargo", &["deny", "check"])
+        // `--all-features` and not a bare `check`: `calls-media` is off by
+        // default and on in the shipped Flatpak (org.tunaos.mandelbrot.json
+        // builds with `-Dcalls-media=true`), so a default-feature audit skips
+        // the whole LiveKit/libwebrtc subtree — the media stack that actually
+        // reaches users, and the part of the tree handling untrusted network
+        // media. It stayed green while rtrb 0.3.4 carried RUSTSEC-2026-0274.
+        let output = CommandData::new("cargo", &["deny", "--all-features", "check"])
             .print_output()
             .run()?;
 
