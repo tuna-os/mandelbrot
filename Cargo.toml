@@ -1,3 +1,7 @@
+[workspace]
+members = ["matrixrtc"]
+exclude = ["hooks/checks"]
+
 [package]
 name = "fractal"
 version = "14.1.0"
