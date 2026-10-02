@@ -204,12 +204,12 @@ async fn set_up_my_key_asap_even_if_no_key_distribution_is_needed() {
     harness.manager.join(EncryptionConfig::default());
     // After join it is too early, the key might be lost as no one is
     // listening yet.
-    assert!(harness.keys_changed().is_empty());
+    assert_eq!(harness.keys_changed(), Vec::<KeysChangedCall>::new());
 
     harness.manager.on_memberships_update();
     settle().await;
     // The key should have been rolled out immediately.
-    assert!(!harness.keys_changed().is_empty());
+    assert_ne!(harness.keys_changed(), Vec::<KeysChangedCall>::new());
 }
 
 #[tokio::test(start_paused = true)]
@@ -270,7 +270,7 @@ async fn should_re_distribute_keys_to_members_whom_call_membership_ts_has_change
     );
     advance(1).await;
     // The key should have been rolled out immediately.
-    assert!(!harness.keys_changed().is_empty());
+    assert_ne!(harness.keys_changed(), Vec::<KeysChangedCall>::new());
 
     harness.transport.clear_calls();
     harness.clear_keys_changed();
@@ -352,7 +352,7 @@ async fn should_not_rotate_key_when_a_user_join_within_the_rotation_grace_period
         }]
     );
 
-    assert!(harness.keys_changed().is_empty());
+    assert_eq!(harness.keys_changed(), Vec::<KeysChangedCall>::new());
     advance(1000).await;
 }
 
@@ -492,7 +492,7 @@ async fn should_rotate_key_when_a_user_join_past_the_rotation_grace_period() {
     // Wait for the use key delay to pass.
     advance(5000).await;
 
-    assert!(!harness.keys_changed().is_empty());
+    assert_ne!(harness.keys_changed(), Vec::<KeysChangedCall>::new());
 }
 
 #[tokio::test(start_paused = true)]
@@ -541,7 +541,7 @@ async fn should_not_rotate_key_when_several_users_join_within_the_rotation_grace
         );
     }
 
-    assert!(harness.keys_changed().is_empty());
+    assert_eq!(harness.keys_changed(), Vec::<KeysChangedCall>::new());
 }
 
 #[tokio::test(start_paused = true)]
@@ -570,7 +570,7 @@ async fn should_not_resend_keys_when_no_changes() {
     harness.manager.on_memberships_update();
     advance(100).await;
 
-    assert!(harness.transport.calls().is_empty());
+    assert_eq!(harness.transport.calls(), Vec::<SendKeyCall>::new());
 }
 
 #[tokio::test(start_paused = true)]
@@ -623,7 +623,7 @@ async fn should_rotate_key_when_a_user_leaves_and_delay_the_rollout() {
             .collect::<Vec<_>>()
     );
 
-    assert!(harness.keys_changed().is_empty());
+    assert_eq!(harness.keys_changed(), Vec::<KeysChangedCall>::new());
     advance(1000).await;
 
     // Now it should be rolled out.
@@ -649,8 +649,8 @@ async fn should_not_distribute_keys_if_encryption_is_disabled() {
     harness.manager.on_memberships_update();
     settle().await;
 
-    assert!(harness.transport.calls().is_empty());
-    assert!(harness.keys_changed().is_empty());
+    assert_eq!(harness.transport.calls(), Vec::<SendKeyCall>::new());
+    assert_eq!(harness.keys_changed(), Vec::<KeysChangedCall>::new());
 }
 
 // Receiving keys
@@ -679,7 +679,7 @@ async fn should_not_accept_keys_when_manage_media_keys_is_disabled() {
     );
     settle().await;
 
-    assert!(harness.keys_changed().is_empty());
+    assert_eq!(harness.keys_changed(), Vec::<KeysChangedCall>::new());
 }
 
 #[tokio::test(start_paused = true)]
