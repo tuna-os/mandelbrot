@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 members = ["matrixrtc"]
 exclude = ["hooks/checks"]
 
