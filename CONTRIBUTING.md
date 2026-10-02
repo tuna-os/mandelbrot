@@ -255,3 +255,13 @@ and API reference.
 Support requests referencing misleading or false LLM output relating to the project may be ignored,
 since it is a waste of time for us to "debug" where things went wrong based on this output before
 human support was sought.
+
+<!-- hive-contribute-plea: donated-compute appeal, keep in sync across repos -->
+## Contribute compute — no code needed
+
+No time to write code? You can still push this project's backlog forward.
+A TunaOS AI-agent hive works on this repository. Lend the hive your AI
+subscription or API tokens, and your machine runs tasks from this project's
+backlog.
+
+* 🪸 [Contribute compute to the reef hive](https://reef.tunaos.org/contribute)
