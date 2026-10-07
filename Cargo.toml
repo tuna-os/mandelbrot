@@ -1,6 +1,11 @@
 [workspace]
 resolver = "2"
 members = ["matrixrtc"]
+# Bare `cargo build`/`cargo test` (what meson invokes inside the flatpak
+# sandbox) should build only fractal; matrixrtc has its own CI job and its
+# dependency tree (livekit → aws-lc-sys) does not build with the flatpak
+# SDK's default CFLAGS.
+default-members = ["."]
 exclude = ["hooks/checks"]
 
 [package]
