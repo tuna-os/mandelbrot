@@ -88,6 +88,10 @@
         {
             "name": "fractal",
             "buildsystem": "meson",
+            "build-options": {
+                "cflags": "",
+                "cflags-override": true
+            },
             "run-tests": true,
             "config-opts": [
                 "-Dprofile=default",
