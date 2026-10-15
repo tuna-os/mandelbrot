@@ -5,6 +5,9 @@
 // Matrix SDK error enums are intentionally propagated by value. Boxing them
 // only to satisfy this size heuristic would make these error paths less clear.
 #![allow(clippy::result_large_err)]
+// matrix-sdk 0.19's HTTP client future nests deeply enough that proving
+// `Send` for futures handed to `spawn_tokio!` exceeds the default limit.
+#![recursion_limit = "256"]
 
 mod account_chooser_dialog;
 mod account_switcher;

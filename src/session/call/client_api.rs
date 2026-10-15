@@ -143,15 +143,13 @@ impl RtcClientApi for SdkRtcClientApi {
         action: UpdateDelayedEventAction,
     ) -> Result<(), ClientError> {
         let action = match action {
-            UpdateDelayedEventAction::Restart => {
-                update_delayed_event::unstable::UpdateAction::Restart
-            }
-            UpdateDelayedEventAction::Cancel => {
-                update_delayed_event::unstable::UpdateAction::Cancel
-            }
-            UpdateDelayedEventAction::Send => update_delayed_event::unstable::UpdateAction::Send,
+            UpdateDelayedEventAction::Restart => update_delayed_event::UpdateAction::Restart,
+            UpdateDelayedEventAction::Cancel => update_delayed_event::UpdateAction::Cancel,
+            UpdateDelayedEventAction::Send => update_delayed_event::UpdateAction::Send,
         };
-        let request = update_delayed_event::unstable::Request::new(delay_id.to_owned(), action);
+        // `unstable_v1` is the same MSC4140 endpoint (action in the body, access token
+        // required) that ruma <0.17 exposed as `update_delayed_event::unstable`.
+        let request = update_delayed_event::unstable_v1::Request::new(delay_id.to_owned(), action);
 
         self.client
             .send(request)

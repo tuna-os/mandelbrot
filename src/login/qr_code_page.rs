@@ -262,8 +262,7 @@ mod imp {
                     self.stack.set_visible_child_name("connecting");
                 }
                 LoginProgress::EstablishingSecureChannel(QrProgress { check_code }) => {
-                    self.check_code_label
-                        .set_label(&format!("{:02}", check_code.to_digit()));
+                    self.check_code_label.set_label(&format!("{check_code:02}"));
                     self.stack.set_visible_child_name("check-code");
                 }
                 LoginProgress::WaitingForToken { user_code } => {
