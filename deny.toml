@@ -22,6 +22,10 @@ ignore = [
     # itself never uses IdentityBasedStrategy. Fixed in 0.19; remove this entry with the
     # matrix-sdk 0.19 bump (#124).
     { id = "RUSTSEC-2026-0318", reason = "panic only with IdentityBasedStrategy, which Fractal does not use (AllDevices); fixed by matrix-sdk 0.19 bump in #124" },
+    # anymap2 0.13: unmaintained (informational, no vulnerability). Pulled in directly by
+    # matrix-sdk (0.18 and 0.19 alike); there is no fixed release, only the anymap3 replacement,
+    # which matrix-sdk has to adopt upstream.
+    { id = "RUSTSEC-2026-0319", reason = "anymap2 is unmaintained but is a direct dependency of matrix-sdk with no upgrade available" },
 ]
 
 [bans]
