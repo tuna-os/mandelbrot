@@ -3,7 +3,8 @@ use futures_util::StreamExt;
 use gettextrs::gettext;
 use gtk::{glib, glib::clone};
 use matrix_sdk::authentication::oauth::qrcode::{
-    CheckCodeSender, GeneratedQrProgress, GrantLoginProgress, QRCodeGrantLoginError,
+    CheckCodeSender, ContinuationMessageSender, GeneratedQrProgress, GrantLoginProgress,
+    QRCodeGrantLoginError,
 };
 use tokio::task::AbortHandle;
 use tracing::{error, warn};
@@ -49,6 +50,9 @@ mod imp {
         check_code_sender: RefCell<Option<CheckCodeSender>>,
         /// The URI to open in the browser to allow the new sign-in.
         verification_uri: RefCell<Option<Url>>,
+        /// The sender to let the grant proceed once the verification URI was
+        /// opened.
+        continuation_sender: RefCell<Option<ContinuationMessageSender>>,
         /// The abort handle for the ongoing grant task.
         abort_handle: RefCell<Option<AbortHandle>>,
     }
@@ -189,8 +193,12 @@ mod imp {
                     self.stack.set_visible_child_name("check-code");
                     self.check_code_entry.grab_focus();
                 }
-                GrantLoginProgress::WaitingForAuth { verification_uri } => {
+                GrantLoginProgress::WaitingForAuth {
+                    verification_uri,
+                    continuation_sender,
+                } => {
                     self.verification_uri.replace(Some(verification_uri));
+                    self.continuation_sender.replace(Some(continuation_sender));
                     self.stack.set_visible_child_name("confirm-browser");
                     self.open_browser_button.grab_focus();
                 }
@@ -255,6 +263,16 @@ mod imp {
 
             self.open_browser_button.set_is_loading(false);
 
+            // The grant only proceeds once we confirm that the verification URI was opened.
+            if let Some(continuation_sender) = self.continuation_sender.take() {
+                let handle = spawn_tokio!(async move { continuation_sender.confirm().await });
+
+                if let Err(send_error) = handle.await.expect("task was not aborted") {
+                    // The grant task will error out as well, just log this.
+                    error!("Could not confirm the sign-in continuation: {send_error}");
+                }
+            }
+
             self.waiting_label
                 .set_label(&gettext("Waiting for the new device…"));
             self.stack.set_visible_child_name("waiting");
@@ -275,6 +293,7 @@ mod imp {
 
             self.check_code_sender.take();
             self.verification_uri.take();
+            self.continuation_sender.take();
             self.check_code_entry.set_text("");
             self.confirm_check_code_button.set_is_loading(false);
             self.open_browser_button.set_is_loading(false);
