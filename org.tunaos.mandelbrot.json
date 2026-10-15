@@ -4,7 +4,8 @@
     "runtime-version": "50",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
-        "org.freedesktop.Sdk.Extension.rust-stable"
+        "org.freedesktop.Sdk.Extension.rust-stable",
+        "org.freedesktop.Sdk.Extension.llvm20"
     ],
     "command": "fractal",
     "finish-args": [
@@ -16,9 +17,11 @@
         "--device=dri"
     ],
     "build-options": {
-        "append-path": "/usr/lib/sdk/rust-stable/bin",
+        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm20/bin",
         "env": {
-            "RUSTFLAGS": "-C link-arg=-fuse-ld=mold --cfg=ruma_identifiers_storage=\"Arc\""
+            "RUSTFLAGS": "-C link-arg=-fuse-ld=mold --cfg=ruma_identifiers_storage=\"Arc\"",
+            "CXX": "clang++",
+            "CC": "clang"
         },
         "build-args": [
             "--share=network"
