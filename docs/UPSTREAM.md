@@ -66,3 +66,12 @@ When resolving conflicts during an upstream sync:
   additions; ensure changes to `src/session/` preserve call manager hooks.
 * **Crate Naming**: Keep `Cargo.toml` and `meson.build` crate metadata aligned with upstream
   tracking until a scheduled tree-wide rename.
+* **Repository Governance Files**: `AGENTS.md` states this fork's own contributor-automation
+  contract and must not be replaced wholesale by an upstream merge. If a sync brings in an
+  upstream change to that file (or to `CONTRIBUTING.md`'s policy sections), reconcile it —
+  keep upstream's substantive policy changes, but do not let a merge silently reinstate
+  content this fork has deliberately overridden. This is the gap that let
+  upstream's "Instructions for LLM agents" file (a satirical policy-against-AI statement,
+  see `CONTRIBUTING.md`'s "LLM Contributions" section for the real policy it stood in for)
+  sit unreconciled in `AGENTS.md` for weeks after this fork started running the App-authored
+  maintenance the old file's own text told every agent not to do.
