@@ -45,8 +45,8 @@ across the tree and fail CI on files you did not touch. Match
 
 ## Commits
 
-DCO sign-off (`git commit -s`) — every commit in the tree's history carries
-one. Review is routed to `.github/CODEOWNERS` (currently @hanthor).
+Sign off commits (`git commit -s`, DCO). Review is routed to
+`.github/CODEOWNERS` (currently @hanthor).
 
 ## Generated and vendored content
 
