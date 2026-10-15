@@ -15,6 +15,17 @@ ignore = [
     # matrix-sdk / matrix-sdk-ui / matrix-sdk-common 0.18 require imbl ^6.1. Reaching the fix
     # means bumping to matrix-sdk 0.19 (imbl 7.0.2, eyeball-im 0.9). Remove this entry with that bump.
     { id = "RUSTSEC-2026-0292", reason = "imbl-sized-chunks fix needs imbl 7, i.e. matrix-sdk 0.19; remove when bumping matrix-sdk" },
+    # matrix-sdk-crypto 0.18: encrypt_content_for_devices / encrypt_event_raw can panic with
+    # CollectStrategy::IdentityBasedStrategy when a recipient has no cross-signing keys.
+    # Fractal only reaches that path via Encryption::encrypt_and_send_raw_to_device in
+    # src/session/call/client_api.rs, which passes CollectStrategy::AllDevices, and matrix-sdk 0.18
+    # itself never uses IdentityBasedStrategy. Fixed in 0.19; remove this entry with the
+    # matrix-sdk 0.19 bump (#124).
+    { id = "RUSTSEC-2026-0318", reason = "panic only with IdentityBasedStrategy, which Fractal does not use (AllDevices); fixed by matrix-sdk 0.19 bump in #124" },
+    # anymap2 0.13: unmaintained (informational, no vulnerability). Pulled in directly by
+    # matrix-sdk (0.18 and 0.19 alike); there is no fixed release, only the anymap3 replacement,
+    # which matrix-sdk has to adopt upstream.
+    { id = "RUSTSEC-2026-0319", reason = "anymap2 is unmaintained but is a direct dependency of matrix-sdk with no upgrade available" },
 ]
 
 [bans]
@@ -30,6 +41,17 @@ allow = [
     "BSD-2-Clause",
     "BSD-3-Clause",
     "BSL-1.0",
+    # Reached only under `--all-features`, via webpki-roots (0.26.11 through
+    # tokio-tungstenite -> livekit-net, and 1.0.7 through reqwest). It is a data
+    # license covering the bundled CA certificate set rather than code, and is
+    # permissive with no copyleft reciprocity, so it is compatible with this
+    # project's GPL-3.0-or-later.
+    #
+    # This entry and the `--all-features` audit in hooks/checks must stay
+    # together: `unused-allowed-license = "deny"` above rejects this line on its
+    # own (license-not-encountered), and widening the audit without it fails the
+    # other way.
+    "CDLA-Permissive-2.0",
     "GPL-3.0-or-later",
     "ISC",
     "MIT",
