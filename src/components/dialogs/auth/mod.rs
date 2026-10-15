@@ -6,7 +6,7 @@ use gtk::{glib, glib::clone};
 use matrix_sdk::{Error, encryption::CrossSigningResetAuthType};
 use ruma::{
     api::{
-        MatrixVersion, OutgoingRequest, SupportedVersions,
+        MatrixVersion, OutgoingRequestExt, SupportedVersions,
         auth_scheme::SendAccessToken,
         client::uiaa::{
             AuthData, AuthType, Dummy, FallbackAcknowledgement, Password, UiaaInfo, UserIdentifier,
