@@ -1392,7 +1392,7 @@ dependencies = [
  "indexmap",
  "libadwaita",
  "libglycin-gtk4-rebind",
- "libglycin-rebind 0.2.0",
+ "libglycin-rebind",
  "libshumate",
  "linkify",
  "mandelbrot-matrixrtc",
@@ -2872,41 +2872,29 @@ checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 
 [[package]]
 name = "libglycin-gtk4-rebind"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f06eb8570574e13c83b856f422a559704e6c1ed471c20f163e2ca05e505bfa7a"
+checksum = "897c6ad17e6e3b00b35fe322acb3b885ee89f03169a7baaefe2d808ad6f4c468"
 dependencies = [
  "gdk4",
  "gio",
  "glib",
  "libc",
  "libglycin-gtk4-rebind-sys",
- "libglycin-rebind 0.1.0",
+ "libglycin-rebind",
 ]
 
 [[package]]
 name = "libglycin-gtk4-rebind-sys"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5942c92d31c0a2a79cc2f64890c46952c91bccf0263d7ac4558bbdd116bab51"
+checksum = "1bdcb0d86235d26251ce2c254d9d1e3cd73e7cc49ccfba6d44539781c91a3818"
 dependencies = [
  "gdk4-sys",
  "glib-sys",
  "libc",
- "libglycin-rebind-sys 0.1.0",
+ "libglycin-rebind-sys",
  "system-deps",
-]
-
-[[package]]
-name = "libglycin-rebind"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79a080d11cbd053f65de1a9c7efd096fe2a0fde6244185bd452bb11fdeb98db3"
-dependencies = [
- "gio",
- "glib",
- "libc",
- "libglycin-rebind-sys 0.1.0",
 ]
 
 [[package]]
@@ -2918,20 +2906,7 @@ dependencies = [
  "gio",
  "glib",
  "libc",
- "libglycin-rebind-sys 0.2.0",
-]
-
-[[package]]
-name = "libglycin-rebind-sys"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65fecb1928f26a984b937deadbb0998f1a0f3c3db7fa2b9a493322e80b1f9f4b"
-dependencies = [
- "gio-sys",
- "glib-sys",
- "gobject-sys",
- "libc",
- "system-deps",
+ "libglycin-rebind-sys",
 ]
 
 [[package]]
