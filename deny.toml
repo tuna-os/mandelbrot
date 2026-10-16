@@ -14,6 +14,10 @@ ignore = [
     # matrix-sdk (0.18 and 0.19 alike); there is no fixed release, only the anymap3 replacement,
     # which matrix-sdk has to adopt upstream.
     { id = "RUSTSEC-2026-0319", reason = "anymap2 is unmaintained but is a direct dependency of matrix-sdk with no upgrade available" },
+    # zip 0.6: every 0.6.x release is yanked. webrtc-sys-build (build script of webrtc-sys,
+    # via livekit) requires zip = "^0.6" up to its latest 0.3.19, so no lockfile update
+    # can move past it. Drop this once webrtc-sys-build moves to a newer zip.
+    { crate = "zip@0.6.6", reason = "yanked; webrtc-sys-build (latest 0.3.19) still requires zip ^0.6, all of which is yanked" },
 ]
 
 [bans]
