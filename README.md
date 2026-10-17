@@ -32,6 +32,19 @@ New in Mandelbrot (see [docs/FEATURES.md](docs/FEATURES.md) for details):
 * **Polls** (MSC3381) — create, vote, end
 * **Voice messages** (MSC3245) — record and send
 
+<!-- hive-contribute-plea: donated-compute appeal, keep in sync across repos -->
+## Contribute compute — no code needed
+
+**[Donate time with your AI CLI](https://hub.tunaos.org/#contribute).**
+
+Your machine runs one task at a time using your signed-in AI coding CLI.
+The relay alternates between eligible **School** (OS) and **Reef** (apps)
+hives after each task. If one hive has no work, the other can continue.
+
+The guide covers prerequisites, verified `just` setup, credentials, provider
+costs, and how to stop with Ctrl+C. Your subscription quota or API charges apply.
+Never post account credentials or API keys in issues or pull requests.
+
 ## Installation
 
 Install from the TunaOS flatpak remote:
@@ -127,13 +140,3 @@ The name Fractal was proposed by Regina Bíró.
 ## Code of Conduct
 
 Fractal follows the official [GNOME Code of Conduct](https://conduct.gnome.org/).
-
-<!-- hive-contribute-plea: donated-compute appeal, keep in sync across repos -->
-## Contribute compute — no code needed
-
-No time to write code? You can still push this project's backlog forward.
-A TunaOS AI-agent hive works on this repository. Lend the hive your AI
-subscription or API tokens, and your machine runs tasks from this project's
-backlog.
-
-* 🪸 [Contribute compute to the reef hive](https://reef.tunaos.org/contribute)
