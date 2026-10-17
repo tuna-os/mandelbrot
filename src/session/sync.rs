@@ -5,7 +5,6 @@ use std::{sync::Arc, time::Duration};
 use futures_util::{StreamExt, pin_mut};
 use gtk::{
     glib::{self, clone},
-    prelude::*,
     subclass::prelude::*,
 };
 use matrix_sdk::{config::SyncSettings, sync::SyncResponse};
@@ -30,7 +29,7 @@ use super::{
     MISSED_SYNC_DELAYS, MISSED_SYNC_OFFLINE_COUNT, SessionState, SyncMode, SyncServiceWrapper,
     imp::Session, is_sliding_sync_unsupported_error,
 };
-use crate::{session_list::session_info::SessionInfoExt, spawn, spawn_tokio, utils::TokioDrop};
+use crate::{session_list::SessionInfoExt, spawn, spawn_tokio, utils::TokioDrop};
 
 impl Session {
     /// Start syncing the Matrix client.
