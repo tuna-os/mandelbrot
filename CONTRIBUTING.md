@@ -84,7 +84,6 @@ the left of the header bar of the editor and select “New build terminal”, or
 shortcut <kbd>Shift</kbd>+<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>. The terminal should open in
 the `_build` directory.
 
-
 ### Install the flatpak
 
 Some features that interact with the system require the app to be installed to test them (i.e.
