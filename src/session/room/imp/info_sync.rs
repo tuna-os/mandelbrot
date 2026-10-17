@@ -1,7 +1,6 @@
 use futures_util::StreamExt;
 use gtk::{
     glib::{self, SendWeakRef},
-    prelude::*,
     subclass::prelude::*,
 };
 use matrix_sdk::RoomInfo;
