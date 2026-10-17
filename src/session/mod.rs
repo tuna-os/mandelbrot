@@ -4,7 +4,10 @@ use futures_util::{StreamExt, lock::Mutex};
 use gettextrs::gettext;
 use gtk::{gio, glib, glib::clone, prelude::*, subclass::prelude::*};
 use matrix_sdk::{Client, SessionChange, media::MediaRetentionPolicy};
-use matrix_sdk_ui::{room_list_service, sync_service::{self, SyncService}};
+use matrix_sdk_ui::{
+    room_list_service,
+    sync_service::{self, SyncService},
+};
 use ruma::api::{
     client::{
         profile::{AvatarUrl, DisplayName},
