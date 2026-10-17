@@ -34,8 +34,16 @@ LOG_DIR=logs/$(date +%Y%m%d-%H%M%S)
 mkdir -p "$LOG_DIR"
 
 log() { printf '[run-interop] %s\n' "$*"; }
+capture_stack_logs() {
+    [ -n "${COMPOSE:-}" ] || return
+    $COMPOSE -f compose.yml ps >"$LOG_DIR/compose-ps.log" 2>&1 || true
+    $COMPOSE -f compose.yml logs --no-color >"$LOG_DIR/containers.log" 2>&1 || true
+}
 fail() {
     log "FAIL: $*"
+    # The EXIT trap removes containers before the workflow-level evidence
+    # collector runs. Capture compose state and logs while they still exist.
+    capture_stack_logs
     for f in "$LOG_DIR"/alice.log "$LOG_DIR"/bob.log; do
         [ -f "$f" ] && { log "---- tail $f ----"; tail -n 40 "$f"; }
     done
