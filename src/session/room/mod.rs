@@ -1921,7 +1921,6 @@ impl Room {
         });
     }
 
-
     /// Enable encryption for this room.
     pub(crate) async fn enable_encryption(&self) -> Result<(), ()> {
         if self.is_encrypted() {

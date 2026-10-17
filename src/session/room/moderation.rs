@@ -3,7 +3,7 @@ use matrix_sdk::RoomState;
 use ruma::{EventId, OwnedEventId, OwnedUserId, UserId};
 use tracing::error;
 
-use super::{Event, Room};
+use super::Room;
 use crate::spawn_tokio;
 
 impl Room {
