@@ -52,6 +52,9 @@ jobs:
     name: "MatrixRTC conformance tests"
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
@@ -60,12 +63,30 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: matrixrtc
+      - uses: taiki-e/install-action@cargo-llvm-cov
       # Formatting is enforced tree-wide by the checks job, which uses the
       # nightly rustfmt this repo's rustfmt.toml requires.
       - name: Clippy
         run: cargo clippy --manifest-path matrixrtc/Cargo.toml --all-targets -- -D warnings
-      - name: Run conformance tests
-        run: cargo test --manifest-path matrixrtc/Cargo.toml
+      - name: Run conformance tests with coverage
+        run: |
+          cargo llvm-cov --manifest-path matrixrtc/Cargo.toml \
+            --lcov --output-path matrixrtc/coverage.lcov
+          cargo llvm-cov report --manifest-path matrixrtc/Cargo.toml
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: matrixrtc-coverage-lcov
+          path: matrixrtc/coverage.lcov
+          if-no-files-found: error
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          files: matrixrtc/coverage.lcov
+          disable_search: true
+          flags: matrixrtc
+          fail_ci_if_error: true
+          use_oidc: true
 
   clippy:
     name: "Clippy (flatpak sandbox)"
