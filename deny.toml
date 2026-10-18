@@ -20,6 +20,9 @@ ignore = [
     { id = "RUSTSEC-2026-0368", reason = "zip 0.6.6 is transitively required by webrtc-sys-build; the fix requires zip >=9.0.0, outside its ^0.6 constraint" },
     { id = "RUSTSEC-2026-0369", reason = "zip 0.6.6 is transitively required by webrtc-sys-build; the fix requires zip >=9.0.0, outside its ^0.6 constraint" },
     { crate = "zip@0.6.6", reason = "yanked; webrtc-sys-build (latest 0.3.19) still requires zip ^0.6, all of which is yanked" },
+    { id = "RUSTSEC-2026-0370", reason = "zvariant 5.11.0 is unmaintained; it is transitively required by zbus 5.15.0 through ashpd and oo7, and zbus 6 is a breaking migration with no safe upgrade available" },
+    { id = "RUSTSEC-2026-0371", reason = "zbus_names 4.3.2 is unmaintained; it is transitively required by zbus 5.15.0, and zbus 6 is a breaking migration with no safe upgrade available" },
+    { id = "RUSTSEC-2026-0372", reason = "zvariant_derive 5.11.0 is unmaintained; it is transitively required by zvariant 5.11.0, and zbus 6 is a breaking migration with no safe upgrade available" },
 ]
 
 [bans]
