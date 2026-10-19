@@ -5944,9 +5944,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tld"
-version = "2.43.0"
+version = "2.44.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e1f6968e11a01a073c95962dae074bb15aae4f455bd4faf9b2b204c834ac85f"
+checksum = "c76074035103541ba7e388b1e3a9bf55b444f630fa5d2d11801abb8e7394236b"
 dependencies = [
  "phf 0.11.3",
  "phf_codegen 0.11.3",
