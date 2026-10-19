@@ -8,6 +8,9 @@ targets = [
 yanked = "deny"
 ignore = [
     { id = "RUSTSEC-2026-0319", reason = "anymap2 is unmaintained but used by the matrix-sdk" },
+    { id = "RUSTSEC-2026-0370", reason = "zvariant is unmaintained but used by a dependency of oo7 and ashpd" },
+    { id = "RUSTSEC-2026-0371", reason = "zbus_names is unmaintained but used by a dependency of oo7 and ashpd" },
+    { id = "RUSTSEC-2026-0372", reason = "zvariant_derive is unmaintained but used by a dependency of oo7 and ashpd" },
 ]
 
 [bans]
