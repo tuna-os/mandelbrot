@@ -105,12 +105,19 @@ jobs:
           # slot so the fast PR job's cache is not evicted by it.
           key: livekit
 
+      # webrtc-sys compiles against Chromium's hermetic libc++, whose headers
+      # require Clang 21 or newer. ubuntu-latest still defaults to Clang 18.
+      - name: Install Clang 21
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "21.1.8"
+          env: true
+
       - name: Install build dependencies for libwebrtc
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            clang libclang-dev pkg-config libssl-dev jq \
-            libglib2.0-dev
+            pkg-config libssl-dev jq libglib2.0-dev
           # webrtc-sys's build script pkg-configs glib-2.0/gio-2.0 (all from
           # libglib2.0-dev) and panics when they are missing. The flatpak
           # builds get them from the GNOME SDK; a bare ubuntu runner does not.
