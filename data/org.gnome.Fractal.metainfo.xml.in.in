@@ -72,6 +72,15 @@
   </content_rating>
 
   <releases>@development-release@
+    <release version="14.3" type="stable" date="2026-10-26">
+      <description>
+        <p>
+          Only a week went by since our previous security-related update, and several upstream
+          dependencies released even more security fixes so we bundled them into Fractal 14.3 to
+          make sure that everything keeps running smoothly until the next release!
+        </p>
+      </description>
+    </release>
     <release version="14.2" type="stable" date="2026-10-21">
       <description>
         <p>
