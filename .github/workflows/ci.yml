@@ -44,7 +44,7 @@ jobs:
       - uses: cargo-bins/cargo-binstall@v1.26.0
       - name: Run pre-commit checks
         env:
-          RUSTFMT_TOOLCHAIN: nightly-2026-08-28
+          RUSTFMT_TOOLCHAIN: nightly-2026-10-20
         run: |
           RUST_BACKTRACE=1 cargo run --manifest-path hooks/checks/Cargo.toml -- --verbose --force-install --cargo-binstall
 
