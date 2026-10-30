@@ -33,7 +33,7 @@ jobs:
       # `cargo +<new> fmt --all` in the same commit.
       - uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2026-10-20
+          toolchain: nightly-2026-08-28
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
@@ -44,7 +44,7 @@ jobs:
       - uses: cargo-bins/cargo-binstall@v1.26.0
       - name: Run pre-commit checks
         env:
-          RUSTFMT_TOOLCHAIN: nightly-2026-10-20
+          RUSTFMT_TOOLCHAIN: nightly-2026-08-28
         run: |
           RUST_BACKTRACE=1 cargo run --manifest-path hooks/checks/Cargo.toml -- --verbose --force-install --cargo-binstall
 
