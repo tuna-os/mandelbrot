@@ -24,13 +24,7 @@ features = ["events", "unstable-msc3401"]
 version = "0.10"
 optional = true
 default-features = false
-features = ["rustls-tls-webpki-roots"]
-
-[dependencies.livekit-api]
-version = "0.6"
-optional = true
-default-features = false
-features = ["access-token", "signal-client-tokio", "rustls-tls-webpki-roots"]
+features = ["tokio", "rustls-tls-webpki-roots"]
 
 [dependencies.reqwest]
 version = "0.13"
@@ -38,17 +32,10 @@ optional = true
 default-features = false
 features = ["rustls", "json", "query"]
 
-# livekit-api has no direct `use` in our code — we declare it to turn on the
-# signal-client-tokio feature that the livekit crate's own transitive copy
-# needs (without it the build fails with "could not find signal_client").
-# cargo-machete only sees the missing `use`, so tell it this is intentional.
-[package.metadata.cargo-machete]
-ignored = ["livekit-api"]
-
 [features]
 # Media layer using the LiveKit Rust SDK. Off by default to keep the
 # conformance test builds dependency-light.
-livekit = ["dep:livekit", "dep:livekit-api", "dep:reqwest"]
+livekit = ["dep:livekit", "dep:reqwest"]
 
 [[example]]
 name = "join_call"
