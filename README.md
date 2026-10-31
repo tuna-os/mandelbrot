@@ -50,7 +50,7 @@ Never post account credentials or API keys in issues or pull requests.
 Install from the TunaOS flatpak remote:
 
 ```sh
-flatpak remote-add --user --if-not-exists tuna-os oci+https://tuna-os.github.io/flatpak-index
+flatpak remote-add --user --if-not-exists tuna-os https://tunaos.org/flatpak/tuna-os.flatpakrepo
 flatpak install --user tuna-os org.tunaos.mandelbrot
 ```
 
@@ -67,12 +67,15 @@ Currently only **x86_64** builds are published. ARM (aarch64) is not yet
 available, so the Flatpak cannot be installed on aarch64 devices such as phones
 or Apple Silicon.
 
-If you added the `tuna-os` remote previously, `--if-not-exists`
-will keep your old one and the install will report that nothing matches. Point it
-at the current URL with:
+If you added the `tuna-os` remote before this document changed, `--if-not-exists`
+keeps your existing entry, which may still point at the retired
+`oci+https://tuna-os.github.io/flatpak-index` index. That index never carried
+`org.tunaos.mandelbrot`, so the install fails with "No match for
+org.tunaos.mandelbrot in remote tuna-os". Point the remote at the current URL
+with:
 
 ```sh
-flatpak remote-modify --user tuna-os --url=oci+https://tuna-os.github.io/flatpak-index
+flatpak remote-modify --user tuna-os --url=oci+https://tunaos.org/flatpak
 ```
 
 ## Relationship to Fractal
