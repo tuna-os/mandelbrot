@@ -177,17 +177,7 @@ mod imp {
     #[glib::derived_properties]
     impl ObjectImpl for RoomDetails {}
 
-    impl WidgetImpl for RoomDetails {
-        fn map(&self) {
-            self.parent_map();
-
-            self.general_page
-                .get()
-                .expect("general page should be initialized")
-                .unselect_topic();
-        }
-    }
-
+    impl WidgetImpl for RoomDetails {}
     impl WindowImpl for RoomDetails {}
     impl AdwWindowImpl for RoomDetails {}
     impl PreferencesWindowImpl for RoomDetails {}

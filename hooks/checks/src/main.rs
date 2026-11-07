@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     collections::BTreeSet,
     env,
     fs::File,
@@ -102,7 +103,7 @@ enum ScriptCommand {
     PrintHelp(PrintHelpCmd),
     /// A command that prints the version of this script.
     PrintVersion(PrintVersionCmd),
-    /// A command that runs conformity checks on the current Rust and GTK    ///
+    /// A command that runs conformity checks on the current Rust and GTK
     /// project.
     Check(CheckCmd),
 }
@@ -212,7 +213,7 @@ USAGE: {name} [OPTIONS]
 OPTIONS:
     -s, --git-staged        Only check files staged to be committed
     -f, --force-install     Install missing dependencies without asking
-    --cargo-binstall     Use cargo-binstall instead of `cargo install` when installing
+    --cargo-binstall        Use cargo-binstall instead of `cargo install` when installing
                             missing crate dependencies
     -v, --verbose           Use verbose output
     --version               Print the version of this script
@@ -751,7 +752,7 @@ struct Check {
     /// The name of this check.
     name: &'static str,
     /// The way to fix a failure of this check.
-    fix: Option<&'static str>,
+    fix: Option<Cow<'static, str>>,
     /// Whether this check was successful.
     success: bool,
 }
@@ -769,8 +770,8 @@ impl Check {
     }
 
     /// Set the way to fix a failure of this check.
-    fn with_fix(mut self, fix: &'static str) -> Self {
-        self.fix = Some(fix);
+    fn with_fix(mut self, fix: impl Into<Cow<'static, str>>) -> Self {
+        self.fix = Some(fix.into());
         self
     }
 

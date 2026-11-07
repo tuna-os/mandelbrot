@@ -113,7 +113,25 @@ mod imp {
         }
     }
 
-    impl WidgetImpl for RoomPreviewDialog {}
+    impl WidgetImpl for RoomPreviewDialog {
+        fn map(&self) {
+            self.parent_map();
+
+            // Override the default focus (the first selectable widget, in this case the
+            // room topic), and instead focus on the View/Join button instead.
+            if self
+                .stack
+                .visible_child_name()
+                .is_some_and(|s| s == "details")
+            {
+                // Call `grab_focus()` outside of `debug_assert!`, which is not
+                // evaluated at all in release builds.
+                let focused = self.view_or_join_btn.grab_focus();
+                debug_assert!(focused);
+            }
+        }
+    }
+
     impl AdwDialogImpl for RoomPreviewDialog {}
     impl ToastableDialogImpl for RoomPreviewDialog {}
 

@@ -69,15 +69,10 @@ template $ContentExplore: Adw.BreakpointBin {
         name: "empty";
         title: _("No Rooms");
 
-        child: Gtk.Label empty_label {
-          valign: center;
-          halign: center;
-          vexpand: true;
-          label: _("No rooms matching the search were found");
-
-          styles [
-            "bold",
-          ]
+        child: Adw.StatusPage {
+          icon-name: "system-search-symbolic";
+          title: _("No Rooms");
+          description: _("No rooms matching the search were found");
         };
       }
 
