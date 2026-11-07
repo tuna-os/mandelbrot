@@ -12,9 +12,7 @@ on:
       - 'v*'
   workflow_dispatch:
 
-permissions:
-  contents: write
-  packages: write
+permissions: {}
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -74,9 +72,18 @@ jobs:
           fi
 
   publish:
-    uses: tuna-os/.github/.github/workflows/publish-flatpak.yml@main
+    # The called workflow's jobs may only downgrade from this ceiling: its
+    # `publish` job pushes to GHCR (packages: write) and its `release-bundles`
+    # job uploads release assets (contents: write).
+    permissions:
+      contents: write
+      packages: write
+    # Pinned to a reviewed tuna-os/.github commit; Renovate bumps the digest.
+    uses: tuna-os/.github/.github/workflows/publish-flatpak.yml@7d966c7bb537dec12db463ef4d7122fbe6749cfd # main
     with:
       app-id: org.tunaos.mandelbrot
       manifest-path: org.tunaos.mandelbrot.json
       repo-name: tuna-os/mandelbrot
-    secrets: inherit
+    # Only the secret the called workflow declares, not `secrets: inherit`.
+    secrets:
+      FLATPAK_INDEX_TOKEN: ${{ secrets.FLATPAK_INDEX_TOKEN }}
