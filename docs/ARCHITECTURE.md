@@ -174,7 +174,7 @@ directory inside the Meson build directory, and installs the binary and data. Ca
 driven by Meson options: `-Dcalls-media=true` adds `--features calls-media`. See
 [DEVELOPMENT.md](DEVELOPMENT.md#build-options-and-profiles) for the options.
 
-Flatpak builds use `org.tunaos.mandelbrot.json` (GNOME 50 runtime, used by CI and releases) or
+Flatpak builds use `org.tunaos.mandelbrot.json` (GNOME 51 runtime, used by CI and releases) or
 `build-aux/org.tunaos.mandelbrot.Devel.json` (GNOME nightly). Releases are covered in
 [RELEASING.md](../RELEASING.md).
 

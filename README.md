@@ -59,9 +59,9 @@ needs root and fails with "ConfigureRemote not allowed for user". Drop `--user`
 from both commands (and run them with `sudo`/polkit) only if you deliberately
 want a system install.
 
-Mandelbrot runs on the GNOME 50 runtime, so your system also needs the
+Mandelbrot runs on the GNOME 51 runtime, so your system also needs the
 [Flathub remote](https://flathub.org/setup) (or another source for
-`org.gnome.Platform//50`) to pull it in.
+`org.gnome.Platform//51`) to pull it in.
 
 Builds are published for **x86_64** and **aarch64** (64-bit ARM).
 
