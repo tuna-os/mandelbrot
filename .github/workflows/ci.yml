@@ -171,7 +171,8 @@ jobs:
       - name: Install flatpak and a headless compositor
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends flatpak mutter dbus jq
+          sudo apt-get install -y --no-install-recommends flatpak mutter dbus jq \
+            gnome-keyring xdg-desktop-portal xdg-desktop-portal-gtk at-spi2-core
           # bubblewrap needs unprivileged user namespaces, which Ubuntu's
           # AppArmor policy denies to unconfined programs by default.
           if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
