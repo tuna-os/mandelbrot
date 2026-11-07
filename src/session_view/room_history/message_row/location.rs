@@ -7,6 +7,19 @@ use tracing::warn;
 use super::ContentFormat;
 use crate::components::LocationViewer;
 
+/// The minimum height of the map widget when rendered normally.
+const MIN_HEIGHT_NORMAL: i32 = 250;
+/// The maximum height of the map widget when rendered normally.
+const MAX_HEIGHT_NORMAL: i32 = 300;
+/// The minimum width of the map widget when rendered normally.
+const MIN_WIDTH_NORMAL: i32 = 250;
+/// The maximum width of the map widget when rendered normally.
+const MAX_WIDTH_NORMAL: i32 = 300;
+/// The minimum height of the map widget when compact.
+const HEIGHT_COMPACT: i32 = 50;
+/// The minimum width of the map widget when compact.
+const WIDTH_COMPACT: i32 = 75;
+
 mod imp {
     use glib::subclass::InitializingObject;
 
@@ -50,21 +63,42 @@ mod imp {
     }
 
     impl WidgetImpl for MessageLocation {
-        fn measure(&self, orientation: gtk::Orientation, _for_size: i32) -> (i32, i32, i32, i32) {
+        fn measure(&self, orientation: gtk::Orientation, for_size: i32) -> (i32, i32, i32, i32) {
+            // When the map is shown compact use a constant small size.
             if self.location.compact() {
                 if orientation == gtk::Orientation::Horizontal {
-                    (75, 75, -1, -1)
+                    (WIDTH_COMPACT, WIDTH_COMPACT, -1, -1)
                 } else {
-                    (50, 50, -1, -1)
+                    (HEIGHT_COMPACT, HEIGHT_COMPACT, -1, -1)
                 }
+            }
+            // When rendered normally set a reasonable preferred size, scaling down to the minimum
+            // gracefully.
+            else {
+                if orientation == gtk::Orientation::Horizontal {
+                    (MIN_WIDTH_NORMAL, MAX_WIDTH_NORMAL, -1, -1)
+                } else {
+                    let height = if for_size >= 0 {
+                        for_size.clamp(MIN_HEIGHT_NORMAL, MAX_HEIGHT_NORMAL)
+                    } else {
+                        MIN_HEIGHT_NORMAL
+                    };
+                    (height, height, -1, -1)
+                }
+            }
+        }
+
+        fn request_mode(&self) -> gtk::SizeRequestMode {
+            if self.location.compact() {
+                gtk::SizeRequestMode::ConstantSize
             } else {
-                (300, 300, -1, -1)
+                gtk::SizeRequestMode::HeightForWidth
             }
         }
 
         fn size_allocate(&self, width: i32, height: i32, baseline: i32) {
             let width = if self.location.compact() {
-                width.min(75)
+                width.min(WIDTH_COMPACT)
             } else {
                 width
             };

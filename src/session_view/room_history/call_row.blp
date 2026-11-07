@@ -27,7 +27,10 @@ template $CallRow: Adw.Bin {
 
     Gtk.Label inner_label {
       hexpand: true;
-      halign: start;
+      halign: fill;
+      xalign: 0.0;
+      wrap: true;
+      wrap-mode: word_char;
 
       styles [
         "dimmed",
