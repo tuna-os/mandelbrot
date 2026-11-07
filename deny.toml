@@ -7,9 +7,6 @@ targets = [
 [advisories]
 yanked = "deny"
 ignore = [
-    { id = "RUSTSEC-2026-0173", reason = "proc-macro-error2 is unmaintained but used by dependencies of matrix-sdk" },
-    { id = "RUSTSEC-2026-0247", reason = "bitmaps is unmaintained with no safe upgrade; it is a transitive dependency of imbl via matrix-sdk/eyeball-im" },
-    { id = "RUSTSEC-2026-0253", reason = "lru 0.16.4 use-after-free in LruCache::pop() on a panicking Drop; fixed in 0.18.2, but rqrr 0.10.1 (latest, transitive via aperture for QR scanning) hard-pins lru = \"^0.16\" and cannot resolve past 0.16.x until rqrr releases a bump — see #61" },
     # anymap2 0.13: unmaintained (informational, no vulnerability). Pulled in directly by
     # matrix-sdk (0.18 and 0.19 alike); there is no fixed release, only the anymap3 replacement,
     # which matrix-sdk has to adopt upstream.
@@ -51,8 +48,3 @@ allow = [
 [sources]
 unknown-git = "deny"
 required-git-spec = "rev"
-allow-git = [
-    "https://github.com/ruma/ruma",
-    "https://github.com/matrix-org/matrix-rust-sdk",
-]
-unused-allowed-source = "allow"

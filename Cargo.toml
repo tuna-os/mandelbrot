@@ -4,7 +4,7 @@ version = "14.1.0"
 authors = ["Julian Sparber <julian@sparber.net>"]
 license = "GPL-3.0-or-later"
 edition = "2024"
-rust-version = "1.93"
+rust-version = "1.96"
 publish = false
 
 [package.metadata.cargo-machete]
@@ -87,7 +87,7 @@ gst_play = { version = "0.25", package = "gstreamer-play" }
 gst_video = { version = "0.25", package = "gstreamer-video" }
 # 0.11.4 moved `add_binding_action()` from `WidgetClassExt` to
 # `WidgetClassManualExt`, which `src/utils/key_bindings.rs` now relies on.
-gtk = { version = "0.11.4", features = ["gnome_49"], package = "gtk4" }
+gtk = { version = "0.11.5", features = ["gnome_49"], package = "gtk4" }
 shumate = { version = "0.8", features = ["v1_1"], package = "libshumate" }
 sourceview = { version = "0.11", package = "sourceview5" }
 
