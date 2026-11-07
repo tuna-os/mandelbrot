@@ -56,16 +56,40 @@ jobs:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
+          components: clippy, llvm-tools-preview
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: matrixrtc
+      - uses: taiki-e/install-action@3a3daafd3b7f23b8f65d9f5ba2db203fb59b79e2 # v2.90.2
+        with:
+          tool: cargo-llvm-cov
       # Formatting is enforced tree-wide by the checks job, which uses the
       # nightly rustfmt this repo's rustfmt.toml requires.
       - name: Clippy
         run: cargo clippy --manifest-path matrixrtc/Cargo.toml --all-targets -- -D warnings
-      - name: Run conformance tests
-        run: cargo test --manifest-path matrixrtc/Cargo.toml
+      # The conformance tests, instrumented. Covers matrixrtc/src only
+      # (cargo-llvm-cov skips tests/ and examples/) and, without the `livekit`
+      # feature, not livekit_connection.rs.
+      - name: Run conformance tests with coverage
+        run: cargo llvm-cov --manifest-path matrixrtc/Cargo.toml --no-report
+      - name: Coverage report
+        run: |
+          cargo llvm-cov report --manifest-path matrixrtc/Cargo.toml --lcov --output-path matrixrtc/lcov.info
+          {
+            echo '### MatrixRTC coverage'
+            echo '```'
+            cargo llvm-cov report --manifest-path matrixrtc/Cargo.toml
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: matrixrtc-coverage-lcov
+          path: matrixrtc/lcov.info
+          if-no-files-found: error
+      # Regression floor, set just under the 91.08% line coverage measured
+      # when this gate was added (see #67). Raise it as coverage grows.
+      - name: Coverage threshold
+        run: cargo llvm-cov report --manifest-path matrixrtc/Cargo.toml --fail-under-lines 90
 
   clippy:
     name: "Clippy (flatpak sandbox)"
