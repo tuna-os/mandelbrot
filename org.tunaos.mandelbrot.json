@@ -4,7 +4,8 @@
     "runtime-version": "50",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
-        "org.freedesktop.Sdk.Extension.rust-stable"
+        "org.freedesktop.Sdk.Extension.rust-stable",
+        "org.freedesktop.Sdk.Extension.llvm22"
     ],
     "command": "fractal",
     "finish-args": [
@@ -16,7 +17,8 @@
         "--device=dri"
     ],
     "build-options": {
-        "append-path": "/usr/lib/sdk/rust-stable/bin",
+        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm22/bin",
+        "prepend-ld-library-path": "/usr/lib/sdk/llvm22/lib",
         "env": {
             "RUSTFLAGS": "-C link-arg=-fuse-ld=mold --cfg=ruma_identifiers_storage=\"Arc\""
         },
