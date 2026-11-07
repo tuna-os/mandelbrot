@@ -565,12 +565,9 @@ impl UserFacingError for oo7::file::Error {
             Error::WeakKey(_) => {
                 gettext("The Flatpak Secret Portal provided a key that is too weak to be secure.")
             }
-            Error::InvalidKeyLength { .. } => {
-                gettext("The Flatpak Secret Portal provided a key with an unexpected length.")
-            }
             Error::Locked => gettext("The collection or item is locked."),
-            // Can only occur when using the `replace_item_index` or `delete_item_index` methods.
-            Error::InvalidItemIndex(_) => unreachable!(),
+            // Can only occur when using APIs that we do not use.
+            Error::InvalidItemIndex(_) | Error::InvalidKeyLength { .. } => unreachable!(),
         }
     }
 }
