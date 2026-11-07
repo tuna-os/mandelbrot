@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use ashpd::{desktop::settings::Settings as SettingsProxy, zvariant};
+use ashpd::{
+    desktop::settings::Settings as SettingsProxy,
+    zbus::{self, OwnedVariant},
+};
 use futures_util::StreamExt;
 use gtk::{glib, glib::clone, prelude::*, subclass::prelude::*};
 use tracing::error;
@@ -136,28 +139,28 @@ impl Default for LinuxSystemSettings {
     }
 }
 
-impl TryFrom<&zvariant::OwnedValue> for ClockFormat {
-    type Error = zvariant::Error;
+impl TryFrom<&OwnedVariant> for ClockFormat {
+    type Error = zbus::Error;
 
-    fn try_from(value: &zvariant::OwnedValue) -> Result<Self, Self::Error> {
+    fn try_from(value: &OwnedVariant) -> Result<Self, Self::Error> {
         let Ok(s) = <&str>::try_from(value) else {
-            return Err(zvariant::Error::IncorrectType);
+            return Err(zbus::Error::IncorrectType);
         };
 
         match s {
             "12h" => Ok(Self::TwelveHours),
             "24h" => Ok(Self::TwentyFourHours),
-            _ => Err(zvariant::Error::Message(format!(
+            _ => Err(zbus::Error::Failure(format!(
                 "Invalid string `{s}`, expected `12h` or `24h`"
             ))),
         }
     }
 }
 
-impl TryFrom<zvariant::OwnedValue> for ClockFormat {
-    type Error = zvariant::Error;
+impl TryFrom<OwnedVariant> for ClockFormat {
+    type Error = zbus::Error;
 
-    fn try_from(value: zvariant::OwnedValue) -> Result<Self, Self::Error> {
+    fn try_from(value: OwnedVariant) -> Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }

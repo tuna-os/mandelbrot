@@ -14,9 +14,6 @@ ignore = [
     # matrix-sdk (0.18 and 0.19 alike); there is no fixed release, only the anymap3 replacement,
     # which matrix-sdk has to adopt upstream.
     { id = "RUSTSEC-2026-0319", reason = "anymap2 is unmaintained but is a direct dependency of matrix-sdk with no upgrade available" },
-    { id = "RUSTSEC-2026-0370", reason = "zvariant 5.11.0 is unmaintained; it is transitively required by zbus 5.15.0 through ashpd and oo7, and zbus 6 is a breaking migration with no safe upgrade available" },
-    { id = "RUSTSEC-2026-0371", reason = "zbus_names 4.3.2 is unmaintained; it is transitively required by zbus 5.15.0, and zbus 6 is a breaking migration with no safe upgrade available" },
-    { id = "RUSTSEC-2026-0372", reason = "zvariant_derive 5.11.0 is unmaintained; it is transitively required by zvariant 5.11.0, and zbus 6 is a breaking migration with no safe upgrade available" },
 ]
 
 [bans]
