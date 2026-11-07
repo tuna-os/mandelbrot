@@ -151,7 +151,7 @@ features = [
 # Linux-only dependencies.
 [target.'cfg(target_os = "linux")'.dependencies]
 aperture = "0.12"
-ashpd = { version = "0.13.9", default-features = false, features = [
+ashpd = { version = "0.14.0", default-features = false, features = [
     "camera",
     "location",
     "settings",
