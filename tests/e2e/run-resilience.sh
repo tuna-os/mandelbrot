@@ -80,15 +80,15 @@ SURVIVOR_LOG=$LOG_DIR/survivor.log
 # focus everybody follows in `oldest_membership` mode. This is exactly EC's
 # setup: the SFU in use belongs to the participant who is about to leave.
 log "creator joins (becomes the oldest membership / active focus)"
-"$JOIN_CALL_BIN" "$HS" "$CREATOR_ID" "$CREATOR_DEV" "$CREATOR_TOKEN" "$ROOM" \
-    --focus "$JWT" >"$CREATOR_LOG" 2>&1 &
+"$JOIN_CALL_BIN" "$HS" "$CREATOR_ID" "$CREATOR_DEV" "$ROOM" \
+    --focus "$JWT" <<<"$CREATOR_TOKEN" >"$CREATOR_LOG" 2>&1 &
 CREATOR_PID=$!
 wait_log "$CREATOR_LOG" "connected as" 90 || die "the creator never connected to the SFU"
 
 sleep 2
 log "survivor joins"
-"$JOIN_CALL_BIN" "$HS" "$SURVIVOR_ID" "$SURVIVOR_DEV" "$SURVIVOR_TOKEN" "$ROOM" \
-    --focus "$JWT" >"$SURVIVOR_LOG" 2>&1 &
+"$JOIN_CALL_BIN" "$HS" "$SURVIVOR_ID" "$SURVIVOR_DEV" "$ROOM" \
+    --focus "$JWT" <<<"$SURVIVOR_TOKEN" >"$SURVIVOR_LOG" 2>&1 &
 SURVIVOR_PID=$!
 wait_log "$SURVIVOR_LOG" "connected as" 90 || die "the survivor never connected to the SFU"
 

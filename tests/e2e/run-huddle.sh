@@ -69,8 +69,8 @@ log "room $ROOM with $N participants"
 
 # --- everyone joins the call ------------------------------------------------
 for i in $(seq 0 $((N - 1))); do
-    "$JOIN_CALL_BIN" "$HS" "${IDS[$i]}" "${DEVS[$i]}" "${TOKENS[$i]}" "$ROOM" \
-        --focus "$JWT" >"$LOG_DIR/${NAMES[$i]}.log" 2>&1 &
+    "$JOIN_CALL_BIN" "$HS" "${IDS[$i]}" "${DEVS[$i]}" "$ROOM" \
+        --focus "$JWT" <<<"${TOKENS[$i]}" >"$LOG_DIR/${NAMES[$i]}.log" 2>&1 &
     PIDS+=($!)
     # Stagger the joins slightly: the first joiner must win the oldest
     # membership deterministically, as in EC's test where Valere starts the

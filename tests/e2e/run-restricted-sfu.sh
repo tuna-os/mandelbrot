@@ -76,8 +76,8 @@ ROOM=$(create_room "$USER_TOKEN")
 
 CLIENT_LOG=$LOG_DIR/ordering.log
 : >"$CLIENT_LOG"
-"$JOIN_CALL_BIN" "$HS" "$USER_ID" "$USER_DEV" "$USER_TOKEN" "$ROOM" \
-    --focus "$JWT" >"$CLIENT_LOG" 2>&1 &
+"$JOIN_CALL_BIN" "$HS" "$USER_ID" "$USER_DEV" "$ROOM" \
+    --focus "$JWT" <<<"$USER_TOKEN" >"$CLIENT_LOG" 2>&1 &
 CLIENT_PID=$!
 
 MEMBER_AT="" JWT_AT=""
@@ -130,8 +130,8 @@ $ENGINE stop "$AUTH_C" >/dev/null || die "cannot stop the auth-service container
 sleep 1
 
 DENIED_LOG=$LOG_DIR/jwt-unavailable.log
-"$JOIN_CALL_BIN" "$HS" "$USER_ID" "$USER_DEV" "$USER_TOKEN" "$ROOM2" \
-    --focus "$JWT" >"$DENIED_LOG" 2>&1 &
+"$JOIN_CALL_BIN" "$HS" "$USER_ID" "$USER_DEV" "$ROOM2" \
+    --focus "$JWT" <<<"$USER_TOKEN" >"$DENIED_LOG" 2>&1 &
 CLIENT_PID=$!
 
 # Sample continuously rather than once at the end: if the client advertises a
@@ -174,8 +174,8 @@ wait_for "$JWT/healthz" 60 lk-jwt-service
 sleep 10
 
 RECOVER_LOG=$LOG_DIR/recovered.log
-"$JOIN_CALL_BIN" "$HS" "$USER_ID" "$USER_DEV" "$USER_TOKEN" "$ROOM2" \
-    --focus "$JWT" >"$RECOVER_LOG" 2>&1 &
+"$JOIN_CALL_BIN" "$HS" "$USER_ID" "$USER_DEV" "$ROOM2" \
+    --focus "$JWT" <<<"$USER_TOKEN" >"$RECOVER_LOG" 2>&1 &
 CLIENT_PID=$!
 
 if wait_log "$RECOVER_LOG" "connected as" 90; then

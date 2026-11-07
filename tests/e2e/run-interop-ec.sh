@@ -170,8 +170,8 @@ wait_driver_event() { # regex timeout_s -> matching line
     return 1
 }
 start_our_client() { # room_id
-    "$JOIN_CALL_BIN" "$HS" "$OUR_ID" "$OUR_DEV" "$OUR_TOKEN" "$1" \
-        --focus "$JWT" >>"$LOG_DIR/ours.log" 2>&1 &
+    "$JOIN_CALL_BIN" "$HS" "$OUR_ID" "$OUR_DEV" "$1" \
+        --focus "$JWT" <<<"$OUR_TOKEN" >>"$LOG_DIR/ours.log" 2>&1 &
     CLIENT_PID=$!
 }
 wait_tiles() { # count timeout_s

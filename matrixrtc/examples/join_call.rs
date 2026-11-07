@@ -4,13 +4,19 @@
 //! LiveKit SFU.
 //!
 //! ```sh
-//! cargo run --features livekit --example join_call -- \
-//!     https://matrix.example.org @alice:example.org DEVICEID ACCESS_TOKEN '!room:example.org' \
+//! printf '%s\n' "$ACCESS_TOKEN" | cargo run --features livekit --example join_call -- \
+//!     https://matrix.example.org @alice:example.org DEVICEID '!room:example.org' \
+//!     [--access-token-file PATH] \
 //!     [--focus http://livekit-jwt.example.org] \
 //!     [--assert-peer '@bob:example.org:DEVICEID' --assert-timeout 90]
 //! ```
 //!
+//! The access token is read from stdin (the whole input, trimmed), never from
+//! the command line, where other local users and shell history could see it.
+//!
 //! Options:
+//! - `--access-token-file PATH`: read the access token from `PATH` instead of
+//!   stdin. `-` means stdin.
 //! - `--focus URL`: the MSC4195 LiveKit JWT service URL to advertise as our
 //!   preferred focus. Required when we are the first participant (otherwise the
 //!   focus is taken from the oldest membership of the session).
@@ -37,6 +43,7 @@
 
 use std::{
     collections::HashMap,
+    io::IsTerminal,
     process::exit,
     sync::{Arc, Mutex},
     time::Duration,
@@ -51,13 +58,19 @@ use mandelbrot_matrixrtc::{
 };
 use ruma::{OwnedEventId, RoomId, events::StateEventType};
 use serde_json::{Value as JsonValue, json};
+use zeroize::Zeroizing;
+
+#[path = "support/join_call_args.rs"]
+mod join_call_args;
+
+use join_call_args::{AccessTokenSource, Args};
 
 /// A minimal, plain-HTTP implementation of [`RtcClientApi`] against the
 /// Matrix client-server API. Development only.
 struct HttpClientApi {
     http: reqwest::Client,
     homeserver: String,
-    access_token: String,
+    access_token: Zeroizing<String>,
     user_id: String,
 }
 
@@ -86,7 +99,7 @@ impl HttpClientApi {
         let mut request = self
             .http
             .request(method, url)
-            .bearer_auth(&self.access_token)
+            .bearer_auth(self.access_token.as_str())
             .query(query);
         if let Some(body) = body {
             request = request.json(body);
@@ -375,43 +388,6 @@ impl RtcClientApi for HttpClientApi {
     }
 }
 
-/// Command line options after the five positional arguments.
-#[derive(Default)]
-struct Options {
-    /// Preferred LiveKit JWT service URL to advertise as focus.
-    focus: Option<String>,
-    /// Assertion mode: the `{user_id}:{device_id}` of the expected peer.
-    assert_peer: Option<String>,
-    /// Assertion timeout in seconds.
-    assert_timeout: u64,
-}
-
-fn parse_options(args: &[String]) -> Options {
-    let mut options = Options {
-        assert_timeout: 90,
-        ..Options::default()
-    };
-    let mut iter = args.iter();
-    while let Some(arg) = iter.next() {
-        match arg.as_str() {
-            "--focus" => options.focus = iter.next().cloned(),
-            "--assert-peer" => options.assert_peer = iter.next().cloned(),
-            "--assert-timeout" => {
-                options.assert_timeout =
-                    iter.next().and_then(|v| v.parse().ok()).unwrap_or_else(|| {
-                        eprintln!("invalid --assert-timeout");
-                        exit(2);
-                    });
-            }
-            other => {
-                eprintln!("unknown option: {other}");
-                exit(2);
-            }
-        }
-    }
-    options
-}
-
 fn now_ms() -> u64 {
     u64::try_from(
         std::time::SystemTime::now()
@@ -422,24 +398,47 @@ fn now_ms() -> u64 {
     .unwrap_or(u64::MAX)
 }
 
+/// Read the access token from the source given on the command line. It is
+/// never taken from argv itself.
+fn access_token_from(source: &AccessTokenSource) -> Result<Zeroizing<String>, String> {
+    match source {
+        AccessTokenSource::Stdin => {
+            let stdin = std::io::stdin();
+            if stdin.is_terminal() {
+                eprintln!("reading the access token from stdin (end with Ctrl-D)");
+            }
+            join_call_args::read_access_token(stdin.lock())
+        }
+        AccessTokenSource::File(path) => std::fs::File::open(path)
+            .map_err(|error| format!("cannot open {}: {error}", path.display()))
+            .and_then(join_call_args::read_access_token),
+    }
+}
+
 #[tokio::main]
 async fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() < 6 {
-        eprintln!(
-            "usage: join_call <homeserver> <user_id> <device_id> <access_token> <room_id> \
-             [--focus JWT_SERVICE_URL] [--assert-peer USER_ID:DEVICE_ID] [--assert-timeout SECS]"
-        );
+    let args = join_call_args::parse_args(std::env::args().skip(1)).unwrap_or_else(|error| {
+        eprintln!("join_call: {error}\n{}", join_call_args::USAGE);
         exit(2);
-    }
-    let (homeserver, user_id, device_id, access_token, room_id) =
-        (&args[1], &args[2], &args[3], &args[4], &args[5]);
-    let options = parse_options(&args[6..]);
+    });
+    let access_token = access_token_from(&args.access_token_source).unwrap_or_else(|error| {
+        eprintln!("join_call: {error}");
+        exit(2);
+    });
+    let Args {
+        homeserver,
+        user_id,
+        device_id,
+        room_id,
+        options,
+        ..
+    } = &args;
 
+    // The client takes ownership of the token; it is zeroized on drop.
     let client = Arc::new(HttpClientApi {
         http: reqwest::Client::new(),
         homeserver: homeserver.clone(),
-        access_token: access_token.clone(),
+        access_token,
         user_id: user_id.clone(),
     });
 

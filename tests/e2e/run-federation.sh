@@ -139,8 +139,8 @@ fi
 log "order=$ORDER: ${FIRST[0]} creates the call, ${SECOND[0]} joins"
 
 start() { # name hs user device token jwt
-    "$JOIN_CALL_BIN" "$2" "$3" "$4" "$5" "$ROOM" --focus "$6" \
-        >"$LOG_DIR/$1.log" 2>&1 &
+    "$JOIN_CALL_BIN" "$2" "$3" "$4" "$ROOM" --focus "$6" \
+        <<<"$5" >"$LOG_DIR/$1.log" 2>&1 &
     PIDS+=($!)
 }
 
