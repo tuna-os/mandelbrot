@@ -69,6 +69,21 @@ on:
         default: all
         type: choice
         options: [all, interop, resilience, restricted-sfu, huddle, federation]
+  # Every PR that can break a call: dependency bumps (Renovate's included —
+  # its branches live in this repository, so they get a normal pull_request
+  # run), the calling code on both sides of the crate boundary, the harness
+  # itself and the Flatpak manifest that pins the media stack.
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "matrixrtc/**"
+      - "src/session/call/**"
+      - "src/session_view/call/**"
+      - "tests/e2e/**"
+      - "org.tunaos.mandelbrot.json"
+      - ".github/workflows/matrixrtc-e2e.yml"
   schedule:
     # 04:17 UTC daily, offset off the hour to avoid the scheduling stampede.
     - cron: "17 4 * * *"
@@ -106,6 +121,9 @@ jobs:
           # The livekit feature dominates the build; keep it in its own cache
           # slot so the fast PR job's cache is not evicted by it.
           key: livekit
+          # A red scenario is not a broken build: keep the ~10 minute
+          # libwebrtc build cached even when a TEST step below fails.
+          cache-on-failure: true
 
       # webrtc-sys compiles against Chromium's hermetic libc++, whose headers
       # require Clang 21 or newer. ubuntu-latest still defaults to Clang 18.
@@ -125,61 +143,59 @@ jobs:
           # builds get them from the GNOME SDK; a bare ubuntu runner does not.
 
       - name: Build the join_call example
+        id: build
         run: |
           cargo build --manifest-path matrixrtc/Cargo.toml \
             --features livekit --example join_call
           ls -l matrixrtc/target/debug/examples/join_call
 
       - name: Pull the container images
+        id: pull
         working-directory: tests/e2e
         run: docker compose -f compose.yml -f compose-federated.yml pull -q
 
+      # Every scenario runs whenever the binary and the images are there, even
+      # after an earlier one failed: each script brings its own stack up and
+      # tears it down, and a red TEST 4 must not hide whether 5 and 6 work.
       - name: TEST 1 — native <-> native interop
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'interop' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'interop') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
         run: ./run-interop.sh
 
       - name: TEST 3 — reconnect / resilience
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'resilience' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'resilience') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
         run: ./run-resilience.sh
 
       - name: TEST 4 — restricted SFU / JWT behaviour
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'restricted-sfu' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'restricted-sfu') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
         run: ./run-restricted-sfu.sh
 
       - name: TEST 5 — group call (huddle)
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'huddle' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'huddle') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
         run: ./run-huddle.sh 5
 
       - name: TEST 6 — federated call (two homeservers)
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'federation' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'federation') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
+        # Both orders, even when the first fails.
         run: |
-          ./run-federation.sh remote-first
-          ./run-federation.sh local-first
-
-      - name: Collect container logs on failure
-        if: ${{ failure() }}
-        working-directory: tests/e2e
-        run: |
-          mkdir -p logs/containers
-          for c in $(docker ps -aq); do
-            name=$(docker inspect --format '{{.Name}}' "$c" | tr -d /)
-            docker logs "$c" >"logs/containers/$name.log" 2>&1 || true
-          done
+          rc=0
+          ./run-federation.sh remote-first || rc=1
+          ./run-federation.sh local-first || rc=1
+          exit "$rc"
 
       - name: Upload the evidence bundles
         if: ${{ !cancelled() }}
