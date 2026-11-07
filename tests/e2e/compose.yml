@@ -37,6 +37,13 @@ services:
 
   nginx:
     image: docker.io/library/nginx:latest
+    security_opt:
+      # The image symlinks /var/log/nginx/error.log to /dev/stderr. With
+      # SELinux enforcing (Fedora/Bluefin) and podman's journald log driver,
+      # container_t may not open that stream: nginx exits 1 with
+      # "open() /var/log/nginx/error.log failed (13: Permission denied)".
+      # Docker without SELinux (CI) is unaffected; this is a no-op there.
+      - label=disable
     extra_hosts:
       # The MatrixRTC proxy blocks reach the host gateway under podman's name
       # for it. Docker only provides `host.docker.internal`, so map the name
