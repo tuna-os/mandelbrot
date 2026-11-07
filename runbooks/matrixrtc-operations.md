@@ -204,9 +204,8 @@ Mandelbrot is packaged as Flatpak application `org.tunaos.mandelbrot`.
 
 ### Release Rollback Procedure
 
-If a release tag fails post-publish validation or triggers critical regressions:
-
-1. Flag the release as prerelease or revoked in GitHub Releases.
-2. In the Flathub repository, revert the manifest commit to the previous
-   known good tag.
-3. Notify the release team on Matrix/Discord coordination channels.
+Mandelbrot is not on Flathub: users get whatever the publish workflow last pushed as `latest` to
+the TunaOS Flatpak index. If a release fails post-publish validation or causes critical
+regressions, re-publish the last known-good tag (**Actions → Build and Publish Flatpak OCI → Run
+workflow** on that tag), mark the broken GitHub Release as a pre-release, and fix forward with a
+new tag. [RELEASING.md](../RELEASING.md#recovery) has the full recovery procedure.
