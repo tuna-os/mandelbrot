@@ -33,7 +33,7 @@ Mandelbrot maintains full feature parity with Fractal while developing downstrea
    * MSC3440 thread support with adaptive side pane.
    * MSC3381 poll creation and voting.
    * MSC3245 voice message recording.
-   * Spaces hierarchy browsing.
+   * Spaces hierarchy browsing and spaces navigation (space switcher rail, per-space room list).
 
 5. **Packaging and Infrastructure**:
    * GHCR OCI Flatpak packaging (`org.tunaos.mandelbrot.json`).

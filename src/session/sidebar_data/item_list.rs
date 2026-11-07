@@ -4,6 +4,7 @@ use gtk::{gio, glib, glib::clone, prelude::*, subclass::prelude::*};
 
 use super::{
     SidebarIconItem, SidebarIconItemType, SidebarItem, SidebarSection, SidebarSectionName,
+    SidebarSpaceList,
 };
 use crate::session::{RoomCategory, RoomList, VerificationList};
 
@@ -26,6 +27,10 @@ mod imp {
         /// The list of verification requests.
         #[property(get, construct_only)]
         verification_list: OnceCell<VerificationList>,
+        /// The list of items of the space switcher, which also filters the
+        /// rooms by space.
+        #[property(get = Self::space_list)]
+        space_list: OnceCell<SidebarSpaceList>,
         /// The room category to show all compatible sections and icon items
         /// for.
         ///
@@ -49,6 +54,9 @@ mod imp {
 
             let room_list = obj.room_list();
             let verification_list = obj.verification_list();
+            let space_list = self
+                .space_list
+                .get_or_init(|| SidebarSpaceList::new(&room_list));
 
             let list = self.list.get_or_init(|| {
                 [
@@ -79,6 +87,13 @@ mod imp {
 
             for item in list {
                 if let Some(section) = item.inner_item().downcast_ref::<SidebarSection>() {
+                    // Only show the rooms of the selected space.
+                    if section.name() == SidebarSectionName::Space {
+                        section.add_room_filter(space_list.subspace_filter());
+                    } else {
+                        section.add_room_filter(space_list.room_filter());
+                    }
+
                     section.connect_is_empty_notify(clone!(
                         #[weak(rename_to = imp)]
                         self,
@@ -112,6 +127,14 @@ mod imp {
         /// The list of top-level items.
         pub(super) fn list(&self) -> &[SidebarItem; TOP_LEVEL_ITEMS_COUNT] {
             self.list.get().unwrap()
+        }
+
+        /// The list of items of the space switcher.
+        fn space_list(&self) -> SidebarSpaceList {
+            self.space_list
+                .get()
+                .expect("space list should be initialized")
+                .clone()
         }
 
         /// Set the room category to show all compatible sections and icon items

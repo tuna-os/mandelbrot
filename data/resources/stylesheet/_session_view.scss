@@ -44,6 +44,49 @@ sidebar {
     padding-bottom: 6px;
   }
 
+  // Space switcher
+  .space-rail {
+    padding: 3px 0;
+
+    row {
+      margin: 3px 6px;
+      padding: 6px 0;
+    }
+  }
+
+  space-rail-item {
+    .space-rail-home {
+      min-width: 36px;
+      min-height: 36px;
+      border-radius: 9999px;
+      background-color: color-mix(in srgb, currentColor 10%, transparent);
+    }
+
+    .notification-count {
+      font-weight: bold;
+      font-size: 0.7em;
+      border-radius: 9999px;
+      min-width: 1em;
+      padding: 0.15em 0.4em;
+      margin: -0.3em -0.4em 0 0;
+      color: var(--sidebar-bg-color);
+      background-color: var(--sidebar-fg-color);
+
+      &.highlight {
+        color: var(--accent-fg-color);
+        background-color: var(--accent-bg-color);
+      }
+    }
+
+    .unread-dot {
+      margin: -0.3em -0.3em 0 0;
+    }
+  }
+
+  .space-header {
+    padding: 0 6px 3px;
+  }
+
   .sidebar-list row {
     margin: 0;
     padding: 0;

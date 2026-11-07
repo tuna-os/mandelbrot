@@ -39,6 +39,23 @@ use crate::{
     utils::matrix::{MatrixEventIdUri, MatrixIdUri, MatrixRoomIdUri, VisualMediaMessage},
 };
 
+/// The default minimum width of the sidebar, in `sp`, the same as
+/// `AdwNavigationSplitView`'s default.
+const SIDEBAR_MIN_WIDTH: f64 = 180.0;
+/// The default maximum width of the sidebar, in `sp`, the same as
+/// `AdwNavigationSplitView`'s default.
+const SIDEBAR_MAX_WIDTH: f64 = 280.0;
+/// The minimum width of the sidebar when the space switcher is visible, in
+/// `sp`.
+///
+/// The space switcher is 60sp wide, so the list of rooms keeps the default
+/// minimum width. With the minimum width of the content, it fits in the
+/// smallest window width where the sidebar is not collapsed.
+const SIDEBAR_WITH_SPACES_MIN_WIDTH: f64 = SIDEBAR_MIN_WIDTH + 60.0;
+/// The maximum width of the sidebar when the space switcher is visible, in
+/// `sp`.
+const SIDEBAR_WITH_SPACES_MAX_WIDTH: f64 = SIDEBAR_MAX_WIDTH + 60.0;
+
 mod imp {
     use std::cell::RefCell;
 
@@ -181,6 +198,24 @@ mod imp {
                     .select_next_room(ReadState::Unread, Direction::Down);
             });
 
+            klass.install_action("session.select-prev-space", None, |obj, _, _| {
+                if let Some(item_list) = obj.imp().item_list() {
+                    item_list.space_list().select_relative(false);
+                }
+            });
+
+            klass.install_action("session.select-next-space", None, |obj, _, _| {
+                if let Some(item_list) = obj.imp().item_list() {
+                    item_list.space_list().select_relative(true);
+                }
+            });
+
+            klass.install_action("session.select-home", None, |obj, _, _| {
+                if let Some(item_list) = obj.imp().item_list() {
+                    item_list.space_list().select(0, true);
+                }
+            });
+
             klass.install_action(
                 "session.show-matrix-uri",
                 Some(&MatrixIdUri::static_variant_type()),
@@ -260,6 +295,17 @@ mod imp {
             for header_bar in self.content.header_bars() {
                 size_group.add_widget(header_bar);
             }
+
+            // Leave more room to the list of rooms when the space switcher is
+            // visible next to it.
+            self.sidebar.connect_has_spaces_notify(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                move |_| {
+                    imp.update_sidebar_width();
+                }
+            ));
+            self.update_sidebar_width();
         }
 
         fn dispose(&self) {
@@ -320,7 +366,13 @@ mod imp {
         /// Select the given room.
         pub(super) fn select_room(&self, room: Room) {
             // Make sure the room is visible in the sidebar.
-            // First, ensure that the section containing the room is expanded.
+            // First, make sure that it is in the selected space, or navigate to it
+            // if it is a space.
+            if let Some(item_list) = self.item_list() {
+                item_list.space_list().show_room(&room);
+            }
+
+            // Then, ensure that the section containing the room is expanded.
             if let Some(section) = self
                 .item_list()
                 .and_then(|item_list| item_list.section_from_room_category(room.category()))
@@ -497,6 +549,19 @@ mod imp {
         fn toggle_room_search(&self) {
             let room_search = self.sidebar.room_search_bar();
             room_search.set_search_mode(!room_search.is_search_mode());
+        }
+
+        /// Update the width of the sidebar according to whether the space
+        /// switcher is visible.
+        fn update_sidebar_width(&self) {
+            let (min_width, max_width) = if self.sidebar.has_spaces() {
+                (SIDEBAR_WITH_SPACES_MIN_WIDTH, SIDEBAR_WITH_SPACES_MAX_WIDTH)
+            } else {
+                (SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH)
+            };
+
+            self.split_view.set_min_sidebar_width(min_width);
+            self.split_view.set_max_sidebar_width(max_width);
         }
 
         /// Returns the ancestor window containing this widget.

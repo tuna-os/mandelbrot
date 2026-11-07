@@ -75,7 +75,7 @@ then updates GObject properties, which the Blueprint UI binds to.
 | Threads (MSC3440) | `src/session_view/room_history/thread_panel.rs` |
 | Polls (MSC3381) | `src/session_view/room_history/message_toolbar/create_poll_dialog.rs`, `src/session_view/room_history/message_row/poll.rs` |
 | Voice message recording (MSC3245) | `src/utils/media/audio_recorder.rs` |
-| Spaces hierarchy | `src/session/space_hierarchy/`, `src/session_view/space_overview/` |
+| Spaces navigation and hierarchy | `src/session/sidebar_data/space_{graph,list,item}.rs` (space graph, switcher, per-space filters), `src/session_view/sidebar/space_row.rs`, `src/session/space_hierarchy/`, `src/session_view/space_overview/`; design in [design/spaces-navigation.md](design/spaces-navigation.md) |
 | Packaging | `org.tunaos.mandelbrot.json`, `build-aux/org.tunaos.mandelbrot.Devel.json`, `.github/workflows/publish-flatpak.yml` |
 
 ## UI layer

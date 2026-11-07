@@ -112,6 +112,7 @@ src/session/room/permissions.rs
 src/session/room_list/mod.rs
 src/session/sidebar_data/icon_item.rs
 src/session/sidebar_data/section/name.rs
+src/session/sidebar_data/space_item.rs
 src/session/user_sessions_list/user_session.rs
 src/session_list/mod.rs
 src/session_view/call/call_bar.blp
@@ -217,6 +218,7 @@ src/session_view/sidebar/mod.rs
 src/session_view/sidebar/room_row.rs
 src/session_view/sidebar/row.rs
 src/session_view/sidebar/section_row.rs
+src/session_view/sidebar/space_row.rs
 src/session_view/space_overview/child_row.blp
 src/session_view/space_overview/child_row.rs
 src/session_view/space_overview/subpage.blp

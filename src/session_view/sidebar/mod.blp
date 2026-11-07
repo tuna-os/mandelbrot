@@ -133,6 +133,15 @@ template $Sidebar: Adw.NavigationPage {
         valign: center;
       }
 
+      [start]
+      Gtk.ToggleButton space_switcher_button {
+        valign: center;
+        visible: false;
+        icon-name: "sidebar-show-symbolic";
+        active: bind space_split_view.show-sidebar bidirectional;
+        tooltip-text: _("Show Spaces");
+      }
+
       [end]
       Gtk.MenuButton appmenu_button {
         valign: center;
@@ -177,46 +186,130 @@ template $Sidebar: Adw.NavigationPage {
         button-clicked => $fix_security_issue() swapped;
       }
 
-      Stack room_stack {
-        transition-type: crossfade;
+      Adw.OverlaySplitView space_split_view {
+        vexpand: true;
+        show-sidebar: false;
+        collapsed: bind template.root as <$Window>.compact;
+        min-sidebar-width: 60;
+        max-sidebar-width: 60;
 
-        StackPage {
-          name: "no-results";
+        sidebar: Gtk.ScrolledWindow {
+          hscrollbar-policy: never;
 
-          child: Adw.StatusPage {
-            icon-name: "system-search-symbolic";
-            title: _("No Rooms");
-            description: _("No rooms matching the search were found");
+          child: Gtk.ListView space_rail {
+            tab-behavior: item;
 
             styles [
-              "compact",
+              "navigation-sidebar",
+              "space-rail",
             ]
+
+            accessibility {
+              label: _("Spaces");
+              description: _("Allows to show only the rooms of a space");
+            }
           };
-        }
+        };
 
-        StackPage {
-          name: "room-list";
+        content: Gtk.Box {
+          orientation: vertical;
 
-          child: Gtk.ScrolledWindow scrolled_window {
-            vexpand: true;
-            hscrollbar-policy: never;
+          Gtk.Box space_header {
+            visible: false;
+            spacing: 6;
 
-            child: Gtk.ListView listview {
-              single-click-activate: true;
-              tab-behavior: item;
+            styles [
+              "space-header",
+            ]
+
+            Gtk.Button space_back_button {
+              valign: center;
+              icon-name: "go-previous-symbolic";
+              tooltip-text: _("Parent Space");
+              clicked => $go_back_to_parent_space() swapped;
 
               styles [
-                "navigation-sidebar",
-                "sidebar-list",
+                "flat",
+              ]
+            }
+
+            Gtk.Button space_overview_button {
+              hexpand: true;
+              tooltip-text: _("Space Overview");
+              clicked => $show_space_overview() swapped;
+
+              styles [
+                "flat",
               ]
 
-              accessibility {
-                label: _("Room List");
-                description: _("Allows to navigate between rooms");
-              }
-            };
-          };
-        }
+              child: Gtk.Box {
+                spacing: 12;
+
+                $Avatar space_header_avatar {
+                  size: 24;
+                  accessible-role: presentation;
+                }
+
+                Gtk.Label space_header_name {
+                  hexpand: true;
+                  xalign: 0;
+                  ellipsize: end;
+
+                  styles [
+                    "heading",
+                  ]
+                }
+
+                Gtk.Image {
+                  icon-name: "go-next-symbolic";
+                  accessible-role: presentation;
+                }
+              };
+            }
+          }
+
+          Stack room_stack {
+            transition-type: crossfade;
+
+            StackPage {
+              name: "no-results";
+
+              child: Adw.StatusPage {
+                icon-name: "system-search-symbolic";
+                title: _("No Rooms");
+                description: _("No rooms matching the search were found");
+
+                styles [
+                  "compact",
+                ]
+              };
+            }
+
+            StackPage {
+              name: "room-list";
+
+              child: Gtk.ScrolledWindow scrolled_window {
+                vexpand: true;
+                hscrollbar-policy: never;
+
+                child: Gtk.ListView listview {
+                  single-click-activate: true;
+                  tab-behavior: item;
+
+                  styles [
+                    "navigation-sidebar",
+                    "sidebar-list",
+                  ]
+
+                  accessibility {
+                    label: _("Room List");
+                    description: _("Allows to navigate between rooms");
+                  }
+                };
+              };
+            }
+          }
+        };
       }
     };
   }

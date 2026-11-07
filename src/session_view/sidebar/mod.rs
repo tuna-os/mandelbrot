@@ -10,21 +10,24 @@ mod icon_item_row;
 mod room_row;
 mod row;
 mod section_row;
+mod space_row;
 mod verification_row;
 
 use self::{
     icon_item_row::SidebarIconItemRow, room_row::SidebarRoomRow, row::SidebarRow,
-    section_row::SidebarSectionRow, verification_row::SidebarVerificationRow,
+    section_row::SidebarSectionRow, space_row::SidebarSpaceRow,
+    verification_row::SidebarVerificationRow,
 };
 use crate::{
     account_settings::{AccountSettings, AccountSettingsSubpage},
     account_switcher::AccountSwitcherButton,
-    components::OfflineBanner,
+    components::{Avatar, OfflineBanner},
+    prelude::*,
     session::{
-        CryptoIdentityState, RecoveryState, RoomCategory, Session, SessionVerificationState,
-        SidebarListModel, SidebarSection, TargetRoomCategory, User,
+        CryptoIdentityState, RecoveryState, Room, RoomCategory, Session, SessionVerificationState,
+        SidebarListModel, SidebarSection, SidebarSpaceList, TargetRoomCategory, User,
     },
-    utils::FixedSelection,
+    utils::{BoundObjectWeakRef, FixedSelection},
 };
 
 mod imp {
@@ -59,6 +62,20 @@ mod imp {
         pub(super) room_search: TemplateChild<gtk::SearchBar>,
         #[template_child]
         room_row_menu: TemplateChild<gio::MenuModel>,
+        #[template_child]
+        space_switcher_button: TemplateChild<gtk::ToggleButton>,
+        #[template_child]
+        space_split_view: TemplateChild<adw::OverlaySplitView>,
+        #[template_child]
+        space_rail: TemplateChild<gtk::ListView>,
+        #[template_child]
+        space_header: TemplateChild<gtk::Box>,
+        #[template_child]
+        space_back_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        space_header_avatar: TemplateChild<Avatar>,
+        #[template_child]
+        space_header_name: TemplateChild<gtk::Label>,
         room_row_popover: OnceCell<gtk::PopoverMenu>,
         /// The logged-in user.
         #[property(get, set = Self::set_user, explicit_notify, nullable)]
@@ -72,6 +89,19 @@ mod imp {
         list_model: glib::WeakRef<SidebarListModel>,
         session_handler: RefCell<Option<glib::SignalHandlerId>>,
         security_handlers: RefCell<Vec<glib::SignalHandlerId>>,
+        /// Whether the user has joined any space, so the space switcher is
+        /// available.
+        #[property(get)]
+        has_spaces: Cell<bool>,
+        /// The list of items of the space switcher.
+        space_list: BoundObjectWeakRef<SidebarSpaceList>,
+        /// The selection model of the space switcher.
+        space_selection: gtk::SingleSelection,
+        /// Whether the selection of the space switcher is being synchronized
+        /// with the space list.
+        is_syncing_space_selection: Cell<bool>,
+        /// The binding of the name of the selected space.
+        space_name_binding: RefCell<Option<glib::Binding>>,
     }
 
     #[glib::object_subclass]
@@ -126,20 +156,32 @@ mod imp {
             ));
             self.listview.set_factory(Some(&factory));
 
-            self.listview.connect_activate(move |listview, pos| {
-                let Some(model) = listview.model().and_downcast::<FixedSelection>() else {
-                    return;
-                };
-                let Some(item) = model.item(pos) else {
-                    return;
-                };
+            self.listview.connect_activate(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                move |listview, pos| {
+                    let Some(model) = listview.model().and_downcast::<FixedSelection>() else {
+                        return;
+                    };
+                    let Some(item) = model.item(pos) else {
+                        return;
+                    };
 
-                if let Some(section) = item.downcast_ref::<SidebarSection>() {
-                    section.set_is_expanded(!section.is_expanded());
-                } else {
-                    model.set_selected(pos);
+                    if let Some(section) = item.downcast_ref::<SidebarSection>() {
+                        section.set_is_expanded(!section.is_expanded());
+                    } else if let Some(room) = item
+                        .downcast_ref::<Room>()
+                        .filter(|room| room.category() == RoomCategory::Space)
+                    {
+                        // Spaces are folders of the room list: open them in the sidebar.
+                        imp.enter_space(room);
+                    } else {
+                        model.set_selected(pos);
+                    }
                 }
-            });
+            ));
+
+            self.setup_space_rail();
 
             obj.property_expression("list-model")
                 .chain_property::<SidebarListModel>("selection-model")
@@ -164,6 +206,10 @@ mod imp {
         }
 
         fn dispose(&self) {
+            if let Some(binding) = self.space_name_binding.take() {
+                binding.unbind();
+            }
+
             if let Some(user) = self.user.take() {
                 let session = user.session();
                 if let Some(handler) = self.session_handler.take() {
@@ -281,9 +327,237 @@ mod imp {
                         imp.update_room_stack(list);
                     }
                 ));
+
+                self.set_space_list(Some(&list_model.item_list().space_list()));
+            } else {
+                self.set_space_list(None);
             }
 
             obj.notify_list_model();
+        }
+
+        /// Set up the space switcher.
+        fn setup_space_rail(&self) {
+            let factory = gtk::SignalListItemFactory::new();
+            factory.connect_setup(move |_, item| {
+                let Some(item) = item.downcast_ref::<gtk::ListItem>() else {
+                    error!("List item factory did not receive a list item: {item:?}");
+                    return;
+                };
+                let row = SidebarSpaceRow::new();
+                item.set_child(Some(&row));
+                item.bind_property("item", &row, "item").build();
+            });
+            self.space_rail.set_factory(Some(&factory));
+
+            self.space_selection.set_autoselect(false);
+            self.space_selection.set_can_unselect(false);
+            self.space_rail.set_model(Some(&self.space_selection));
+
+            // Selecting an item filters the room list.
+            self.space_selection.connect_selected_notify(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                move |selection| {
+                    if imp.is_syncing_space_selection.get() {
+                        return;
+                    }
+                    let Some(space_list) = imp.space_list.obj() else {
+                        return;
+                    };
+
+                    let selected = selection.selected();
+                    if selected != gtk::INVALID_LIST_POSITION {
+                        space_list.select(selected, false);
+                        imp.hide_space_rail_overlay();
+                    }
+                }
+            ));
+
+            // Activating an item, even the selected one, goes back to the top
+            // of the space.
+            self.space_rail.connect_activate(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                move |_, position| {
+                    if let Some(space_list) = imp.space_list.obj() {
+                        space_list.select(position, true);
+                    }
+                    imp.hide_space_rail_overlay();
+                }
+            ));
+
+            self.space_split_view.connect_collapsed_notify(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                move |_| {
+                    imp.update_space_rail_visibility();
+                }
+            ));
+        }
+
+        /// Set the list of items of the space switcher.
+        fn set_space_list(&self, space_list: Option<&SidebarSpaceList>) {
+            if self.space_list.obj().as_ref() == space_list {
+                return;
+            }
+
+            self.space_list.disconnect_signals();
+            self.space_selection.set_model(space_list);
+
+            if let Some(space_list) = space_list {
+                let has_spaces_handler = space_list.connect_has_spaces_notify(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |_| {
+                        imp.update_space_rail_visibility();
+                    }
+                ));
+                let selected_position_handler =
+                    space_list.connect_selected_position_notify(clone!(
+                        #[weak(rename_to = imp)]
+                        self,
+                        move |_| {
+                            imp.sync_space_selection();
+                        }
+                    ));
+                let current_space_handler = space_list.connect_current_space_notify(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |_| {
+                        imp.update_space_header();
+                    }
+                ));
+                let can_go_back_handler = space_list.connect_can_go_back_notify(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |space_list| {
+                        imp.space_back_button.set_visible(space_list.can_go_back());
+                    }
+                ));
+                let items_changed_handler = space_list.connect_items_changed(clone!(
+                    #[weak(rename_to = imp)]
+                    self,
+                    move |_, _, _, _| {
+                        imp.sync_space_selection();
+                    }
+                ));
+
+                self.space_list.set(
+                    space_list,
+                    vec![
+                        has_spaces_handler,
+                        selected_position_handler,
+                        current_space_handler,
+                        can_go_back_handler,
+                        items_changed_handler,
+                    ],
+                );
+                self.space_back_button.set_visible(space_list.can_go_back());
+            }
+
+            self.sync_space_selection();
+            self.update_space_header();
+            self.update_space_rail_visibility();
+        }
+
+        /// Synchronize the selection of the space switcher with the space
+        /// list.
+        fn sync_space_selection(&self) {
+            let Some(space_list) = self.space_list.obj() else {
+                return;
+            };
+
+            self.is_syncing_space_selection.set(true);
+            self.space_selection
+                .set_selected(space_list.selected_position());
+            self.is_syncing_space_selection.set(false);
+        }
+
+        /// Update the visibility of the space switcher.
+        ///
+        /// It is only shown if the user has joined spaces. When the window is
+        /// narrow, it is hidden in an overlay that can be toggled.
+        fn update_space_rail_visibility(&self) {
+            let has_spaces = self.space_list.obj().is_some_and(|list| list.has_spaces());
+            let collapsed = self.space_split_view.is_collapsed();
+
+            self.space_switcher_button
+                .set_visible(has_spaces && collapsed);
+            self.space_split_view
+                .set_show_sidebar(has_spaces && !collapsed);
+
+            if self.has_spaces.get() != has_spaces {
+                self.has_spaces.set(has_spaces);
+                self.obj().notify_has_spaces();
+            }
+        }
+
+        /// Hide the space switcher if it is shown as an overlay.
+        fn hide_space_rail_overlay(&self) {
+            if self.space_split_view.is_collapsed() {
+                self.space_split_view.set_show_sidebar(false);
+            }
+        }
+
+        /// Update the header showing the selected space.
+        fn update_space_header(&self) {
+            if let Some(binding) = self.space_name_binding.take() {
+                binding.unbind();
+            }
+
+            let space = self.space_list.obj().and_then(|list| list.current_space());
+
+            if let Some(space) = &space {
+                let binding = space
+                    .bind_property("display-name", &*self.space_header_name, "label")
+                    .sync_create()
+                    .build();
+                self.space_name_binding.replace(Some(binding));
+            }
+
+            let avatar_data = space.as_ref().map(PillSourceExt::avatar_data);
+            self.space_header_avatar.set_data(avatar_data.as_ref());
+            self.space_header.set_visible(space.is_some());
+        }
+
+        /// Navigate to the given space in the sidebar.
+        fn enter_space(&self, space: &Room) {
+            let Some(space_list) = self.space_list.obj() else {
+                return;
+            };
+
+            // Show the content of the space instead of the search results.
+            self.room_search.set_search_mode(false);
+            space_list.enter_space(space);
+            self.scrolled_window.vadjustment().set_value(0.0);
+        }
+
+        /// Go back to the parent of the selected subspace.
+        #[template_callback]
+        fn go_back_to_parent_space(&self) {
+            if let Some(space_list) = self.space_list.obj() {
+                space_list.go_back();
+            }
+        }
+
+        /// Show the overview of the selected space.
+        #[template_callback]
+        fn show_space_overview(&self) {
+            let Some(space) = self.space_list.obj().and_then(|list| list.current_space()) else {
+                return;
+            };
+
+            if self
+                .obj()
+                .activate_action(
+                    "session.show-room",
+                    Some(&space.room_id().as_str().to_variant()),
+                )
+                .is_err()
+            {
+                error!("Could not activate action `session.show-room`");
+            }
         }
 
         /// Update the search filter with the current search text.
