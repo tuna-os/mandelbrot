@@ -79,7 +79,7 @@ jobs:
       - name: Install SDK extensions
         run: |
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          flatpak install --user -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08
+          flatpak install --user -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08 org.freedesktop.Sdk.Extension.llvm22//25.08
       - name: Initialize flatpak build sandbox
         run: |
           flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse \
