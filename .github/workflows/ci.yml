@@ -89,6 +89,22 @@ jobs:
           echo "cargo clippy --workspace --all-targets -- -D warnings" | \
             flatpak-builder --disable-rofiles-fuse --build-shell=fractal \
             flatpak_app org.tunaos.mandelbrot.json
+      # The root crate's unit tests. Nothing else in CI runs them: the flatpak
+      # job does not pass --run-tests. Two things the sandbox does not provide
+      # by itself: the compiled gresource bundles that
+      # login::local_server::tests loads from the meson build dir, and a
+      # display -- without one #[gtk::test] prints a GTK init panic and
+      # reports "ok" without running its body, so serve a Broadway display.
+      - name: Run tests
+        run: |
+          flatpak-builder --disable-rofiles-fuse --build-shell=fractal \
+            flatpak_app org.tunaos.mandelbrot.json <<'EOF'
+          set -e
+          ninja -C "$FLATPAK_BUILDER_BUILDDIR/_flatpak_build" data/resources/resources.gresource src/ui-resources.gresource
+          gtk4-broadwayd :5 >/dev/null 2>&1 &
+          export GDK_BACKEND=broadway BROADWAY_DISPLAY=:5
+          cargo test --workspace
+          EOF
 
   flatpak:
     name: "Flatpak build + tests"
