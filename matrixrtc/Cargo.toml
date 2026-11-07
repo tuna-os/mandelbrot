@@ -65,6 +65,8 @@ tokio = { version = "1", features = [
     "time",
     "test-util",
 ] }
+# For the `join_call` example: clears the access token from memory on drop.
+zeroize = "1"
 
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }

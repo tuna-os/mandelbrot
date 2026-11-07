@@ -162,14 +162,15 @@ log "created room $ROOM"
 
 # --- TEST 1: two native clients ----------------------------------------------
 log "starting two join_call instances"
-"$JOIN_CALL_BIN" "$HS" "$ALICE_ID" "$ALICE_DEV" "$ALICE_TOKEN" "$ROOM" \
+# join_call reads the access token from stdin; it never goes into argv.
+"$JOIN_CALL_BIN" "$HS" "$ALICE_ID" "$ALICE_DEV" "$ROOM" \
     --focus "$JWT" --assert-peer "$BOB_ID:$BOB_DEV" --assert-timeout "$ASSERT_TIMEOUT" \
-    >"$LOG_DIR/alice.log" 2>&1 &
+    <<<"$ALICE_TOKEN" >"$LOG_DIR/alice.log" 2>&1 &
 ALICE_PID=$!
 sleep 2 # let alice become the oldest membership (focus selection)
-"$JOIN_CALL_BIN" "$HS" "$BOB_ID" "$BOB_DEV" "$BOB_TOKEN" "$ROOM" \
+"$JOIN_CALL_BIN" "$HS" "$BOB_ID" "$BOB_DEV" "$ROOM" \
     --focus "$JWT" --assert-peer "$ALICE_ID:$ALICE_DEV" --assert-timeout "$ASSERT_TIMEOUT" \
-    >"$LOG_DIR/bob.log" 2>&1 &
+    <<<"$BOB_TOKEN" >"$LOG_DIR/bob.log" 2>&1 &
 BOB_PID=$!
 
 log "waiting for in-client assertions (membership, tracks, keys, frames)"
