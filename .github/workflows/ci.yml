@@ -161,3 +161,41 @@ jobs:
           path: Mandelbrot-Linux-CI.flatpak
           retention-days: 7
           if-no-files-found: error
+
+  # Installs the bundle the job above built and starts it, so a dependency or
+  # runtime bump that still compiles but no longer launches (missing library
+  # or schema, a startup panic, a GTK critical) cannot go green. Runs on the
+  # bare runner rather than the flatpak container: it needs a Wayland
+  # compositor (mutter, as upstream Fractal's UI tests use) that the
+  # container image does not ship.
+  flatpak-smoke:
+    name: "Flatpak launch smoke test"
+    needs: flatpak
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: Mandelbrot-Linux-CI
+      - name: Install flatpak and a headless compositor
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends flatpak mutter dbus jq
+          # bubblewrap needs unprivileged user namespaces, which Ubuntu's
+          # AppArmor policy denies to unconfined programs by default.
+          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+      - name: Launch the bundle headless
+        env:
+          OUT: ${{ github.workspace }}/smoke-logs
+        run: tests/gui/run-flatpak-smoke.sh Mandelbrot-Linux-CI.flatpak
+      - name: Upload the smoke-test logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: flatpak-smoke-logs
+          path: smoke-logs
+          if-no-files-found: warn
+          retention-days: 7
