@@ -1,0 +1,75 @@
+name: scratch-gui
+on:
+  push:
+    branches: [ci/scratch-gui]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: Mandelbrot-Linux-CI
+          run-id: 42379174637
+          github-token: ${{ github.token }}
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends flatpak mutter dbus jq libsecret-tools \
+            gnome-keyring xdg-desktop-portal xdg-desktop-portal-gtk at-spi2-core
+          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+      - env:
+          OUT: ${{ github.workspace }}/smoke-logs
+        run: tests/gui/run-flatpak-smoke.sh Mandelbrot-Linux-CI.flatpak
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: flatpak-smoke-logs
+          path: smoke-logs
+  gui-call:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      COMPOSE: "docker compose"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: matrixrtc
+          key: livekit
+          cache-on-failure: true
+      - uses: KyleMayes/install-llvm-action@ebc0426251bc40c7cd31162802432c68818ab8f0 # v2.0.9
+        with:
+          version: "21.1.8"
+          env: true
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends pkg-config libssl-dev jq libglib2.0-dev \
+            flatpak mutter dbus gnome-keyring libsecret-tools xdg-desktop-portal xdg-desktop-portal-gtk \
+            at-spi2-core python3-gi gir1.2-atspi-2.0 pulseaudio
+          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+      - run: cargo build --manifest-path matrixrtc/Cargo.toml --features livekit --example join_call
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: Mandelbrot-Linux-CI
+          run-id: 42379174637
+          github-token: ${{ github.token }}
+      - working-directory: tests/e2e
+        run: docker compose -f compose.yml pull -q
+      - working-directory: tests/e2e
+        env:
+          JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
+        run: ./run-gui-call.sh ../../Mandelbrot-Linux-CI.flatpak
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: gui-call-logs
+          path: tests/e2e/logs
