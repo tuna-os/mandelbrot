@@ -134,10 +134,12 @@ stack_up() {
     wait_for "$JWT/healthz" 60 lk-jwt-service
 }
 
+# Waits for a 2xx: nginx answers 502 for synapse while it is still booting, and
+# a bare `curl -s` treats any HTTP response as success.
 wait_for() { # url timeout_s name
     local i
     for i in $(seq 1 "$2"); do
-        curl -s -o /dev/null "$1" && return 0
+        curl -sf -o /dev/null "$1" && return 0
         sleep 1
     done
     die "$3 did not come up at $1"
