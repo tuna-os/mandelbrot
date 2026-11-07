@@ -108,9 +108,13 @@ jobs:
         run: |
           flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse \
             --stop-at=fractal flatpak_app org.tunaos.mandelbrot.json
+      # With the features the shipped bundle has: the manifest configures
+      # `-Dcalls-media=true`, so without it the call media code
+      # (src/session/call/media.rs and its callers) is neither linted nor
+      # tested here.
       - name: Run clippy
         run: |
-          echo "cargo clippy --workspace --all-targets -- -D warnings" | \
+          echo "cargo clippy --workspace --all-targets --features calls-media -- -D warnings" | \
             flatpak-builder --disable-rofiles-fuse --build-shell=fractal \
             flatpak_app org.tunaos.mandelbrot.json
       # The root crate's unit tests. Nothing else in CI runs them: the flatpak
@@ -127,7 +131,7 @@ jobs:
           ninja -C "$FLATPAK_BUILDER_BUILDDIR/_flatpak_build" data/resources/resources.gresource src/ui-resources.gresource
           gtk4-broadwayd :5 >/dev/null 2>&1 &
           export GDK_BACKEND=broadway BROADWAY_DISPLAY=:5
-          cargo test --workspace
+          cargo test --workspace --features calls-media
           EOF
 
   flatpak:
