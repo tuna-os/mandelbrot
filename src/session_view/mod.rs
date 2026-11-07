@@ -212,7 +212,7 @@ mod imp {
 
             klass.install_action("session.select-home", None, |obj, _, _| {
                 if let Some(item_list) = obj.imp().item_list() {
-                    item_list.space_list().select(0, true);
+                    item_list.space_list().select(0);
                 }
             });
 

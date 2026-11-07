@@ -237,6 +237,128 @@ impl SpaceGraph {
 
         None
     }
+
+    /// Keep only the top-level spaces for which the given function returns
+    /// `true`.
+    ///
+    /// This is used to drop the spaces that cannot be shown yet, so the
+    /// positions in the space switcher always match the top-level spaces.
+    pub(crate) fn retain_top_level(&mut self, f: impl FnMut(&OwnedRoomId) -> bool) {
+        self.top_level.retain(f);
+    }
+
+    /// The position in the space switcher of the item to select for the
+    /// given navigation path.
+    ///
+    /// Position `0` is "Home", the top-level spaces follow.
+    pub(crate) fn switcher_position(&self, path: &[OwnedRoomId]) -> u32 {
+        path.first()
+            .and_then(|id| self.top_level.iter().position(|top| top == id))
+            .map_or(0, |pos| pos as u32 + 1)
+    }
+
+    /// The ID of the top-level space at the given position in the space
+    /// switcher, or `None` for "Home" or an unknown position.
+    pub(crate) fn switcher_space_id(&self, position: u32) -> Option<&OwnedRoomId> {
+        self.top_level.get(position.checked_sub(1)? as usize)
+    }
+
+    /// Resolve the navigation path requested by the user in this graph.
+    ///
+    /// Returns the requested path if it is valid. If the selected space was
+    /// moved, for example a top-level space that became a subspace, the
+    /// shortest path to it is returned. Otherwise, the longest valid prefix is
+    /// returned.
+    pub(crate) fn resolve_path(&self, requested: &[OwnedRoomId]) -> Vec<OwnedRoomId> {
+        let valid = self.valid_path(requested);
+
+        if valid.len() < requested.len()
+            && let Some(path) = requested.last().and_then(|id| self.path_to(id))
+        {
+            return path;
+        }
+
+        valid
+    }
+
+    /// The navigation path to enter the space with the given ID from the
+    /// given path.
+    ///
+    /// If it is a child space of the last space of the path, it is appended
+    /// to the path, unless it is already part of the path because of a
+    /// cycle. Otherwise, the shortest path to it is used.
+    ///
+    /// Returns `None` if the ID is not a joined space of this graph.
+    pub(crate) fn path_into(
+        &self,
+        current: &[OwnedRoomId],
+        space_id: &RoomId,
+    ) -> Option<Vec<OwnedRoomId>> {
+        if let Some(last) = current.last()
+            && self.child_spaces(last).contains(space_id)
+            && !current.iter().any(|id| **id == *space_id)
+        {
+            let mut path = current.to_vec();
+            path.push(space_id.to_owned());
+            return Some(path);
+        }
+
+        self.path_to(space_id)
+    }
+
+    /// The navigation path to use so that the room with the given ID, and the
+    /// given predecessor, is visible in the sidebar.
+    ///
+    /// If the room is a joined space, navigate to it. If the room is not
+    /// visible in the current space, go to "Home".
+    ///
+    /// Returns `None` if the current path should not change.
+    pub(crate) fn path_to_show_room(
+        &self,
+        current: &[OwnedRoomId],
+        room_id: &RoomId,
+        predecessor: Option<&RoomId>,
+    ) -> Option<Vec<OwnedRoomId>> {
+        if self.is_space(room_id) {
+            if current.last().is_some_and(|id| **id == *room_id) {
+                return None;
+            }
+            return self.path_into(current, room_id);
+        }
+
+        if SpaceVisibility::new(self, current).is_room_visible(room_id, predecessor) {
+            None
+        } else {
+            Some(Vec::new())
+        }
+    }
+}
+
+/// The position of the item before or after the given position in a list of
+/// the given length, wrapping around.
+pub(crate) fn relative_position(current: u32, n_items: u32, forward: bool) -> u32 {
+    if n_items == 0 {
+        return 0;
+    }
+    let current = current.min(n_items - 1);
+
+    if forward {
+        (current + 1) % n_items
+    } else {
+        (current + n_items - 1) % n_items
+    }
+}
+
+/// Whether the given room, or its predecessor, is in the given set of rooms.
+///
+/// The predecessor is checked because spaces keep the ID of a room after it is
+/// upgraded, until an admin updates the `m.space.child` event.
+pub(crate) fn contains_room(
+    rooms: &HashSet<OwnedRoomId>,
+    room_id: &RoomId,
+    predecessor: Option<&RoomId>,
+) -> bool {
+    rooms.contains(room_id) || predecessor.is_some_and(|id| rooms.contains(id))
 }
 
 /// Whether the given MSC3230 `order` is valid.
@@ -298,17 +420,36 @@ impl SpaceVisibility {
         }
     }
 
-    /// Whether the room with the given ID is visible.
-    pub(crate) fn is_room_visible(&self, room_id: &RoomId) -> bool {
+    /// Whether the room with the given ID and predecessor is visible.
+    pub(crate) fn is_room_visible(&self, room_id: &RoomId, predecessor: Option<&RoomId>) -> bool {
         self.rooms
             .as_ref()
-            .is_none_or(|rooms| rooms.contains(room_id))
+            .is_none_or(|rooms| contains_room(rooms, room_id, predecessor))
     }
 
     /// Whether the space with the given ID is visible in the section of
     /// spaces.
     pub(crate) fn is_subspace_visible(&self, room_id: &RoomId) -> bool {
         self.subspaces.contains(room_id)
+    }
+
+    /// Whether a room that is not a space passes the filter of the sidebar.
+    ///
+    /// During a search, all the rooms pass.
+    pub(crate) fn room_matches(
+        &self,
+        search_active: bool,
+        room_id: &RoomId,
+        predecessor: Option<&RoomId>,
+    ) -> bool {
+        search_active || self.is_room_visible(room_id, predecessor)
+    }
+
+    /// Whether a space passes the filter of the section of spaces.
+    ///
+    /// During a search, all the spaces pass.
+    pub(crate) fn subspace_matches(&self, search_active: bool, room_id: &RoomId) -> bool {
+        search_active || self.is_subspace_visible(room_id)
     }
 }
 
@@ -624,16 +765,24 @@ mod tests {
         assert!(!is_valid_path(&graph, &id_vec(&["!a:x"])));
     }
 
+    fn room_visible(visibility: &SpaceVisibility, id: &str) -> bool {
+        visibility.is_room_visible(&id_vec(&[id])[0], None)
+    }
+
+    fn subspace_visible(visibility: &SpaceVisibility, id: &str) -> bool {
+        visibility.is_subspace_visible(&id_vec(&[id])[0])
+    }
+
     #[test]
     fn home_shows_all_rooms_and_no_spaces() {
         let graph = nested_graph();
         let visibility = SpaceVisibility::new(&graph, &[]);
 
-        assert!(visibility.is_room_visible(&owned_room_id!("!general:x")));
-        assert!(visibility.is_room_visible(&owned_room_id!("!games:x")));
-        assert!(visibility.is_room_visible(&owned_room_id!("!not-in-a-space:x")));
-        assert!(!visibility.is_subspace_visible(&owned_room_id!("!company:x")));
-        assert!(!visibility.is_subspace_visible(&owned_room_id!("!team:x")));
+        assert!(room_visible(&visibility, "!general:x"));
+        assert!(room_visible(&visibility, "!games:x"));
+        assert!(room_visible(&visibility, "!not-in-a-space:x"));
+        assert!(!subspace_visible(&visibility, "!company:x"));
+        assert!(!subspace_visible(&visibility, "!team:x"));
     }
 
     #[test]
@@ -642,18 +791,18 @@ mod tests {
         let visibility = SpaceVisibility::new(&graph, &id_vec(&["!company:x"]));
 
         // Direct child, child of subspace, child of sub-subspace.
-        assert!(visibility.is_room_visible(&owned_room_id!("!general:x")));
-        assert!(visibility.is_room_visible(&owned_room_id!("!standup:x")));
-        assert!(visibility.is_room_visible(&owned_room_id!("!design:x")));
+        assert!(room_visible(&visibility, "!general:x"));
+        assert!(room_visible(&visibility, "!standup:x"));
+        assert!(room_visible(&visibility, "!design:x"));
         // Rooms of other spaces and of no space.
-        assert!(!visibility.is_room_visible(&owned_room_id!("!games:x")));
-        assert!(!visibility.is_room_visible(&owned_room_id!("!not-in-a-space:x")));
+        assert!(!room_visible(&visibility, "!games:x"));
+        assert!(!room_visible(&visibility, "!not-in-a-space:x"));
         // The space itself.
-        assert!(!visibility.is_room_visible(&owned_room_id!("!company:x")));
+        assert!(!room_visible(&visibility, "!company:x"));
 
         // Only the direct child space is listed.
-        assert!(visibility.is_subspace_visible(&owned_room_id!("!team:x")));
-        assert!(!visibility.is_subspace_visible(&owned_room_id!("!project:x")));
+        assert!(subspace_visible(&visibility, "!team:x"));
+        assert!(!subspace_visible(&visibility, "!project:x"));
     }
 
     #[test]
@@ -661,11 +810,11 @@ mod tests {
         let graph = nested_graph();
         let visibility = SpaceVisibility::new(&graph, &id_vec(&["!company:x", "!team:x"]));
 
-        assert!(visibility.is_room_visible(&owned_room_id!("!standup:x")));
-        assert!(visibility.is_room_visible(&owned_room_id!("!design:x")));
-        assert!(!visibility.is_room_visible(&owned_room_id!("!general:x")));
-        assert!(visibility.is_subspace_visible(&owned_room_id!("!project:x")));
-        assert!(!visibility.is_subspace_visible(&owned_room_id!("!team:x")));
+        assert!(room_visible(&visibility, "!standup:x"));
+        assert!(room_visible(&visibility, "!design:x"));
+        assert!(!room_visible(&visibility, "!general:x"));
+        assert!(subspace_visible(&visibility, "!project:x"));
+        assert!(!subspace_visible(&visibility, "!team:x"));
     }
 
     #[test]
@@ -677,10 +826,195 @@ mod tests {
         let path = graph.path_to(&owned_room_id!("!b:x")).unwrap();
         let visibility = SpaceVisibility::new(&graph, &path);
 
-        assert!(visibility.is_room_visible(&owned_room_id!("!room-a:x")));
-        assert!(visibility.is_room_visible(&owned_room_id!("!room-b:x")));
+        assert!(room_visible(&visibility, "!room-a:x"));
+        assert!(room_visible(&visibility, "!room-b:x"));
         // `!a:x` is a child of `!b:x` in the cycle.
-        assert!(visibility.is_subspace_visible(&owned_room_id!("!a:x")));
+        assert!(subspace_visible(&visibility, "!a:x"));
+    }
+
+    #[test]
+    fn upgraded_room_stays_visible_through_its_predecessor() {
+        let graph = nested_graph();
+        let visibility = SpaceVisibility::new(&graph, &id_vec(&["!company:x"]));
+        let successor = owned_room_id!("!general-v2:x");
+        let predecessor = owned_room_id!("!general:x");
+        let unrelated = owned_room_id!("!games:x");
+
+        assert!(!visibility.is_room_visible(&successor, None));
+        assert!(visibility.is_room_visible(&successor, Some(&predecessor)));
+        assert!(!visibility.is_room_visible(&successor, Some(&unrelated)));
+
+        let rooms = graph.descendants(&owned_room_id!("!company:x"));
+        assert!(contains_room(&rooms, &successor, Some(&predecessor)));
+        assert!(!contains_room(&rooms, &successor, None));
+
+        // Showing the successor does not leave the space.
+        assert_eq!(
+            graph.path_to_show_room(&id_vec(&["!company:x"]), &successor, Some(&predecessor)),
+            None
+        );
+    }
+
+    #[test]
+    fn search_loosens_and_tightens_the_filters() {
+        let graph = nested_graph();
+        let visibility = SpaceVisibility::new(&graph, &id_vec(&["!company:x"]));
+        let other_room = owned_room_id!("!games:x");
+        let other_space = owned_room_id!("!hobby:x");
+        let nested_space = owned_room_id!("!project:x");
+
+        // Search active: everything passes, including all spaces.
+        assert!(visibility.room_matches(true, &other_room, None));
+        assert!(visibility.subspace_matches(true, &other_space));
+        assert!(visibility.subspace_matches(true, &nested_space));
+
+        // Search inactive: back to the selected space.
+        assert!(!visibility.room_matches(false, &other_room, None));
+        assert!(!visibility.subspace_matches(false, &other_space));
+        assert!(!visibility.subspace_matches(false, &nested_space));
+        assert!(visibility.subspace_matches(false, &owned_room_id!("!team:x")));
+
+        // In Home, all the spaces show during search, none otherwise.
+        let home = SpaceVisibility::new(&graph, &[]);
+        assert!(home.subspace_matches(true, &other_space));
+        assert!(!home.subspace_matches(false, &other_space));
+    }
+
+    #[test]
+    fn switcher_positions_match_shown_top_level_spaces() {
+        let mut graph = SpaceGraph::new(vec![
+            ordered_space("!a:x", &[], "a"),
+            ordered_space("!b:x", &[], "b"),
+            ordered_space("!c:x", &[], "c"),
+        ]);
+        // `!b:x` is not in the room list yet, so it is not shown.
+        graph.retain_top_level(|id| id.as_str() != "!b:x");
+
+        assert_eq!(graph.top_level_spaces(), id_vec(&["!a:x", "!c:x"]));
+        assert_eq!(graph.switcher_space_id(0), None);
+        assert_eq!(graph.switcher_space_id(1), Some(&owned_room_id!("!a:x")));
+        assert_eq!(graph.switcher_space_id(2), Some(&owned_room_id!("!c:x")));
+        assert_eq!(graph.switcher_space_id(3), None);
+
+        assert_eq!(graph.switcher_position(&[]), 0);
+        assert_eq!(graph.switcher_position(&id_vec(&["!c:x"])), 2);
+        // A path through a space that is not shown resolves to "Home".
+        assert_eq!(graph.resolve_path(&id_vec(&["!b:x"])), id_vec(&[]));
+        assert_eq!(graph.switcher_position(&id_vec(&["!b:x"])), 0);
+    }
+
+    #[test]
+    fn requested_path_is_restored_when_space_is_rejoined() {
+        let requested = id_vec(&["!company:x", "!team:x", "!project:x"]);
+
+        // `!team:x` was left: fall back to its parent.
+        let left = SpaceGraph::new(vec![
+            space("!company:x", &["!general:x", "!team:x"]),
+            space("!hobby:x", &["!games:x"]),
+        ]);
+        assert_eq!(left.resolve_path(&requested), id_vec(&["!company:x"]));
+
+        // Everything was left: "Home".
+        let empty = SpaceGraph::new(vec![]);
+        assert_eq!(empty.resolve_path(&requested), id_vec(&[]));
+
+        // Rejoined: the same requested path resolves fully again.
+        assert_eq!(nested_graph().resolve_path(&requested), requested);
+    }
+
+    #[test]
+    fn top_level_space_that_became_a_subspace_stays_selected() {
+        let before = nested_graph();
+        assert_eq!(
+            before.resolve_path(&id_vec(&["!hobby:x"])),
+            id_vec(&["!hobby:x"])
+        );
+
+        let after = SpaceGraph::new(vec![
+            space("!company:x", &["!general:x", "!team:x", "!hobby:x"]),
+            space("!team:x", &["!standup:x"]),
+            space("!hobby:x", &["!games:x"]),
+        ]);
+        assert_eq!(
+            after.resolve_path(&id_vec(&["!hobby:x"])),
+            id_vec(&["!company:x", "!hobby:x"])
+        );
+    }
+
+    #[test]
+    fn entering_spaces_never_repeats_a_space_in_a_cycle() {
+        let graph = SpaceGraph::new(vec![space("!a:x", &["!b:x"]), space("!b:x", &["!a:x"])]);
+
+        let path = graph.path_into(&id_vec(&["!a:x"]), &owned_room_id!("!b:x"));
+        assert_eq!(path, Some(id_vec(&["!a:x", "!b:x"])));
+
+        // `!a:x` is a child of `!b:x`, but it is already in the path.
+        let path = graph.path_into(&id_vec(&["!a:x", "!b:x"]), &owned_room_id!("!a:x"));
+        assert_eq!(path, Some(id_vec(&["!a:x"])));
+
+        assert_eq!(graph.path_into(&[], &owned_room_id!("!unknown:x")), None);
+    }
+
+    #[test]
+    fn path_to_show_room() {
+        let graph = nested_graph();
+        let company = id_vec(&["!company:x"]);
+
+        // A room outside the selected space: go to "Home".
+        assert_eq!(
+            graph.path_to_show_room(&company, &owned_room_id!("!games:x"), None),
+            Some(id_vec(&[]))
+        );
+        // A room in the selected space, nested or not: no change.
+        assert_eq!(
+            graph.path_to_show_room(&company, &owned_room_id!("!design:x"), None),
+            None
+        );
+        // A room in "Home": no change.
+        assert_eq!(
+            graph.path_to_show_room(&[], &owned_room_id!("!games:x"), None),
+            None
+        );
+        // A space: navigate into it.
+        assert_eq!(
+            graph.path_to_show_room(&company, &owned_room_id!("!team:x"), None),
+            Some(id_vec(&["!company:x", "!team:x"]))
+        );
+        assert_eq!(
+            graph.path_to_show_room(&[], &owned_room_id!("!project:x"), None),
+            Some(id_vec(&["!company:x", "!team:x", "!project:x"]))
+        );
+        // The selected space itself: no change.
+        assert_eq!(
+            graph.path_to_show_room(&company, &owned_room_id!("!company:x"), None),
+            None
+        );
+
+        // Before the graph is loaded, nothing changes.
+        let empty = SpaceGraph::new(vec![]);
+        let current = empty.resolve_path(&company);
+        assert_eq!(
+            empty.path_to_show_room(&current, &owned_room_id!("!games:x"), None),
+            None
+        );
+        assert_eq!(
+            empty.path_to_show_room(&current, &owned_room_id!("!company:x"), None),
+            None
+        );
+    }
+
+    #[test]
+    fn relative_position_wraps() {
+        // Only "Home".
+        assert_eq!(relative_position(0, 1, true), 0);
+        assert_eq!(relative_position(0, 1, false), 0);
+
+        assert_eq!(relative_position(0, 3, true), 1);
+        assert_eq!(relative_position(2, 3, true), 0);
+        assert_eq!(relative_position(0, 3, false), 2);
+        // Out-of-range current position.
+        assert_eq!(relative_position(7, 3, true), 0);
+        assert_eq!(relative_position(0, 0, true), 0);
     }
 
     #[test]

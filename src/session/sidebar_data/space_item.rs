@@ -1,10 +1,10 @@
 use std::collections::HashSet;
 
 use gettextrs::gettext;
-use gtk::{glib, glib::clone, prelude::*, subclass::prelude::*};
+use gtk::{gio, glib, glib::clone, prelude::*, subclass::prelude::*};
 use ruma::OwnedRoomId;
 
-use super::space_graph::UnreadSummary;
+use super::space_graph::{UnreadSummary, contains_room};
 use crate::{
     prelude::*,
     session::{HighlightFlags, Room, RoomList},
@@ -50,6 +50,8 @@ mod imp {
         filter: gtk::CustomFilter,
         /// The model watching the unread state of the rooms in this item.
         expr_model: ExpressionListModel,
+        /// The handler of the display name of the space.
+        display_name_handler: RefCell<Option<glib::SignalHandlerId>>,
     }
 
     impl Default for SidebarSpaceItem {
@@ -65,6 +67,7 @@ mod imp {
                 room_ids: Default::default(),
                 filter: Default::default(),
                 expr_model: Default::default(),
+                display_name_handler: Default::default(),
             }
         }
     }
@@ -82,13 +85,14 @@ mod imp {
             let obj = self.obj();
 
             if let Some(space) = obj.space() {
-                space.connect_display_name_notify(clone!(
+                let handler = space.connect_display_name_notify(clone!(
                     #[weak]
                     obj,
                     move |_| {
                         obj.notify_display_name();
                     }
                 ));
+                self.display_name_handler.replace(Some(handler));
             }
 
             self.filter.set_filter_func(clone!(
@@ -101,10 +105,13 @@ mod imp {
                         return false;
                     };
 
-                    imp.room_ids
-                        .borrow()
-                        .as_ref()
-                        .is_none_or(|room_ids| room_ids.contains(room.room_id()))
+                    imp.room_ids.borrow().as_ref().is_none_or(|room_ids| {
+                        contains_room(
+                            room_ids,
+                            room.room_id(),
+                            room.predecessor_id().map(|id| &**id),
+                        )
+                    })
                 }
             ));
 
@@ -121,6 +128,17 @@ mod imp {
                     imp.update_unread_state(model);
                 }
             ));
+        }
+
+        fn dispose(&self) {
+            if let Some(handler) = self.display_name_handler.take()
+                && let Some(space) = self.space.borrow().as_ref()
+            {
+                space.disconnect(handler);
+            }
+
+            // Stop watching the rooms.
+            self.expr_model.set_model(None::<gio::ListModel>);
         }
     }
 

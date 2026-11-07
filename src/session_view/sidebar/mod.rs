@@ -96,10 +96,11 @@ mod imp {
         /// The list of items of the space switcher.
         space_list: BoundObjectWeakRef<SidebarSpaceList>,
         /// The selection model of the space switcher.
-        space_selection: gtk::SingleSelection,
-        /// Whether the selection of the space switcher is being synchronized
-        /// with the space list.
-        is_syncing_space_selection: Cell<bool>,
+        ///
+        /// It ignores selection requests from the list view, so moving the
+        /// focus with the keyboard does not switch spaces: only activating an
+        /// item does.
+        space_selection: FixedSelection,
         /// The binding of the name of the selected space.
         space_name_binding: RefCell<Option<glib::Binding>>,
     }
@@ -350,40 +351,27 @@ mod imp {
             });
             self.space_rail.set_factory(Some(&factory));
 
-            self.space_selection.set_autoselect(false);
-            self.space_selection.set_can_unselect(false);
             self.space_rail.set_model(Some(&self.space_selection));
 
-            // Selecting an item filters the room list.
-            self.space_selection.connect_selected_notify(clone!(
-                #[weak(rename_to = imp)]
-                self,
-                move |selection| {
-                    if imp.is_syncing_space_selection.get() {
-                        return;
-                    }
-                    let Some(space_list) = imp.space_list.obj() else {
-                        return;
-                    };
-
-                    let selected = selection.selected();
-                    if selected != gtk::INVALID_LIST_POSITION {
-                        space_list.select(selected, false);
-                        imp.hide_space_rail_overlay();
-                    }
-                }
-            ));
-
-            // Activating an item, even the selected one, goes back to the top
-            // of the space.
+            // Activating an item filters the room list. Activating the selected
+            // item goes back to the top of the space.
             self.space_rail.connect_activate(clone!(
                 #[weak(rename_to = imp)]
                 self,
                 move |_, position| {
                     if let Some(space_list) = imp.space_list.obj() {
-                        space_list.select(position, true);
+                        space_list.select(position);
                     }
                     imp.hide_space_rail_overlay();
+                }
+            ));
+
+            // During a search, the results come from all the spaces.
+            self.room_search.connect_search_mode_enabled_notify(clone!(
+                #[weak(rename_to = imp)]
+                self,
+                move |_| {
+                    imp.update_space_header();
                 }
             ));
 
@@ -403,7 +391,8 @@ mod imp {
             }
 
             self.space_list.disconnect_signals();
-            self.space_selection.set_model(space_list);
+            self.space_selection
+                .set_model(space_list.map(|list| list.clone().upcast::<gio::ListModel>()));
 
             if let Some(space_list) = space_list {
                 let has_spaces_handler = space_list.connect_has_spaces_notify(clone!(
@@ -468,10 +457,8 @@ mod imp {
                 return;
             };
 
-            self.is_syncing_space_selection.set(true);
             self.space_selection
                 .set_selected(space_list.selected_position());
-            self.is_syncing_space_selection.set(false);
         }
 
         /// Update the visibility of the space switcher.
@@ -486,6 +473,8 @@ mod imp {
                 .set_visible(has_spaces && collapsed);
             self.space_split_view
                 .set_show_sidebar(has_spaces && !collapsed);
+            // Do not allow to swipe in an empty space switcher.
+            self.space_split_view.set_enable_show_gesture(has_spaces);
 
             if self.has_spaces.get() != has_spaces {
                 self.has_spaces.set(has_spaces);
@@ -518,7 +507,8 @@ mod imp {
 
             let avatar_data = space.as_ref().map(PillSourceExt::avatar_data);
             self.space_header_avatar.set_data(avatar_data.as_ref());
-            self.space_header.set_visible(space.is_some());
+            self.space_header
+                .set_visible(space.is_some() && !self.room_search.is_search_mode());
         }
 
         /// Navigate to the given space in the sidebar.

@@ -131,16 +131,21 @@ kept as the space lobby.
 * The `AdwOverlaySplitView` collapses (bound to `Window:compact`). The rail
   becomes an overlay, opened by the "Show Spaces" toggle in the header bar
   (`sidebar-show-symbolic`) or by swiping from the left edge, and it closes
-  once a space is picked.
+  once a space is picked. Without joined spaces, the toggle is hidden and
+  the edge swipe is disabled.
 
 ### Interaction details
 
-* **Select a space** (rail click or keyboard): the room list shows only the
-  rooms in that space **and in all its subspaces, recursively**, as in
-  Element Web and Cinny. Sections (Invited, Favorites, Rooms, Low Priority,
-  Historical) keep their meaning; they are filtered, and their badges add up
-  only the visible rooms. The open room stays open: switching spaces never
-  changes the content pane.
+* **Select a space** (activate it in the rail: click, or Enter/Space): the
+  room list shows only the rooms in that space **and in all its subspaces,
+  recursively**, as in Element Web and Cinny. Sections (Invited, Favorites,
+  Rooms, Low Priority, Historical) keep their meaning; they are filtered, and
+  their badges add up only the visible rooms. The open room stays open:
+  switching spaces never changes the content pane. Activating the selected
+  space again goes back to its top level.
+* **Upgraded rooms** stay in their space: a room whose predecessor is a
+  child of the space is shown, because spaces keep listing the old room ID
+  until an admin updates the `m.space.child` event.
 * **Home** shows **all rooms**. This differs from Element Web's default
   (rooms outside spaces) on purpose: it keeps the pre-existing behaviour for
   current users and is what FluffyChat and Nheko do. The Spaces section is
@@ -150,8 +155,11 @@ kept as the space lobby.
   list narrows to that subspace and a header row shows `[<]` (back to the
   parent) and the subspace's avatar and name. This is a sidebar-local
   drill-down, as in Cinny and Element X; nothing changes in the content pane.
-  The navigation path is validated against the space graph, so leaving a
-  space or losing a parent link falls back to the longest valid prefix.
+  The navigation path is resolved against the space graph: a space that
+  moved (for example a top-level space that became a subspace) is found
+  again through its shortest path; otherwise leaving a space or losing a
+  parent link falls back to the longest valid prefix. A space already in
+  the path is never pushed again, so cycles cannot grow the path.
 * **Space lobby**: the header row (avatar + name + `>`) opens the existing
   space overview (`src/session_view/space_overview/`) in the content pane.
   There the user can browse unjoined rooms and subspaces through
@@ -163,8 +171,9 @@ kept as the space lobby.
   all rooms. The badge shows the count, in the accent colour for mentions;
   a dot means unread messages without notifications.
 * **Search** (`Ctrl+K`) searches every room, whatever space is selected,
-  matching Element X's global search. Activating a space in the results
-  enters it and closes the search.
+  matching Element X's global search, and the Spaces section lists every
+  space. The space header is hidden while searching. Activating a space in
+  the results enters it and closes the search.
 * **Opening a room from elsewhere** (notification, link, `Ctrl+*`): if the
   room is not in the selected space, the sidebar switches to Home so that the
   selection is visible. Opening a space's link enters that space.
@@ -172,8 +181,10 @@ kept as the space lobby.
   stored per session in the session settings (`space_path`). It is restored
   once the spaces have loaded. A path that does not resolve yet is kept, so
   a slow first sync does not reset the choice.
-* **Keyboard**: the rail is a `GtkListView`, so arrow keys move within it
-  and Tab moves between rail, header and room list. New shortcuts, listed in
+* **Keyboard**: the rail is a `GtkListView` whose selection follows the
+  navigation state, not the focus: arrow keys move the focus, Enter/Space
+  activate (like the room list), and Tab moves between rail, header and
+  room list. New shortcuts, listed in
   the shortcuts dialog: `Ctrl+Alt+PgDn` / `Ctrl+Alt+PgUp` for the next /
   previous space (wrapping, the space counterpart of `Ctrl+PgDn/PgUp` for
   rooms; Discord uses `Ctrl+Alt+↑/↓`, but GNOME Shell binds
@@ -194,16 +205,20 @@ All of this reuses `src/session/sidebar_data/`:
   built from each joined space's `m.space.child` events (only those with a
   non-empty `via`, per the spec) and its `m.space_order`. It provides
   cycle-safe `descendants()`, `child_spaces()`, MSC3230-ordered
-  `top_level_spaces()`, path validation and `path_to()`. A cycle with no
+  `top_level_spaces()`, path resolution and `path_to()`. A cycle with no
   root (A→B→A) promotes its smallest space to the top level, so no joined
-  space becomes unreachable. `UnreadSummary` holds the aggregation rules.
+  space becomes unreachable. `SpaceVisibility` holds the filtering rules and
+  `UnreadSummary` the aggregation rules.
 * `space_list.rs`: `SidebarSpaceList` (a `GListModel` of Home + top-level
-  spaces). It rebuilds the graph from the SDK store, debounced, whenever the
-  room list changes or a sync touches a space (via
-  `Client::subscribe_to_all_room_updates`, the same signal the SDK's
-  `SpaceService` uses). It owns the navigation path and the two
-  `GtkCustomFilter`s that the sidebar sections chain after their category
-  filter: rooms in the selected space, and its direct child spaces.
+  spaces). It rebuilds the graph from the SDK store, debounced, when the
+  room list changes, when a space is left, when a joined space receives
+  `m.space.child` state events or MSC3230 order account data, and when the
+  update stream lagged (via `Client::subscribe_to_all_room_updates`, the
+  same signal the SDK's `SpaceService` uses). Top-level spaces that are not
+  in the room list yet are left out until they are. It owns the navigation
+  path and the two `GtkCustomFilter`s that the sidebar sections chain after
+  their category filter: rooms in the selected space, and its direct child
+  spaces.
 * `space_item.rs`: `SidebarSpaceItem`, the per-space unread aggregate. It is
   an `ExpressionListModel` over the room list filtered to the space's
   descendants, watching `category`, `notification-count`, `highlight` and
