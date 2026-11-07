@@ -1,5 +1,6 @@
 [default.extend-identifiers]
 ae7ede32 = "ae7ede32" # an Element Call git revision quoted in CONFORMANCE.md
+e210ba3b = "e210ba3b" # an upstream Fractal commit quoted in docs/UPSTREAM.md
 
 [default.extend-words]
 gir = "gir"
