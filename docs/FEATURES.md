@@ -17,10 +17,11 @@ and connect calls in either direction, with crash cleanup working across
 implementations — see [tests/e2e/CONFORMANCE.md](../tests/e2e/CONFORMANCE.md)
 for the full report, including the two known gaps (media encryption with
 Element Call is expected to work but is not yet proven end to end, and Element
-Call's experimental MSC4354 "matrix 2.0" mode is not supported yet).
+Call's experimental MSC4354 "matrix 2.0" mode is not supported yet). The user guide, with
+requirements, limitations, and troubleshooting, is [CALLING.md](CALLING.md).
 
-* **Join a call**: rooms with an active call (or MSC3417 video rooms) show a
-  camera button in the room header. It opens a pre-join screen (mic/camera
+* **Join a call**: rooms with an active call, MSC3417 video rooms, and rooms where you are allowed
+  to start a call show a camera button in the room header. It opens a pre-join screen (mic/camera
   toggles) and then the call view.
 
 * **Call view**: participant grid with speaking highlights, your own preview in

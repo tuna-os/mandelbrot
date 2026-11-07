@@ -16,7 +16,7 @@ process for synchronizing upstream changes and security fixes.
 
 Mandelbrot maintains full feature parity with Fractal while developing downstream extensions:
 
-1. **Native MatrixRTC Calling (`matrixrtc/` crate & `src/session/room/call.rs`)**:
+1. **Native MatrixRTC Calling (`matrixrtc/` crate, `src/session/call/` & `src/session_view/call/`)**:
    * MatrixRTC session state machine and MSC4140 delayed event handling.
    * LiveKit Rust SDK media pipeline and GStreamer camera/microphone capture.
    * Native GTK4/Adwaita calling UI shell and freedesktop notification portal v2 integration.

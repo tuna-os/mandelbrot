@@ -63,20 +63,76 @@ Mandelbrot runs on the GNOME 50 runtime, so your system also needs the
 [Flathub remote](https://flathub.org/setup) (or another source for
 `org.gnome.Platform//50`) to pull it in.
 
-Currently only **x86_64** builds are published. ARM (aarch64) is not yet
-available, so the Flatpak cannot be installed on aarch64 devices such as phones
-or Apple Silicon.
+Builds are published for **x86_64** and **aarch64** (64-bit ARM).
 
-If you added the `tuna-os` remote before this document changed, `--if-not-exists`
-keeps your existing entry, which may still point at the retired
-`oci+https://tuna-os.github.io/flatpak-index` index. That index never carried
-`org.tunaos.mandelbrot`, so the install fails with "No match for
-org.tunaos.mandelbrot in remote tuna-os". Point the remote at the current URL
-with:
+To update later, run `flatpak update --user org.tunaos.mandelbrot`.
+
+### Installation troubleshooting
+
+**Check the remote.** List your user remotes with their URLs:
+
+```sh
+flatpak remotes --user -d
+```
+
+The `tuna-os` row must show `oci+https://tunaos.org/flatpak`. If it is missing, run the
+`remote-add` command above. If it is there, check that it offers Mandelbrot for your
+architecture:
+
+```sh
+flatpak remote-ls --user --app tuna-os
+```
+
+**"Nothing matches org.tunaos.mandelbrot in remote tuna-os"** (or "No match for
+org.tunaos.mandelbrot in remote tuna-os"). The usual cause is a `tuna-os` remote added before
+this document changed: `--if-not-exists` keeps your existing entry, which may still point at the
+retired `oci+https://tuna-os.github.io/flatpak-index` index. That index never carried
+`org.tunaos.mandelbrot`. Point the remote at the current URL with:
 
 ```sh
 flatpak remote-modify --user tuna-os --url=oci+https://tunaos.org/flatpak
 ```
+
+**"No remote refs found for 'tuna-os'".** The remote was added to the other installation:
+remotes belong either to your user or to the system, so use `--user` for both `remote-add` and
+`install`, or for neither.
+
+**The `org.gnome.Platform` runtime is not found.** Add Flathub to the same installation, then
+install again:
+
+```sh
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+```
+
+**Mandelbrot does not start, or fails on first launch.** Run it from a terminal to see the error:
+
+```sh
+flatpak run org.tunaos.mandelbrot
+```
+
+Errors about the "Secret Portal" or "Secret Service" mean the app cannot reach your keyring; see
+[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md#could-not-store-session-or-secret-storage-errors).
+If you changed the app's sandbox permissions (for example with Flatseal), show and undo your
+overrides with:
+
+```sh
+flatpak override --user --show org.tunaos.mandelbrot
+flatpak override --user --reset org.tunaos.mandelbrot
+```
+
+`flatpak info --show-permissions org.tunaos.mandelbrot` lists the permissions the app ships with;
+[docs/PRIVACY.md](docs/PRIVACY.md#flatpak-sandbox) explains each one.
+
+## Documentation
+
+* [docs/FEATURES.md](docs/FEATURES.md) — what Mandelbrot adds to Fractal
+* [docs/CALLING.md](docs/CALLING.md) — voice and video calls: requirements, usage, limitations
+* [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) — logs, login, sync, and other problems
+* [docs/PRIVACY.md](docs/PRIVACY.md) — security and privacy: encryption, metadata, sandbox
+* [SECURITY.md](SECURITY.md) — how to report a vulnerability
+* [CONTRIBUTING.md](CONTRIBUTING.md), [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md),
+  [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — contributing, building, and the code base
+* [RELEASING.md](RELEASING.md) — how releases are published
 
 ## Relationship to Fractal
 
@@ -98,6 +154,9 @@ example) or if it is used to open your user session and your secrets are unlocke
 
 Furthermore, make sure to lock your system when stepping away from the computer since an unlocked
 computer can allow other people to access your private communications and your secrets.
+
+[docs/PRIVACY.md](docs/PRIVACY.md) describes what Mandelbrot encrypts, what it stores, and what
+your homeserver can see. To report a vulnerability, follow [SECURITY.md](SECURITY.md).
 
 ## Contributing
 

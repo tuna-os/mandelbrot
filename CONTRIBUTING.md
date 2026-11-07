@@ -40,26 +40,78 @@ with general Rust and GNOME development.
 
 ## Build Instructions
 
+[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) is the full development setup guide (build options,
+tests, a local homeserver, debugging), and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) maps the
+code base. This section covers the essentials.
+
 ### Prerequisites
 
-Mandelbrot is written in Rust, so you will need Rust (the minimum supported version is available
-in `Cargo.toml` as `package.rust-version`) and Cargo.
-You will also need to install the Rust nightly toolchain to be able to run our
-[pre-commit hook](#pre-commit), which can be done with:
+#### Rust toolchain
 
-```sh
-rustup toolchain install nightly
-```
+Mandelbrot is written in Rust. You need Cargo and a Rust compiler at least as new as
+`package.rust-version` in `Cargo.toml`, plus a nightly toolchain for the formatting check in the
+[pre-commit hook](#pre-commit). Install both through [rustup](https://rustup.rs/), which manages
+several toolchains side by side.
 
-CI pins a dated nightly instead, because `rustfmt.toml` enables unstable
-options whose output changes between nightlies — a new one can re-wrap comments
-across the tree and fail the gate on files nobody touched. If your local
-`nightly` disagrees with CI, run the hook against the pinned toolchain named in
-`.github/workflows/ci.yml`:
+1. Check whether rustup is already installed:
+
+   ```sh
+   rustup --version
+   ```
+
+   If it is, update the toolchains you have and go to step 3:
+
+   ```sh
+   rustup update
+   ```
+
+2. Otherwise, install rustup. Distribution packages:
+
+   ```sh
+   # Fedora
+   sudo dnf install rustup
+   rustup-init
+
+   # Debian 13 or later, Ubuntu 24.04 or later
+   sudo apt install rustup
+   rustup default stable
+
+   # Arch Linux
+   sudo pacman -S rustup
+   rustup default stable
+   ```
+
+   On other systems, use the installer from [rustup.rs](https://rustup.rs/) or one of the
+   [other installation methods](https://rust-lang.github.io/rustup/installation/other.html). Open a
+   new terminal afterwards so that `~/.cargo/bin` is on your `PATH`.
+
+3. Install the dated nightly that CI uses for formatting. CI pins it, instead of using whatever
+   `nightly` is current, because `.rustfmt.toml` enables unstable options whose output changes
+   between nightlies — a new one can re-wrap comments across the tree and fail the gate on files
+   nobody touched. The pin is the `RUSTFMT_TOOLCHAIN` value in `.github/workflows/ci.yml`:
+
+   ```sh
+   rustup toolchain install nightly-2026-08-28 --component rustfmt
+   ```
+
+4. Verify the setup:
+
+   ```sh
+   rustc --version
+   cargo --version
+   rustup toolchain list
+   ```
+
+   `rustc --version` must be at least `package.rust-version`, and the list must include
+   `nightly-2026-08-28`.
+
+Run the hook against the pinned toolchain:
 
 ```sh
 RUSTFMT_TOOLCHAIN=nightly-2026-08-28 cargo run --manifest-path hooks/checks/Cargo.toml
 ```
+
+#### Flatpak prerequisites
 
 If you are building Mandelbrot with Flatpak (via GNOME Builder or the command line), you will need
 to add the necessary remotes and install the Rust freedesktop.org extension:
@@ -75,6 +127,10 @@ flatpak install --user gnome-nightly org.gnome.Sdk//master org.gnome.Platform//m
 # Install the required rust-stable and llvm22 extensions from Flathub
 flatpak install --user flathub org.freedesktop.Sdk.Extension.rust-stable//25.08 org.freedesktop.Sdk.Extension.llvm22//25.08
 ```
+
+These match the development manifest, `build-aux/org.tunaos.mandelbrot.Devel.json`. The release
+manifest, `org.tunaos.mandelbrot.json`, uses `org.gnome.Sdk//50` and `org.gnome.Platform//50` from
+Flathub instead.
 
 If you are building the flatpak manually you will also need flatpak-builder on your system, or the
 `org.flatpak.Builder` flatpak from Flathub.
@@ -127,7 +183,8 @@ flatpak remove --delete-data org.tunaos.mandelbrot.Devel
 ### GNU/Linux
 
 If you decide to ignore our recommendation and build on your host system, outside of Flatpak, you
-will need Meson and Ninja.
+will need Meson and Ninja, and the system libraries listed in
+[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#host-builds).
 
 ```sh
 meson setup --prefix=/usr/local _build
@@ -205,8 +262,8 @@ such as DeepL.
 
 ### Project-related use of LLMs
 
-We heavily discourage the use of LLM chat bots as a replacement for reading Mandelbrot's
-documentation and API references.
+We heavily discourage the use of LLM chat bots as a replacement for reading Fractal's documentation
+and API reference.
 
 Support requests referencing misleading or false LLM output relating to the project may be ignored,
 since it is a waste of time for us to "debug" where things went wrong based on this output before
