@@ -23,8 +23,7 @@ on:
   pull_request:
     types: [opened, reopened, ready_for_review]
 
-permissions:
-  pull-requests: write
+permissions: {}
 
 concurrency:
   group: drop-bot-review-requests-${{ github.event.pull_request.number }}
@@ -36,6 +35,8 @@ jobs:
       github.event.pull_request.user.type == 'Bot' &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Remove auto-requested reviewers
         env:
