@@ -7,35 +7,24 @@ name: MatrixRTC e2e
 #
 # This workflow runs the *harness* suite in tests/e2e/, which needs a live
 # synapse + LiveKit + lk-jwt-service stack and a join_call binary built
-# against libwebrtc. It is deliberately NOT a merge gate:
+# against libwebrtc. It runs nightly, on manual dispatch, and on every pull
+# request that touches what a call depends on (see `paths:` below; Renovate's
+# dependency PRs included). Measured on ubuntu-latest (run 42387113772): the
+# whole job takes ~10 minutes with a warm cargo cache — Clang ~2.5 min, the
+# join_call build ~2.5 min, image pull 10 s, TEST 1 ~30 s, TEST 3 ~70 s,
+# TEST 4 ~35 s — so the full suite runs on PRs too.
 #
-#   - the cold build of the `livekit` feature pulls libwebrtc and takes ~10
-#     minutes even with a warm cargo cache,
-#   - it pulls ~1.5 GB of container images,
-#   - the media assertions depend on real SFU timing and are inherently
-#     flakier than the unit suite,
-#   - the federated variant runs two homeservers, two SFUs and two auth
-#     services at once.
+# Because of the `paths:` filter this cannot be a *required* check (GitHub
+# leaves a path-skipped required check pending forever). Renovate instead
+# merges the updates it covers itself, after every check including this one
+# is green; see renovate.json.
 #
-# UNVERIFIED PATH — read before trusting a red run. The harness was authored
-# and exercised under **rootless podman + podman-compose** on a developer
-# host. This workflow runs it under **docker compose on ubuntu-latest**,
-# which nobody has executed yet. The first scheduled run is a shakeout, and
-# the two known divergences to look for are:
-#
-#   - `nginx/nginx.conf` and `nginx/nginx-federated.conf` reach the host
-#     gateway as `host.containers.internal`, which is podman's name for it;
-#     Docker calls it `host.docker.internal`. Only the MatrixRTC proxy
-#     `server` blocks use it, which the native clients do not go through, so
-#     this may not bite — but it is the first thing to check.
-#   - compose provider selection. This one did bite, on every scheduled run:
-#     detection ranked podman ahead of docker on binary presence alone, and
-#     ubuntu-latest ships a podman binary whose socket is never started, so
-#     the harness picked `podman compose` and died on `up -d`. The `COMPOSE`
-#     below was meant to override that, but `run-interop.sh` carried its own
-#     inlined copy of the detection that ignored the variable. Every script
-#     now honours a preset `COMPOSE`, and unpinned detection probes that a
-#     provider can actually reach an engine rather than that it is on PATH.
+# The harness was written against rootless podman + podman-compose; here it
+# runs under docker compose, forced with COMPOSE below because ubuntu-latest
+# ships a podman binary whose socket is never started. `nginx/*.conf` reach
+# the host gateway as `host.containers.internal` (podman's name); only the
+# MatrixRTC proxy `server` blocks use it, which the native clients do not go
+# through.
 #
 # Runner requirements, and why a GitHub-hosted `ubuntu-latest` runner should
 # be able to host this at all:
