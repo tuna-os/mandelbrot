@@ -197,15 +197,19 @@ mod imp {
                 return;
             }
 
-            if self.edit_details_btn.get_visible() {
-                debug_assert!(self.edit_details_btn.grab_focus());
+            // Call `grab_focus()` outside of `debug_assert!`, which is not
+            // evaluated at all in release builds.
+            let focused = if self.edit_details_btn.get_visible() {
+                self.edit_details_btn.grab_focus()
             } else if self.direct_members_group.get_visible() {
-                debug_assert!(self.direct_members_list.grab_focus());
+                self.direct_members_list.grab_focus()
             } else if self.members_row_group.get_visible() {
-                debug_assert!(self.members_row.grab_focus());
+                self.members_row.grab_focus()
             } else {
                 error!("No widget to focus on besides the topic!");
-            }
+                return;
+            };
+            debug_assert!(focused);
         }
     }
     impl PreferencesPageImpl for GeneralPage {}
