@@ -125,11 +125,11 @@ flatpak remote-add --user --if-not-exists gnome-nightly https://nightly.gnome.or
 flatpak install --user gnome-nightly org.gnome.Sdk//master org.gnome.Platform//master
 
 # Install the required rust-stable and llvm22 extensions from Flathub
-flatpak install --user flathub org.freedesktop.Sdk.Extension.rust-stable//25.08 org.freedesktop.Sdk.Extension.llvm22//25.08
+flatpak install --user flathub org.freedesktop.Sdk.Extension.rust-stable//26.08 org.freedesktop.Sdk.Extension.llvm22//26.08
 ```
 
 These match the development manifest, `build-aux/org.tunaos.mandelbrot.Devel.json`. The release
-manifest, `org.tunaos.mandelbrot.json`, uses `org.gnome.Sdk//50` and `org.gnome.Platform//50` from
+manifest, `org.tunaos.mandelbrot.json`, uses `org.gnome.Sdk//51` and `org.gnome.Platform//51` from
 Flathub instead.
 
 If you are building the flatpak manually you will also need flatpak-builder on your system, or the

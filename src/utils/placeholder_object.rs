@@ -36,3 +36,11 @@ impl PlaceholderObject {
         glib::Object::builder().property("id", id).build()
     }
 }
+
+impl PartialEq<str> for PlaceholderObject {
+    /// Tests the equality between the `PlaceholderObject`'s ID and the given
+    /// string.
+    fn eq(&self, other: &str) -> bool {
+        self.id().eq(other)
+    }
+}

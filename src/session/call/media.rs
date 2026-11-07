@@ -231,24 +231,16 @@ async fn run(
     }
 
     // Keys that arrived before the connection was established.
-    if let Some(key_rings) = engine.get_encryption_keys() {
-        for ring in key_rings.values() {
-            connection.apply_key_ring(ring.iter());
-        }
-    }
+    apply_known_keys(&engine, &connection);
 
     let _ = tx.send(MediaEvent::Connected).await;
 
-    // Publish the microphone.
-    let mic = publish_microphone(&connection, muted).await;
-    let _mic_guard = match mic {
-        Ok(guard) => Some(guard),
-        Err(error) => {
-            // A call without a microphone is still useful to listen in.
-            warn!("Failed to publish the microphone: {error}");
-            None
-        }
-    };
+    // Publish the microphone. A call without a microphone is still useful to
+    // listen in.
+    let _mic_guard = publish_microphone(&connection, muted)
+        .await
+        .inspect_err(|error| warn!("Failed to publish the microphone: {error}"))
+        .ok();
 
     let mut video_tasks: Vec<JoinHandle<()>> = Vec::new();
     // The published camera track, if the camera is on. It is only published
@@ -328,14 +320,9 @@ async fn run(
                     new_connection.local_identity()
                 );
                 // Keys may have arrived while disconnected.
-                if let Some(key_rings) = engine.get_encryption_keys() {
-                    for ring in key_rings.values() {
-                        new_connection.apply_key_ring(ring.iter());
-                    }
-                }
-                // Drop the old connection and replace it.
-                let _old = std::mem::replace(&mut connection, new_connection);
-                drop(_old);
+                apply_known_keys(&engine, &new_connection);
+                // Replacing the old connection drops it.
+                connection = new_connection;
                 room_events = new_events;
                 reconnect_backoff = Duration::from_millis(200);
             }
@@ -353,7 +340,16 @@ async fn run(
     result
 }
 
-/// Fetch an OpenID token and SFU config, then connect to the LiveKit SFU.
+/// Apply every encryption key the session has received so far.
+fn apply_known_keys(engine: &RtcCallSession, connection: &LivekitCallConnection) {
+    if let Some(key_rings) = engine.get_encryption_keys() {
+        for ring in key_rings.values() {
+            connection.apply_key_ring(ring.iter());
+        }
+    }
+}
+
+/// Fetch an `OpenID` token and SFU config, then connect to the `LiveKit` SFU.
 async fn connect_to_sfu(
     client: &Client,
     http: &reqwest::Client,
@@ -611,10 +607,11 @@ async fn publish_microphone(
                     return Ok(gst::FlowSuccess::Ok);
                 };
                 let bytes = map.as_slice();
-                let mut samples = vec![0i16; bytes.len() / 2];
-                for (sample, chunk) in samples.iter_mut().zip(bytes.chunks_exact(2)) {
-                    *sample = i16::from_le_bytes([chunk[0], chunk[1]]);
-                }
+                let (chunks, _) = bytes.as_chunks::<2>();
+                let samples: Vec<i16> = chunks
+                    .iter()
+                    .map(|chunk| i16::from_le_bytes(*chunk))
+                    .collect();
                 // Drop frames if the pump cannot keep up.
                 let _ = samples_tx.try_send(samples);
                 Ok(gst::FlowSuccess::Ok)
