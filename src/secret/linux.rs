@@ -227,6 +227,7 @@ async fn log_out_session(session: StoredSession, access_token: String) {
 
 impl StoredSession {
     /// Build self from an item.
+    #[allow(clippy::result_large_err)]
     async fn try_from_secret_item(item: Item) -> Result<Self, LinuxSecretError> {
         let attributes = item.attributes().await?;
 
