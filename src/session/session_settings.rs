@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use gtk::{glib, prelude::*, subclass::prelude::*};
 use indexmap::IndexSet;
-use ruma::{OwnedServerName, events::media_preview_config::MediaPreviews};
+use ruma::{OwnedRoomId, OwnedServerName, events::media_preview_config::MediaPreviews};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
@@ -48,6 +48,13 @@ pub(crate) struct StoredSessionSettings {
     #[serde(default)]
     sections_expanded: SectionsExpanded,
 
+    /// The navigation path of the space selected in the sidebar, from a
+    /// top-level space to the selected (sub)space.
+    ///
+    /// Empty when "Home" is selected.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    space_path: Vec<OwnedRoomId>,
+
     /// Which rooms display media previews for this session.
     ///
     /// Legacy setting from version 0 of the stored settings.
@@ -70,6 +77,7 @@ impl Default for StoredSessionSettings {
             public_read_receipts_enabled: true,
             typing_enabled: true,
             sections_expanded: Default::default(),
+            space_path: Default::default(),
             media_previews_enabled: Default::default(),
             invite_avatars_enabled: Default::default(),
         }
@@ -262,6 +270,21 @@ impl SessionSettings {
             .borrow_mut()
             .sections_expanded
             .set_section_expanded(section_name, expanded);
+        session_list_settings().save();
+    }
+
+    /// The navigation path of the space selected in the sidebar.
+    pub(crate) fn space_path(&self) -> Vec<OwnedRoomId> {
+        self.imp().stored_settings.borrow().space_path.clone()
+    }
+
+    /// Set the navigation path of the space selected in the sidebar.
+    pub(crate) fn set_space_path(&self, path: Vec<OwnedRoomId>) {
+        if self.imp().stored_settings.borrow().space_path == path {
+            return;
+        }
+
+        self.imp().stored_settings.borrow_mut().space_path = path;
         session_list_settings().save();
     }
 }

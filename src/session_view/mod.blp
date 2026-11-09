@@ -50,5 +50,20 @@ template $SessionView: Adw.Bin {
       trigger: "<Control><Shift>Page_Up";
       action: "action(session.select-prev-unread-room)";
     }
+
+    Gtk.Shortcut {
+      trigger: "<Control><Alt>Page_Up";
+      action: "action(session.select-prev-space)";
+    }
+
+    Gtk.Shortcut {
+      trigger: "<Control><Alt>Page_Down";
+      action: "action(session.select-next-space)";
+    }
+
+    Gtk.Shortcut {
+      trigger: "<Control><Alt>Home";
+      action: "action(session.select-home)";
+    }
   }
 }

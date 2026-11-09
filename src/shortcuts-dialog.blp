@@ -73,6 +73,25 @@ Adw.ShortcutsDialog shortcuts_dialog {
   }
 
   Adw.ShortcutsSection {
+    title: C_("shortcut window", "Spaces");
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Next Space");
+      accelerator: "<ctrl><alt>Page_Down";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Previous Space");
+      accelerator: "<ctrl><alt>Page_Up";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Home");
+      accelerator: "<ctrl><alt>Home";
+    }
+  }
+
+  Adw.ShortcutsSection {
     title: C_("shortcut window", "Room History");
 
     Adw.ShortcutsItem {

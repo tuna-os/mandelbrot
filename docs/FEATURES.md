@@ -107,6 +107,39 @@ matrix-authentication-service):
   Element and other clients render them as voice messages. Playback of
   received voice messages was already supported.
 
+## Spaces
+
+* **Space switcher**: once you have joined a space, a rail on the left of the
+  room list shows "Home" and your top-level spaces, in the order other clients
+  set (`m.space_order`, MSC3230). On narrow windows the rail becomes an overlay:
+  open it with the "Show Spaces" button in the header bar or by swiping from
+  the left edge.
+
+* **Per-space room list**: selecting a space shows only the rooms of that
+  space and of all its subspaces, still grouped into Invited, Favorites,
+  Rooms, and so on. "Home" shows every room. The room you have open stays
+  open when you switch spaces, and search always covers every room.
+
+* **Subspaces**: inside a space, its subspaces are listed in the "Spaces"
+  section. Activating one opens it in the room list, with a back button to
+  the parent space.
+
+* **Unread badges**: each space in the rail adds up the unread state of its
+  rooms, subspaces included: the notification count (in the accent colour
+  when you were mentioned), or a dot for unread messages. Low-priority rooms
+  are not counted.
+
+* **Space overview**: the space name above the room list opens the space's
+  overview. It lists the space's rooms and subspaces, including the ones you
+  have not joined, with suggested rooms marked, and lets you join or knock.
+
+* **Keyboard**: `Ctrl+Alt+PgDn` / `Ctrl+Alt+PgUp` for the next / previous
+  space, `Ctrl+Alt+Home` for Home.
+
+* The selected space is remembered per account. Design notes and a comparison
+  with other clients:
+  [design/spaces-navigation.md](design/spaces-navigation.md).
+
 ## Under the hood
 
 * `matrixrtc/` — the MatrixRTC engine crate (membership state machine, E2EE

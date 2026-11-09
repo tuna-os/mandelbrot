@@ -30,6 +30,9 @@ mod imp {
         inner_model: OnceCell<gio::ListModel>,
         /// The filter of this section.
         filter: RoomCategoryFilter,
+        /// All the filters of this section: the category filter and the
+        /// extra filters.
+        pub(super) filters: gtk::EveryFilter,
         /// The name of this section.
         #[property(get, set = Self::set_name, construct_only, builder(SidebarSectionName::default()))]
         name: Cell<SidebarSectionName>,
@@ -108,9 +111,10 @@ mod imp {
                 // Filter the list to only show rooms for the proper category.
                 self.filter
                     .set_expression(Some(Room::this_expression("category").upcast()));
+                self.filters.append(self.filter.clone());
                 let filter_model = gtk::FilterListModel::builder()
                     .model(&model)
-                    .filter(&self.filter)
+                    .filter(&self.filters)
                     .watch_items(true)
                     .build();
 
@@ -282,6 +286,17 @@ impl SidebarSection {
             .property("name", name)
             .property("model", model)
             .build()
+    }
+
+    /// Add a filter to the rooms of this section, in addition to the filter
+    /// of its category.
+    ///
+    /// This has no effect if the source model of this section is not a
+    /// [`RoomList`].
+    pub(crate) fn add_room_filter(&self, filter: &impl IsA<gtk::Filter>) {
+        if self.model().is::<RoomList>() {
+            self.imp().filters.append(filter.clone());
+        }
     }
 
     /// Whether this section should be shown for the drag-n-drop of a room with

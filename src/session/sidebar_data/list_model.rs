@@ -125,6 +125,8 @@ mod imp {
 
             self.obj().notify_is_filtered();
             self.item_list().inhibit_expanded(is_filtered);
+            // Search in all the rooms, regardless of the selected space.
+            self.item_list().space_list().set_search_active(is_filtered);
             self.item_type_filter.changed(gtk::FilterChange::Different);
         }
     }
