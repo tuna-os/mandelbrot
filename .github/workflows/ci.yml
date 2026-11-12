@@ -22,7 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       # Pinned, not floating `@nightly`. rustfmt.toml turns on unstable
       # options (wrap_comments, normalize_comments among them) whose output
       # is not stable between nightlies: on 2026-09-01 a new nightly re-wrapped
@@ -31,17 +33,17 @@ jobs:
       # hooks/checks use this same toolchain rather than whatever `+nightly`
       # resolves to today. To bump: change both together and run
       # `cargo +<new> fmt --all` in the same commit.
-      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: nightly-2026-11-09
           components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: hooks/checks
       # Install the prebuilt binary rather than letting the checks tool build
       # it: compiling cargo-binstall from source on nightly currently fails
       # inside tokio, which has nothing to do with this repo.
-      - uses: cargo-bins/cargo-binstall@851112458b5f28a29e5bc14a690c3f283d9dcc6f # v1.26.2
+      - uses: cargo-bins/cargo-binstall@v1.26.2
       - name: Run pre-commit checks
         env:
           RUSTFMT_TOOLCHAIN: nightly-2026-08-28
@@ -53,14 +55,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, llvm-tools-preview
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: matrixrtc
-      - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
+      - uses: taiki-e/install-action@v2.90.3
         with:
           tool: cargo-llvm-cov
       # Formatting is enforced tree-wide by the checks job, which uses the
@@ -81,7 +85,7 @@ jobs:
             cargo llvm-cov report --manifest-path matrixrtc/Cargo.toml
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: matrixrtc-coverage-lcov
           path: matrixrtc/lcov.info
@@ -99,7 +103,9 @@ jobs:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-51
       options: --privileged
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - name: Install SDK extensions
         run: |
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
@@ -138,14 +144,16 @@ jobs:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-51
       options: --privileged
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@79327416609af08178ad73b352877e51450790b3 # v6.8
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.8
         with:
           bundle: Mandelbrot-Linux-CI.flatpak
           manifest-path: org.tunaos.mandelbrot.json
           cache-key: flatpak-builder-${{ github.sha }}
       - name: Upload Flatpak Artifact
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: Mandelbrot-Linux-CI
           path: Mandelbrot-Linux-CI.flatpak
