@@ -39,7 +39,7 @@ jobs:
       # `archs` input, not overridden below). Keep in sync if that changes.
       ARCHS: x86_64 aarch64
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -79,7 +79,7 @@ jobs:
       contents: write
       packages: write
     # Pinned to a reviewed tuna-os/.github commit; Renovate bumps the digest.
-    uses: tuna-os/.github/.github/workflows/publish-flatpak.yml@794ded942d9de91b886b1bc82c1f663bc36ba61d # main
+    uses: tuna-os/.github/.github/workflows/publish-flatpak.yml@794ded942d9de91b886b1bc82c1f663bc36ba61d # main  # zizmor: ignore[ref-version-mismatch] pinned to a reviewed main commit; Renovate bumps the digest, so main may be ahead
     with:
       app-id: org.tunaos.mandelbrot
       manifest-path: org.tunaos.mandelbrot.json
