@@ -79,11 +79,12 @@ jobs:
       contents: write
       packages: write
     # Pinned to a reviewed tuna-os/.github commit; Renovate bumps the digest.
-    uses: tuna-os/.github/.github/workflows/publish-flatpak.yml@794ded942d9de91b886b1bc82c1f663bc36ba61d # main  # zizmor: ignore[ref-version-mismatch] pinned to a reviewed main commit; Renovate bumps the digest, so main may be ahead
+    uses: tuna-os/.github/.github/workflows/publish-flatpak.yml@4f08bf7b295f70306352e0e865b7f3d5bc08d5f6 # main  # zizmor: ignore[ref-version-mismatch] pinned to a reviewed main commit; Renovate bumps the digest, so main may be ahead
     with:
       app-id: org.tunaos.mandelbrot
       manifest-path: org.tunaos.mandelbrot.json
       repo-name: tuna-os/mandelbrot
-    # Only the secret the called workflow declares, not `secrets: inherit`.
+    # Only the secrets the called workflow declares, not `secrets: inherit`.
     secrets:
+      FLATPAK_INDEX_DEPLOY_KEY: ${{ secrets.FLATPAK_INDEX_DEPLOY_KEY }}
       FLATPAK_INDEX_TOKEN: ${{ secrets.FLATPAK_INDEX_TOKEN }}
