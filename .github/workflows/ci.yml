@@ -90,10 +90,12 @@ jobs:
           name: matrixrtc-coverage-lcov
           path: matrixrtc/lcov.info
           if-no-files-found: error
-      # Regression floor, set just under the 91.08% line coverage measured
-      # when this gate was added (see #67). Raise it as coverage grows.
+      # Regression floor, set just under the line coverage measured on the
+      # newest stable rustc (89.90% on 1.100.0; 91.08% on 1.99.1, when this
+      # gate was added, see #67). The figure moves with the compiler, so
+      # re-measure before raising it.
       - name: Coverage threshold
-        run: cargo llvm-cov report --manifest-path matrixrtc/Cargo.toml --fail-under-lines 90
+        run: cargo llvm-cov report --manifest-path matrixrtc/Cargo.toml --fail-under-lines 89
 
   clippy:
     name: "Clippy (flatpak sandbox)"
