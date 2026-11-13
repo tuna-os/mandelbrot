@@ -172,14 +172,21 @@ jobs:
   # bare runner rather than the flatpak container: it needs a Wayland
   # compositor (mutter, as upstream Fractal's UI tests use) that the
   # container image does not ship.
+  # Pinned to ubuntu-26.04 rather than ubuntu-latest: flatpak proxies the
+  # app's D-Bus through xdg-dbus-proxy, and Ubuntu 24.04's 0.1.5 predates
+  # pipelined SASL handshakes (added in 0.1.6), so every zbus connection the
+  # app opens (Settings and Secret portals) dies with "failed to read from
+  # socket" there. 26.04 ships 0.1.7.
   flatpak-smoke:
     name: "Flatpak launch smoke test"
     needs: flatpak
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8.0.2
         with:
           name: Mandelbrot-Linux-CI
       - name: Install flatpak and a headless compositor
@@ -199,7 +206,7 @@ jobs:
         run: tests/gui/run-flatpak-smoke.sh Mandelbrot-Linux-CI.flatpak
       - name: Upload the smoke-test logs
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: flatpak-smoke-logs
           path: smoke-logs

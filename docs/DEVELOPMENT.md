@@ -203,7 +203,8 @@ Locally:
 
 ```sh
 # The smoke test, against a bundle (e.g. the Mandelbrot-Linux-CI artifact of a PR's CI run).
-# Needs flatpak, mutter, dbus, gnome-keyring, libsecret-tools, xdg-desktop-portal(-gtk).
+# Needs flatpak, mutter, dbus, gnome-keyring, libsecret-tools, xdg-desktop-portal(-gtk), and
+# xdg-dbus-proxy >= 0.1.6 (Ubuntu 24.04's 0.1.5 breaks the app's zbus portal calls).
 gh run download <run-id> -n Mandelbrot-Linux-CI
 tests/gui/run-flatpak-smoke.sh Mandelbrot-Linux-CI.flatpak
 

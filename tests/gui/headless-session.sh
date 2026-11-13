@@ -8,8 +8,10 @@
 # Wayland display rather than Broadway.
 #
 # Host requirements: flatpak, mutter, dbus-daemon (dbus-run-session),
-# xdg-dbus-proxy (a flatpak dependency), gnome-keyring, libsecret-tools,
-# xdg-desktop-portal, xdg-desktop-portal-gnome and xdg-desktop-portal-gtk.
+# xdg-dbus-proxy >= 0.1.6 (a flatpak dependency; older ones cannot proxy
+# zbus's pipelined auth, so the app's portal calls fail), gnome-keyring,
+# libsecret-tools, xdg-desktop-portal, xdg-desktop-portal-gnome and
+# xdg-desktop-portal-gtk.
 #
 # Everything the app writes goes under $WORK: HOME, the XDG base dirs and
 # XDG_RUNTIME_DIR are all private, so a run never sees or touches the user's
