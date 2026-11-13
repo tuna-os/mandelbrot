@@ -116,9 +116,13 @@ jobs:
         run: |
           flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse \
             --stop-at=fractal flatpak_app org.tunaos.mandelbrot.json
+      # With the features the shipped bundle has: the manifest configures
+      # `-Dcalls-media=true`, so without it the call media code
+      # (src/session/call/media.rs and its callers) is neither linted nor
+      # tested here.
       - name: Run clippy
         run: |
-          echo "cargo clippy --workspace --all-targets -- -D warnings" | \
+          echo "cargo clippy --workspace --all-targets --features calls-media -- -D warnings" | \
             flatpak-builder --disable-rofiles-fuse --build-shell=fractal \
             flatpak_app org.tunaos.mandelbrot.json
       # The root crate's unit tests. Nothing else in CI runs them: the flatpak
@@ -135,7 +139,7 @@ jobs:
           ninja -C "$FLATPAK_BUILDER_BUILDDIR/_flatpak_build" data/resources/resources.gresource src/ui-resources.gresource
           gtk4-broadwayd :5 >/dev/null 2>&1 &
           export GDK_BACKEND=broadway BROADWAY_DISPLAY=:5
-          cargo test --workspace
+          cargo test --workspace --features calls-media
           EOF
 
   flatpak:
@@ -161,3 +165,50 @@ jobs:
           path: Mandelbrot-Linux-CI.flatpak
           retention-days: 7
           if-no-files-found: error
+
+  # Installs the bundle the job above built and starts it, so a dependency or
+  # runtime bump that still compiles but no longer launches (missing library
+  # or schema, a startup panic, a GTK critical) cannot go green. Runs on the
+  # bare runner rather than the flatpak container: it needs a Wayland
+  # compositor (mutter, as upstream Fractal's UI tests use) that the
+  # container image does not ship.
+  # Pinned to ubuntu-26.04 rather than ubuntu-latest: flatpak proxies the
+  # app's D-Bus through xdg-dbus-proxy, and Ubuntu 24.04's 0.1.5 predates
+  # pipelined SASL handshakes (added in 0.1.6), so every zbus connection the
+  # app opens (Settings and Secret portals) dies with "failed to read from
+  # socket" there. 26.04 ships 0.1.7.
+  flatpak-smoke:
+    name: "Flatpak launch smoke test"
+    needs: flatpak
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: Mandelbrot-Linux-CI
+      - name: Install flatpak and a headless compositor
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends flatpak mutter dbus jq \
+            gnome-keyring libsecret-tools xdg-desktop-portal xdg-desktop-portal-gnome \
+            xdg-desktop-portal-gtk at-spi2-core
+          # bubblewrap needs unprivileged user namespaces, which Ubuntu's
+          # AppArmor policy denies to unconfined programs by default.
+          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+      - name: Launch the bundle headless
+        env:
+          OUT: ${{ github.workspace }}/smoke-logs
+        run: tests/gui/run-flatpak-smoke.sh Mandelbrot-Linux-CI.flatpak
+      - name: Upload the smoke-test logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: flatpak-smoke-logs
+          path: smoke-logs
+          if-no-files-found: warn
+          retention-days: 7

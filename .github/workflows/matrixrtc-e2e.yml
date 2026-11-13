@@ -7,35 +7,24 @@ name: MatrixRTC e2e
 #
 # This workflow runs the *harness* suite in tests/e2e/, which needs a live
 # synapse + LiveKit + lk-jwt-service stack and a join_call binary built
-# against libwebrtc. It is deliberately NOT a merge gate:
+# against libwebrtc. It runs nightly, on manual dispatch, and on every pull
+# request that touches what a call depends on (see `paths:` below; Renovate's
+# dependency PRs included). Measured on ubuntu-latest (run 42387113772): the
+# whole job takes ~10 minutes with a warm cargo cache — Clang ~2.5 min, the
+# join_call build ~2.5 min, image pull 10 s, TEST 1 ~30 s, TEST 3 ~70 s,
+# TEST 4 ~35 s — so the full suite runs on PRs too.
 #
-#   - the cold build of the `livekit` feature pulls libwebrtc and takes ~10
-#     minutes even with a warm cargo cache,
-#   - it pulls ~1.5 GB of container images,
-#   - the media assertions depend on real SFU timing and are inherently
-#     flakier than the unit suite,
-#   - the federated variant runs two homeservers, two SFUs and two auth
-#     services at once.
+# Because of the `paths:` filter this cannot be a *required* check (GitHub
+# leaves a path-skipped required check pending forever). Renovate instead
+# merges the updates it covers itself, after every check including this one
+# is green; see renovate.json.
 #
-# UNVERIFIED PATH — read before trusting a red run. The harness was authored
-# and exercised under **rootless podman + podman-compose** on a developer
-# host. This workflow runs it under **docker compose on ubuntu-latest**,
-# which nobody has executed yet. The first scheduled run is a shakeout, and
-# the two known divergences to look for are:
-#
-#   - `nginx/nginx.conf` and `nginx/nginx-federated.conf` reach the host
-#     gateway as `host.containers.internal`, which is podman's name for it;
-#     Docker calls it `host.docker.internal`. Only the MatrixRTC proxy
-#     `server` blocks use it, which the native clients do not go through, so
-#     this may not bite — but it is the first thing to check.
-#   - compose provider selection. This one did bite, on every scheduled run:
-#     detection ranked podman ahead of docker on binary presence alone, and
-#     ubuntu-latest ships a podman binary whose socket is never started, so
-#     the harness picked `podman compose` and died on `up -d`. The `COMPOSE`
-#     below was meant to override that, but `run-interop.sh` carried its own
-#     inlined copy of the detection that ignored the variable. Every script
-#     now honours a preset `COMPOSE`, and unpinned detection probes that a
-#     provider can actually reach an engine rather than that it is on PATH.
+# The harness was written against rootless podman + podman-compose; here it
+# runs under docker compose, forced with COMPOSE below because ubuntu-latest
+# ships a podman binary whose socket is never started. `nginx/*.conf` reach
+# the host gateway as `host.containers.internal` (podman's name); only the
+# MatrixRTC proxy `server` blocks use it, which the native clients do not go
+# through.
 #
 # Runner requirements, and why a GitHub-hosted `ubuntu-latest` runner should
 # be able to host this at all:
@@ -69,6 +58,21 @@ on:
         default: all
         type: choice
         options: [all, interop, resilience, restricted-sfu, huddle, federation]
+  # Every PR that can break a call: dependency bumps (Renovate's included —
+  # its branches live in this repository, so they get a normal pull_request
+  # run), the calling code on both sides of the crate boundary, the harness
+  # itself and the Flatpak manifest that pins the media stack.
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "matrixrtc/**"
+      - "src/session/call/**"
+      - "src/session_view/call/**"
+      - "tests/e2e/**"
+      - "org.tunaos.mandelbrot.json"
+      - ".github/workflows/matrixrtc-e2e.yml"
   schedule:
     # 04:17 UTC daily, offset off the hour to avoid the scheduling stampede.
     - cron: "17 4 * * *"
@@ -106,6 +110,9 @@ jobs:
           # The livekit feature dominates the build; keep it in its own cache
           # slot so the fast PR job's cache is not evicted by it.
           key: livekit
+          # A red scenario is not a broken build: keep the ~10 minute
+          # libwebrtc build cached even when a TEST step below fails.
+          cache-on-failure: true
 
       # webrtc-sys compiles against Chromium's hermetic libc++, whose headers
       # require Clang 21 or newer. ubuntu-latest still defaults to Clang 18.
@@ -125,61 +132,59 @@ jobs:
           # builds get them from the GNOME SDK; a bare ubuntu runner does not.
 
       - name: Build the join_call example
+        id: build
         run: |
           cargo build --manifest-path matrixrtc/Cargo.toml \
             --features livekit --example join_call
           ls -l matrixrtc/target/debug/examples/join_call
 
       - name: Pull the container images
+        id: pull
         working-directory: tests/e2e
         run: docker compose -f compose.yml -f compose-federated.yml pull -q
 
+      # Every scenario runs whenever the binary and the images are there, even
+      # after an earlier one failed: each script brings its own stack up and
+      # tears it down, and a red TEST 4 must not hide whether 5 and 6 work.
       - name: TEST 1 — native <-> native interop
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'interop' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'interop') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
         run: ./run-interop.sh
 
       - name: TEST 3 — reconnect / resilience
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'resilience' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'resilience') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
         run: ./run-resilience.sh
 
       - name: TEST 4 — restricted SFU / JWT behaviour
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'restricted-sfu' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'restricted-sfu') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
         run: ./run-restricted-sfu.sh
 
       - name: TEST 5 — group call (huddle)
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'huddle' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'huddle') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
         run: ./run-huddle.sh 5
 
       - name: TEST 6 — federated call (two homeservers)
-        if: ${{ env.SUITE == 'all' || env.SUITE == 'federation' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pull.outcome == 'success' && (env.SUITE == 'all' || env.SUITE == 'federation') }}
         working-directory: tests/e2e
         env:
           JOIN_CALL_BIN: ${{ github.workspace }}/matrixrtc/target/debug/examples/join_call
+        # Both orders, even when the first fails.
         run: |
-          ./run-federation.sh remote-first
-          ./run-federation.sh local-first
-
-      - name: Collect container logs on failure
-        if: ${{ failure() }}
-        working-directory: tests/e2e
-        run: |
-          mkdir -p logs/containers
-          for c in $(docker ps -aq); do
-            name=$(docker inspect --format '{{.Name}}' "$c" | tr -d /)
-            docker logs "$c" >"logs/containers/$name.log" 2>&1 || true
-          done
+          rc=0
+          ./run-federation.sh remote-first || rc=1
+          ./run-federation.sh local-first || rc=1
+          exit "$rc"
 
       - name: Upload the evidence bundles
         if: ${{ !cancelled() }}
