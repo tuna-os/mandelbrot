@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **Development moved to [tuna-os/gtk-office-suite](https://github.com/tuna-os/gtk-office-suite) (`mandelbrot/`) on 2026-11-13.** Report problems in [its issues](https://github.com/tuna-os/gtk-office-suite/issues?q=is%3Aissue+label%3Amandelbrot) with the `mandelbrot` label; releases are tagged `mandelbrot-v*` in [its releases](https://github.com/tuna-os/gtk-office-suite/releases). This repository takes no new work and will be archived (#254). Existing installs keep updating.
+
 <div align="center">
 
 <img src="data/icons/org.tunaos.mandelbrot.svg" alt="" />
