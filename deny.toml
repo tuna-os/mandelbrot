@@ -19,6 +19,10 @@ ignore = [
     # which nothing here enables: libsqlite3-sys resolves with only `pkg-config`/`vcpkg` and links
     # the runtime's system SQLite, whose version decides the real exposure.
     { id = "RUSTSEC-2026-0459", reason = "bundled SQLite not built (system SQLite linked); fixed libsqlite3-sys needs rusqlite 0.41, which no matrix-sdk-sqlite release allows yet" },
+    # chrono: unmaintained (chronotope/chrono#1768), every version affected, no release to move
+    # to. Nothing here names it; it comes in through matrix-sdk, oauth2 and the livekit crates.
+    # The move to jiff or time is tracked in #263; drop this entry when chrono leaves the tree.
+    { id = "RUSTSEC-2026-0543", reason = "chrono unmaintained, no patched release; via matrix-sdk/oauth2/livekit — migrate to jiff or time upstream (#263); review by 2027-01-01" },
 ]
 
 [bans]
