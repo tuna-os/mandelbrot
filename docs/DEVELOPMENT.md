@@ -199,6 +199,10 @@ is green. The app's own matrix-sdk/ruma/LiveKit bumps and action bumps in `publi
 never automerge: no check runs a call inside the app, and nothing on a PR runs the publish
 workflow.
 
+Development moved to tuna-os/gtk-office-suite on 2026-11-13, so Renovate here raises only
+vulnerability fixes (`security:only-security-updates` in `renovate.json`), for the releases this
+repository still publishes until the suite takes them over. Routine bumps are made in the suite.
+
 Locally:
 
 ```sh
