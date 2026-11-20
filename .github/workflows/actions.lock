@@ -15,6 +15,7 @@ workflows:
         - 'flatpak/flatpak-github-actions@v6.8'
         - 'swatinem/rust-cache@v2.9.3'
         - 'taiki-e/install-action@v2.90.3'
+        - 'tuna-os/.github/.github/actions/flatpak-copy-up@main'
     '.github/workflows/drop-bot-review-requests.yml': []
     '.github/workflows/matrixrtc-e2e.yml':
         - 'actions/checkout@v7.0.1'
@@ -75,6 +76,11 @@ dependencies:
         commit: 'sha1-cfdb7ed4ccc7c7dce37759eae89dc5674b469b39'
         owner_id: 43724913
         repo_id: 442947557
+    'tuna-os/.github/.github/actions/flatpak-copy-up@main':
+        ref: 'main'
+        commit: 'sha1-25a52be5190f45c8b5d9c2a31c4131b50f9e4d0f'
+        owner_id: 223733964
+        repo_id: 1187761922
     'zizmorcore/zizmor-action@v0.8.1':
         ref: 'v0.8.1'
         commit: 'sha1-45d7276c9ca790aabd705e31ca99c6185c3e76dd'
