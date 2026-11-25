@@ -1,5 +1,12 @@
 # Contributing to Mandelbrot
 
+> [!IMPORTANT]
+> **Development moved to [tuna-os/gtk-office-suite](https://github.com/tuna-os/gtk-office-suite)
+> (`mandelbrot/`) on 2026-11-13.** Contribute there: report problems in [its
+> issues](https://github.com/tuna-os/gtk-office-suite/issues?q=is%3Aissue+label%3Amandelbrot) with
+> the `mandelbrot` label, and open pull requests against it. This repository takes no new work and
+> will be archived (#254).
+
 [Mandelbrot](https://github.com/tuna-os/mandelbrot) is a downstream fork of
 [GNOME Fractal](https://gitlab.gnome.org/World/fractal). This guide covers
 Mandelbrot development and its GitHub contribution workflow.
@@ -29,7 +36,7 @@ These resources can help with Rust and GTK development:
 Read the [feature overview](docs/FEATURES.md) and
 [upstream relationship](docs/UPSTREAM.md) before choosing where to report a
 problem. Mandelbrot-specific issues belong in the
-[Mandelbrot issue tracker](https://github.com/tuna-os/mandelbrot/issues).
+[Mandelbrot issue tracker](https://github.com/tuna-os/gtk-office-suite/issues?q=is%3Aissue+label%3Amandelbrot).
 Problems that also reproduce in Fractal belong in the
 [Fractal issue tracker](https://gitlab.gnome.org/World/fractal/-/issues).
 
